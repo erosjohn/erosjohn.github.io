@@ -365,7 +365,7 @@
                 
               
 
-              <time title="创建时间：2019-04-10 21:18:42 / 修改时间：22:22:58" itemprop="dateCreated datePublished" datetime="2019-04-10T21:18:42+08:00">2019-04-10</time>
+              <time title="创建时间：2019-04-10 21:18:42 / 修改时间：22:27:50" itemprop="dateCreated datePublished" datetime="2019-04-10T21:18:42+08:00">2019-04-10</time>
             
 
             
@@ -423,23 +423,8 @@
 
       
         
-          
-            <p>
-              
-
-函数介绍创建互斥锁
-CreateMutex
-IpMutexAttributes[in,optional],NULL的话就是该句柄不能由子进程继承。
-bIntialOwner[in],BOOL值，调用线程能否获得互斥锁所有权。
-IpName[in,optional],互斥对象名称。
-
-
-C语言代码BOOL IsAlreadyRun()&#123;	HANDLE hMutex = NULL;	hMutex = ::CreateMutex(NULL, FALSE, "TEST");	if (hMutex)	&#123;		if (ERROR_ALREADY_EXISTS == ::GetLastError())		&#123;			return TRUE;		&#125;	&#125;	return FALSE;&#125;
-
-实现结果图片
-
-              
-            </p>
+          <p><img src="/2019/04/10/windows编程-单次运行/bg.jpg" alt="美图"></p>
+<hr>
           <!--noindex-->
           
             <div class="post-button text-center">
