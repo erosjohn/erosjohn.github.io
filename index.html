@@ -432,8 +432,11 @@ bIntialOwner[in],BOOL值，调用线程能否获得互斥锁所有权。
 IpName[in,optional],互斥对象名称。
 
 
-C语言代码BOOL IsAlreadyRun()&#123;	HANDLE hMutex = NULL;	hMut
-              ...
+C语言代码BOOL IsAlreadyRun()&#123;	HANDLE hMutex = NULL;	hMutex = ::CreateMutex(NULL, FALSE, "TEST");	if (hMutex)	&#123;		if (ERROR_ALREADY_EXISTS == ::GetLastError())		&#123;			return TRUE;		&#125;	&#125;	return FALSE;&#125;
+
+实现结果图片
+
+              
             </p>
           <!--noindex-->
           
