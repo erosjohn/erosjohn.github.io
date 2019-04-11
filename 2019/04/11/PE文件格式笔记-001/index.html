@@ -103,14 +103,17 @@
 
 
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="标签">
-<meta property="og:url" content="http://yoursite.com/tags/index.html">
+  <meta name="keywords" content="Windows,PE">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PE文件格式笔记-001">
+<meta property="og:url" content="http://yoursite.com/2019/04/11/PE文件格式笔记-001/index.html">
 <meta property="og:site_name" content="ErosJohn的氪金狗屋">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-04-10T12:56:04.433Z">
+<meta property="og:image" content="http://yoursite.com/2019/04/11/PE文件格式笔记-001/bg.jpg">
+<meta property="og:updated_time" content="2019-04-11T13:34:34.429Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="标签">
+<meta name="twitter:title" content="PE文件格式笔记-001">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/11/PE文件格式笔记-001/bg.jpg">
 
 
 
@@ -118,7 +121,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/tags/">
+  <link rel="canonical" href="http://yoursite.com/2019/04/11/PE文件格式笔记-001/">
 
 
 
@@ -128,7 +131,7 @@
   };
 </script>
 
-  <title>标签 | ErosJohn的氪金狗屋</title>
+  <title>PE文件格式笔记-001 | ErosJohn的氪金狗屋</title>
   
 
 
@@ -231,7 +234,7 @@
         
         
           
-          <li class="menu-item menu-item-tags menu-item-active">
+          <li class="menu-item menu-item-tags">
 
     
     
@@ -307,89 +310,226 @@
           
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
           
           <div id="content" class="content">
             
 
   <div id="posts" class="posts-expand">
     
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/11/PE文件格式笔记-001/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Eros John">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ErosJohn的氪金狗屋">
+    </span>
+
     
-    
-    <div class="post-block page">
       <header class="post-header">
 
-<h1 class="post-title" itemprop="name headline">标签
-
-</h1>
-
-<div class="post-meta">
-  
-  
-
-
-
-</div>
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
         
         
-          <div class="tag-cloud">
-            <div class="tag-cloud-title">
+          <h1 class="post-title" itemprop="name headline">PE文件格式笔记-001
+
               
-              
-                
-                  
-                
-              
-                
-                  
-                
-              
-              目前共计 2 个标签
-            </div>
-            <div class="tag-cloud-tags">
-              
-                <a href="/tags/PE/" style="font-size: 12px; color: #ccc">PE</a> <a href="/tags/Windows/" style="font-size: 30px; color: #111">Windows</a>
-              
-            </div>
-          </div>
+            
+          </h1>
         
-      </div>
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-11 21:24:07 / 修改时间：21:34:34" itemprop="dateCreated datePublished" datetime="2019-04-11T21:24:07+08:00">2019-04-11</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/二进制/" itemprop="url" rel="index"><span itemprop="name">二进制</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
       
+
+      
+        <p><img src="/2019/04/11/PE文件格式笔记-001/bg.jpg" alt="美图"></p>
+<a id="more"></a>
+<hr>
+<h1 id="0x01-名词解释"><a href="#0x01-名词解释" class="headerlink" title="0x01 名词解释"></a>0x01 名词解释</h1><ul>
+<li>头：泛指一个数据（块）结构的起始位置。</li>
+<li>偏移：用于指定文件中的某个位置。</li>
+<li>页：x86平台内存中管理数据的最小单位，大小一般为4KB。</li>
+<li>区段：指PE文件结构中的一个数据段。</li>
+<li>映像：泛指映射在内存中的PE结构的可执行文件（exe、dll、sys、ocx等）。</li>
+<li>字段：数据结构中的最小单位，从编程角度来看就是结构体中的成员。</li>
+</ul>
+<hr>
+<h1 id="0x02-MS-DOS头"><a href="#0x02-MS-DOS头" class="headerlink" title="0x02 MS-DOS头"></a>0x02 MS-DOS头</h1><h2 id="1-MS-DOS中代码含义"><a href="#1-MS-DOS中代码含义" class="headerlink" title="1.MS-DOS中代码含义"></a>1.MS-DOS中代码含义</h2><ul>
+<li>e_magic:MZ标志位，也叫魔数，表示这是一个MS-DOS下的可执行文件。</li>
+<li>e_cblp:文件末页字节数，在可执行页（页大小512B）最后一页中的字节数。如果其值为0，则表示最后一页全部被占用。</li>
+<li>e_cp:可执行文件中的页数。</li>
+<li>e_crlc:DOS Sub中重定位项的数目，可能为0。</li>
+<li>e_cparhdr:程序数据起始于头部之后，此字段可以用来计算相应的文件偏移。如果头部不是512B的倍数，一些操作系统或者程序可能执行失败。</li>
+<li>e_minalloc:最小附加内存段需求，除代码大小外最小需分配的内存段大小。</li>
+<li>e_maxalloc:最大附加内存段需求，除代码大小外最大需分配的内存段大小。</li>
+<li>e_ss:初始SS值，用来初始化SS（堆栈段）以启动可执行文件。</li>
+<li>e_sp:初始SP值，用来初始化SP（堆栈指针寄存器）的值。</li>
+<li>e_csum:可执行文件的校验和（或者直接置为0）。</li>
+<li>e_ip:初始IP值，初始化IP寄存器值（程序入口点）。</li>
+<li>e_cs:初始CS值，初始化CS段（与上一个字段组成CS:IP）。</li>
+<li>e_lfarlc:重定位表的偏移。</li>
+<li>e_ovno:代码附加数（为0x0则代表只有主程序）。</li>
+<li>e_res[4]:保留4个WORD大小的空间留作他用。</li>
+<li>e_oemid:OEM厂商的ID。</li>
+<li>e_oeminfo:OEM厂商的信息。</li>
+<li>e_res2[10]:保留10个WORD大小的空间留作他用。</li>
+<li>e_lfanew:新文件头地址，新的EXE文件头偏移地址。</li>
+</ul>
+<h2 id="2-重要字段"><a href="#2-重要字段" class="headerlink" title="2.重要字段"></a>2.重要字段</h2><p>一般情况下MS-DOS我们需要关注第一个e_magic以及最后一个e_lfanew。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> IMAGE_DOS_SIGNATURE 0x4D5A   <span class="comment">// MZ</span></span></span><br></pre></td></tr></table></figure></p>
+<p>第一个e_magic字段的值为0x4D5A，定义了这个值。<br>此字段告诉我们这是一个MS-DOS系统中的可执行文件。</p>
+<p>而e_lfanew字段引导我们找到新的EXE文件头（这个偏移指向的EXE文件几乎总是PE文件头），进而判断可执行文件是否为PE文件。</p>
+<h2 id="3-其他字段"><a href="#3-其他字段" class="headerlink" title="3.其他字段"></a>3.其他字段</h2><p>第13字段e_lfarlc，偏移为0x18的e_lfarlc字段指向的重定位表头部其实也是DOS Stub的其实偏移地址，由此往前推4个字节便是指向PE文件头e_lfanew的地址。（e_lfanew的偏移地址：0x3C）。</p>
+<hr>
+<h1 id="未完待续"><a href="#未完待续" class="headerlink" title="未完待续"></a>未完待续</h1>
       
     </div>
-    
-
-
 
     
+
     
     
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Windows/" rel="tag"># Windows</a>
+          
+            <a href="/tags/PE/" rel="tag"># PE</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/11/windows编程-资源释放/" rel="next" title="windows编程:资源释放">
+                <i class="fa fa-chevron-left"></i> windows编程:资源释放
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
   </div>
 
 
@@ -418,8 +558,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -520,6 +669,23 @@
         </div>
       </div>
 
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-名词解释"><span class="nav-number">1.</span> <span class="nav-text">0x01 名词解释</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x02-MS-DOS头"><span class="nav-number">2.</span> <span class="nav-text">0x02 MS-DOS头</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-MS-DOS中代码含义"><span class="nav-number">2.1.</span> <span class="nav-text">1.MS-DOS中代码含义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-重要字段"><span class="nav-number">2.2.</span> <span class="nav-text">2.重要字段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-其他字段"><span class="nav-number">2.3.</span> <span class="nav-text">3.其他字段</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#未完待续"><span class="nav-number">3.</span> <span class="nav-text">未完待续</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
       
 
       
