@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>windows编程-全局钩子 | ErosJohn&#39;s M.SPACE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="对于一个要励志学逆向的人来说，学好C/C++是必不可少的，这个系列用来记录我在学习Windows黑客编程时的一点心得体会。">
+<meta name="keywords" content="Windows">
+<meta property="og:type" content="article">
+<meta property="og:title" content="windows编程-全局钩子">
+<meta property="og:url" content="http://yoursite.com/2019/04/25/windows编程-全局钩子/index.html">
+<meta property="og:site_name" content="ErosJohn&#39;s M.SPACE">
+<meta property="og:description" content="对于一个要励志学逆向的人来说，学好C/C++是必不可少的，这个系列用来记录我在学习Windows黑客编程时的一点心得体会。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/04/25/windows编程-全局钩子/001.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/04/25/windows编程-全局钩子/002.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/04/25/windows编程-全局钩子/003.jpg">
+<meta property="og:updated_time" content="2019-04-25T08:02:04.625Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="windows编程-全局钩子">
+<meta name="twitter:description" content="对于一个要励志学逆向的人来说，学好C/C++是必不可少的，这个系列用来记录我在学习Windows黑客编程时的一点心得体会。">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/25/windows编程-全局钩子/001.jpg">
+  
+    <link rel="alternative" href="/atom.xml" title="ErosJohn&#39;s M.SPACE" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/img/favicon.png">
+  
+  
+      <link rel="stylesheet" href="//cdn.bootcss.com/animate.css/3.5.0/animate.min.css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  
+      <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  
+  <!-- 加载特效 -->
+    <script src="/js/pace.js"></script>
+    <link href="/css/pace/pace-theme-flash.css" rel="stylesheet">
+  <script>
+      var yiliaConfig = {
+          rootUrl: '/',
+          fancybox: true,
+          animate: true,
+          isHome: false,
+          isPost: true,
+          isArchive: false,
+          isTag: false,
+          isCategory: false,
+          open_in_new: false
+      }
+  </script>
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            
+            <img lazy-src="/img/head.jpg" class="js-avatar">
+            
+        </a>
+
+        <hgroup>
+          <h1 class="header-author"><a href="/" title="Hi Mate">Eros John</a></h1>
+        </hgroup>
+
+        
+        
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/.">博客首页</a></li>
+                        
+                            <li><a href="/archives">陈年旧事</a></li>
+                        
+                            <li><a href="/tags">标签分类</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fl github" target="_blank" href="https://github.com/erosjohn" title="github">github</a>
+                            
+                                <a class="fl google" target="_blank" href="/erosjohn09" title="google">google</a>
+                            
+                                <a class="fl twitter" target="_blank" href="/Erosjohn1" title="twitter">twitter</a>
+                            
+                                <a class="fl wechat" target="_blank" href="/wenger1998" title="wechat">wechat</a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <a href="/tags/CrackMe/" style="font-size: 15px;">CrackMe</a> <a href="/tags/PE/" style="font-size: 10px;">PE</a> <a href="/tags/Windows/" style="font-size: 20px;">Windows</a>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://luuman.github.io/">name</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">改过自新，专心学习二进制。</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="Me">Eros John</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                
+                    <img lazy-src="/img/head.jpg" class="js-avatar">
+                
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="Me">Eros John</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/.">博客首页</a></li>
+                
+                    <li><a href="/archives">陈年旧事</a></li>
+                
+                    <li><a href="/tags">标签分类</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                <div class="social">
+                    
+                        <a class="github" target="_blank" href="https://github.com/erosjohn" title="github">github</a>
+                    
+                        <a class="google" target="_blank" href="/erosjohn09" title="google">google</a>
+                    
+                        <a class="twitter" target="_blank" href="/Erosjohn1" title="twitter">twitter</a>
+                    
+                        <a class="wechat" target="_blank" href="/wenger1998" title="wechat">wechat</a>
+                    
+                </div>
+            </nav>
+        </header>                
+    </div>
+</nav>
+      <div class="body-wrap"><article id="post-windows编程-全局钩子" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/04/25/windows编程-全局钩子/" class="article-date">
+      <time datetime="2019-04-25T07:08:14.000Z" itemprop="datePublished">2019-04-25</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      windows编程-全局钩子
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Windows黑客编程/">Windows黑客编程</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Windows/">Windows</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>对于一个要励志学逆向的人来说，学好C/C++是必不可少的，这个系列用来记录我在学习Windows黑客编程时的一点心得体会。</p>
+<a id="more"></a>
+<hr>
+<h1 id="函数介绍"><a href="#函数介绍" class="headerlink" title="函数介绍"></a>函数介绍</h1><h2 id="SetWindowsHookEx"><a href="#SetWindowsHookEx" class="headerlink" title="SetWindowsHookEx"></a>SetWindowsHookEx</h2><h3 id="函数功能"><a href="#函数功能" class="headerlink" title="函数功能"></a>函数功能</h3><p>将程序定义的钩子函数安装到挂钩链中，安装钩子程序可以监视系统是否存在某些类型的事件，这些事件与特定线程或调用线程所在桌面中的所有线程相关联。</p>
+<h3 id="函数声明"><a href="#函数声明" class="headerlink" title="函数声明"></a>函数声明</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">HHOOK WINAPI <span class="title">SetWindowsHookEx</span><span class="params">( </span></span></span><br><span class="line"><span class="function"><span class="params">	_In_ <span class="keyword">int</span>       idHook, </span></span></span><br><span class="line"><span class="function"><span class="params">	_In_ HOOKPROC  lpfn,</span></span></span><br><span class="line"><span class="function"><span class="params">	_In_ HINSTANCE hMod,</span></span></span><br><span class="line"><span class="function"><span class="params">	_In_ DWORD     dwThreadId )</span></span>;</span><br></pre></td></tr></table></figure>
+<h3 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h3><h4 id="idHook-in"><a href="#idHook-in" class="headerlink" title="idHook[in]"></a>idHook[in]</h4><ul>
+<li>WH_CALLWNDPROC(4): 安装一个挂钩处理过程,在系统将消息发送至目标窗口处理过程之前,对该消息进行监视。</li>
+<li>WH_CALLWNDPROCRET(12) :安装一个挂钩处理过程,它对已被目标窗口处理过程处理过了的消息进行监视。</li>
+<li>WH_CBT(5) :安装一个挂钩处理过程,接受对CBT应用程序有用的消息 。</li>
+<li>WH_DEBUG(9):安装一个挂钩处理过程以便对其他挂钩处理过程进行调试。</li>
+<li>WH_FOREGROUNDIDLE(11):安装一个挂钩处理过程,该挂钩处理过程当应用程序的前台线程即将进入空闲状态时被调用,它有助于在空闲时间内执行低优先级的任务。</li>
+<li>WH_GETMESSAGE(3):安装一个挂钩处理过程对寄送至消息队列的消息进行监视。</li>
+<li>WH_JOURNALPLAYBACK(1):安装一个挂钩处理过程,对此前由WH_JOURNALRECORD 挂钩处理过程纪录的消息进行寄送。</li>
+<li>WH_JOURNALRECORD(0):安装一个挂钩处理过程,对寄送至系统消息队列的输入消息进行纪录。</li>
+<li>WH_KEYBOARD(2):安装一个挂钩处理过程对击键消息进行监视。</li>
+<li>WH_KEYBOARD_LL(13):此挂钩只能在Windows NT中被安装,用来对底层的键盘输入事件进行监视。</li>
+<li>WH_MOUSE(7):安装一个挂钩处理过程,对鼠标消息进行监视.。</li>
+<li>WH_MOUSE_LL(14):此挂钩只能在Windows NT中被安装,用来对底层的鼠标输入事件进行监视。</li>
+<li>WH_MSGFILTER(-1):安装一个挂钩处理过程, 以监视由对话框、消息框、菜单条、或滚动条中的输入事件引发的消息。</li>
+<li>WH_SHELL(10):安装一个挂钩处理过程以接受对外壳应用程序有用的通知。</li>
+<li>WH_SYSMSGFILTER(6):安装一个挂钩处理过程,以监视由对话框、消息框、菜单条、或滚动条中的输入事件引发的消息.这个挂钩处理过程对系统中所有应用程序的这类消息都进行监视。</li>
+</ul>
+<h4 id="lpfn-in"><a href="#lpfn-in" class="headerlink" title="lpfn[in]"></a>lpfn[in]</h4><p>指向相应的挂钩处理过程.若参数dwThreadId为0或者指示了一个其他进程创建的线程之标识符,则参数lpfn必须指向一个动态链接中的挂钩处理过程.否则,参数lpfn可以指向一个与当前进程相关的代码中定义的挂钩处理过程。</p>
+<h4 id="hMod-in"><a href="#hMod-in" class="headerlink" title="hMod[in]"></a>hMod[in]</h4><p>指示了一个动态链接的句柄,该动态连接库包含了参数lpfn 所指向的挂钩处理过程.若参数dwThreadId指示的线程由当前进程创建,并且相应的挂钩处理过程定义于当前进程相关的代码中,则参数hMod必须被设置为NULL。</p>
+<h4 id="dwThreadId"><a href="#dwThreadId" class="headerlink" title="dwThreadId"></a>dwThreadId</h4><p>与钩子程序关联的线程标识符。如果此参数为0，则钩子过程与系统中的所有线程管理。</p>
+<h3 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h3><ul>
+<li>如果函数成功，则返回钩子过程的句柄。</li>
+<li>如果函数失败，则返回值为NULL。</li>
+</ul>
+<h2 id="UnhookWindowsHookEx"><a href="#UnhookWindowsHookEx" class="headerlink" title="UnhookWindowsHookEx"></a>UnhookWindowsHookEx</h2><h3 id="函数功能-1"><a href="#函数功能-1" class="headerlink" title="函数功能"></a>函数功能</h3><p>卸载钩子</p>
+<h3 id="参数-1"><a href="#参数-1" class="headerlink" title="参数"></a>参数</h3><p>g_hHook:钩子句柄</p>
+<h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><p>在SetWindowsHookEx中的第二个参数lpfn要求是一个钩子回调函数<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LRESULT <span class="title">GetMsgProc</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">int</span> code,</span></span></span><br><span class="line"><span class="function"><span class="params">	WPARAM wParam,</span></span></span><br><span class="line"><span class="function"><span class="params">	LPARAM lParam)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> ::CallNextHookEx(g_hHook, code, wParam, lParam);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中，WPARAM和LPARAM是消息响应机制，wParam和lParam 这两个是Win16系统遗留下来的产物。</p>
+<hr>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p>首先创建一个DLL工程以及一个WIN32控制台工程。</p>
+<h2 id="DLL编写"><a href="#DLL编写" class="headerlink" title="DLL编写"></a>DLL编写</h2><p>在DLL项目中，<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdafx.h"</span></span></span><br><span class="line"><span class="keyword">extern</span> HMODULE g_hDllModule;</span><br><span class="line"><span class="comment">// 共享内存</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> data_seg(<span class="meta-string">"mydata"</span>)</span></span><br><span class="line">    HHOOK g_hHook = <span class="literal">NULL</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> data_seg()</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(linker, <span class="meta-string">"/SECTION:mydata,RWS"</span>)</span></span><br><span class="line"><span class="comment">// 钩子回调函数</span></span><br><span class="line"><span class="function">LRESULT <span class="title">GetMsgProc</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">int</span> code,</span></span></span><br><span class="line"><span class="function"><span class="params">	WPARAM wParam,</span></span></span><br><span class="line"><span class="function"><span class="params">	LPARAM lParam)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> ::CallNextHookEx(g_hHook, code, wParam, lParam);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 设置全局钩子</span></span><br><span class="line"><span class="function">BOOL <span class="title">SetGlobalHook</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	g_hHook = ::SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)GetMsgProc, g_hDllModule, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (<span class="literal">NULL</span> == g_hHook)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> FALSE;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 卸载钩子</span></span><br><span class="line"><span class="function">BOOL <span class="title">UnsetGlobalHook</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (g_hHook)</span><br><span class="line">	&#123;</span><br><span class="line">		::UnhookWindowsHookEx(g_hHook);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>完成各函数模块编写，SetGlobalHook，UnsetGlobalHook。在设置全局钩子函数之前要完成钩子回调函数的编写。<br>其中，HMODULE g_hDllModule的定义在dllmain中完成。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdafx.h"</span></span></span><br><span class="line">HMODULE g_hDllModule = <span class="literal">NULL</span>;       <span class="comment">//定义</span></span><br><span class="line"><span class="function">BOOL APIENTRY <span class="title">DllMain</span><span class="params">( HMODULE hModule,</span></span></span><br><span class="line"><span class="function"><span class="params">                       DWORD  ul_reason_for_call,</span></span></span><br><span class="line"><span class="function"><span class="params">                       LPVOID lpReserved</span></span></span><br><span class="line"><span class="function"><span class="params">					 )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">switch</span> (ul_reason_for_call)</span><br><span class="line">	&#123;</span><br><span class="line">	<span class="keyword">case</span> DLL_PROCESS_ATTACH:</span><br><span class="line">	&#123;</span><br><span class="line">		g_hDllModule = hModule;    <span class="comment">//DLL的进入退出</span></span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">case</span> DLL_THREAD_ATTACH:</span><br><span class="line">	<span class="keyword">case</span> DLL_THREAD_DETACH:</span><br><span class="line">	<span class="keyword">case</span> DLL_PROCESS_DETACH:</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>要注意的是在写完DLL之后要有一个[your_dll_name].def 来声明导出函数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">LIBRARY</span><br><span class="line"></span><br><span class="line">EXPORTS</span><br><span class="line">SetGlobalHook</span><br><span class="line">UnsetGlobalHook</span><br></pre></td></tr></table></figure></p>
+<p>如果这一步不写的话，dll生成之后实际函数的名字就会发生变化，就不是SetGlobalHook，UnsetGlobalHook这样的了，实际操作的话可以在DLL函数查看器中查看实际函数。</p>
+<h2 id="主程序编写"><a href="#主程序编写" class="headerlink" title="主程序编写"></a>主程序编写</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdafx.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> _tmain(<span class="keyword">int</span> argc, _TCHAR* argv[])</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">typedef</span> <span class="title">BOOL</span><span class="params">(*typedef_SetGlobalHook)</span><span class="params">()</span></span>;          <span class="comment">//定义了符号typedef_SetGlobalHook且指向BOOL，没有形参。</span></span><br><span class="line">	<span class="function"><span class="keyword">typedef</span> <span class="title">BOOL</span><span class="params">(*typedef_UnsetGlobalHook)</span><span class="params">()</span></span>;</span><br><span class="line">	HMODULE hDll = <span class="literal">NULL</span>;</span><br><span class="line">	typedef_SetGlobalHook SetGlobalHook = <span class="literal">NULL</span>;</span><br><span class="line">	typedef_UnsetGlobalHook UnsetGlobalHook = <span class="literal">NULL</span>;</span><br><span class="line">	BOOL bRet = FALSE;</span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">	&#123;</span><br><span class="line">		hDll = ::LoadLibrary(<span class="string">"GlobalHook_Test.dll"</span>); <span class="comment">//加载DLL文件。</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="literal">NULL</span> == hDll)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"LoadLibrary Error[%d]\n"</span>, ::GetLastError());</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		SetGlobalHook = (typedef_SetGlobalHook)::GetProcAddress(hDll, <span class="string">"SetGlobalHook"</span>);</span><br><span class="line">		<span class="keyword">if</span> (<span class="literal">NULL</span> == SetGlobalHook)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"GetProcAddress Error[%d]\n"</span>, ::GetLastError());</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		bRet = SetGlobalHook();</span><br><span class="line">		<span class="keyword">if</span> (bRet)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"SetGlobalHook OK.\n"</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"SetGlobalHook ERROR.\n"</span>);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		system(<span class="string">"pause"</span>);</span><br><span class="line"></span><br><span class="line">		UnsetGlobalHook = (typedef_UnsetGlobalHook)::GetProcAddress(hDll, <span class="string">"UnsetGlobalHook"</span>);</span><br><span class="line">		<span class="keyword">if</span> (<span class="literal">NULL</span> == UnsetGlobalHook)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"GetProcAddress Error[%d]\n"</span>, ::GetLastError());</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		UnsetGlobalHook();</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"UnsetGlobalHook OK.\n"</span>);</span><br><span class="line"></span><br><span class="line">	&#125;<span class="keyword">while</span>(FALSE);</span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>值得注意的是<br>GetProcAddress返回的是一个函数地址的指针。<br>声明：FARPROC WINAPI GetProcAddress(<strong>in HMODULE hModule, </strong>in LPCSTR LpProcName);<br>你应该知道你要的函数的类型是什么，可以用typedef的方法定义函数类型，然后定义一个这种类型的变量，你得到地址后，将地址的类型转换并存到那个变量中就行了。</p>
+<hr>
+<h1 id="程序效果"><a href="#程序效果" class="headerlink" title="程序效果"></a>程序效果</h1><p>用procexp观察惠普的一个进程。<br><img src="/2019/04/25/windows编程-全局钩子/001.jpg" alt="001"><br>然后运行Test.exe文件。<br>注意到被注入，继续执行，卸载钩子<br><img src="/2019/04/25/windows编程-全局钩子/002.jpg" alt="002"><br><img src="/2019/04/25/windows编程-全局钩子/003.jpg" alt="003"></p>
+<h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><p>这里是注入技术的起步，要争取把每一个点都弄懂。</p>
+
+      
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2019/04/25/windows编程-全局钩子/">windows编程-全局钩子</a></p>
+        <p><span>文章作者:</span><a href="/" title="访问 Eros John 的个人博客">Eros John</a></p>
+        <p><span>发布时间:</span>2019年04月25日 - 15时08分</p>
+        <p><span>最后更新:</span>2019年04月25日 - 16时02分</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2019/04/25/windows编程-全局钩子/" title="windows编程-全局钩子">http://yoursite.com/2019/04/25/windows编程-全局钩子/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/04/25/windows编程-全局钩子/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script src="/js/clipboard.min.js"></script>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" title="中国大陆 (CC BY-NC-SA 3.0 CN)" target="_blank">"署名-非商用-相同方式共享 3.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+<nav id="article-nav">
+  
+  
+    <a href="/2019/04/23/CrackMe-002/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">CrackMe-002</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#函数介绍"><span class="toc-number">1.</span> <span class="toc-text">函数介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#SetWindowsHookEx"><span class="toc-number">1.1.</span> <span class="toc-text">SetWindowsHookEx</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#函数功能"><span class="toc-number">1.1.1.</span> <span class="toc-text">函数功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#函数声明"><span class="toc-number">1.1.2.</span> <span class="toc-text">函数声明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参数"><span class="toc-number">1.1.3.</span> <span class="toc-text">参数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#idHook-in"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">idHook[in]</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#lpfn-in"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">lpfn[in]</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#hMod-in"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">hMod[in]</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dwThreadId"><span class="toc-number">1.1.3.4.</span> <span class="toc-text">dwThreadId</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#返回值"><span class="toc-number">1.1.4.</span> <span class="toc-text">返回值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UnhookWindowsHookEx"><span class="toc-number">1.2.</span> <span class="toc-text">UnhookWindowsHookEx</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#函数功能-1"><span class="toc-number">1.2.1.</span> <span class="toc-text">函数功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参数-1"><span class="toc-number">1.2.2.</span> <span class="toc-text">参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注意点"><span class="toc-number">1.3.</span> <span class="toc-text">注意点</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#代码实现"><span class="toc-number">2.</span> <span class="toc-text">代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#DLL编写"><span class="toc-number">2.1.</span> <span class="toc-text">DLL编写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主程序编写"><span class="toc-number">2.2.</span> <span class="toc-text">主程序编写</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#程序效果"><span class="toc-number">3.</span> <span class="toc-text">程序效果</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#写在最后"><span class="toc-number">4.</span> <span class="toc-text">写在最后</span></a></li></ol>
+</div>
+<input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script>
+    var valueHide = "隐藏目录";
+    var valueShow = "显示目录";
+
+    if ($(".left-col").is(":hidden")) {
+        $("#tocButton").attr("value", valueShow);
+    }
+    $("#tocButton").click(function() {
+        if ($("#toc").is(":hidden")) {
+            $("#tocButton").attr("value", valueHide);
+            $("#toc").slideDown(320);
+        }
+        else {
+            $("#tocButton").attr("value", valueShow);
+            $("#toc").slideUp(350);
+        }
+    })
+    if ($(".toc").length < 1) {
+        $("#toc, #tocButton").hide();
+    }
+</script>
+
+
+
+
+
+
+
+    
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+        
+            <a href="/2019/04/23/CrackMe-002/" title="下一篇: CrackMe-002">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/04/25/windows编程-全局钩子/">windows编程-全局钩子</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/23/CrackMe-002/">CrackMe-002</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/12/CrackMe-001/">CrackMe-001</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/11/PE文件格式笔记-001/">PE文件格式笔记-001</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/11/windows编程-资源释放/">windows编程:资源释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/10/windows编程-单次运行/">windows编程:单次运行</a></li></ul>
+    <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+    <script>
+        $(".post-list").addClass("toc-article");
+        $(".post-list-item a").attr("target","_blank");
+        $("#post-nav-button > a:nth-child(2)").click(function() {
+            $(".fa-bars, .fa-times").toggle();
+            $(".post-list").toggle(300);
+            if ($(".toc").length > 0) {
+                $("#toc, #tocButton").toggle(200, function() {
+                    if ($(".switch-area").is(":visible")) {
+                        $("#tocButton").attr("value", valueHide);
+                        }
+                    })
+            }
+            else {
+            }
+        })
+    </script>
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                &copy; 2019 Eros John
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/luuman/hexo-theme-spfk" target="_blank">spfk</a> by luuman
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style="display:none">
+                        <span id="site-visit">海贼到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style="display:none">
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var backgroundnum = 24;
+            var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+            $("#mobile-nav").css({"background-image": backgroundimg,"background-size": "cover","background-position": "center"});
+            $(".left-col").css({"background-image": backgroundimg,"background-size": "cover","background-position": "center"});
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    $(document).ready(function() {
+        if ($("#comments").length < 1) {
+            $("#scroll > a:nth-child(2)").hide();
+        };
+    })
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+  <script language="javascript">
+    $(function() {
+        $("a[title]").each(function() {
+            var a = $(this);
+            var title = a.attr('title');
+            if (title == undefined || title == "") return;
+            a.data('title', title).removeAttr('title').hover(
+
+            function() {
+                var offset = a.offset();
+                $("<div id=\"anchortitlecontainer\"></div>").appendTo($("body")).html(title).css({
+                    top: offset.top - a.outerHeight() - 15,
+                    left: offset.left + a.outerWidth()/2 + 1
+                }).fadeIn(function() {
+                    var pop = $(this);
+                    setTimeout(function() {
+                        pop.remove();
+                    }, pop.text().length * 800);
+                });
+            }, function() {
+                $("#anchortitlecontainer").remove();
+            });
+        });
+    });
+</script>
+
+
+  </div>
+</body>
+</html>
