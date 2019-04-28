@@ -3,20 +3,26 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>windows编程:单次运行 | ErosJohn&#39;s M.SPACE</title>
+  <title>OpeatingSystemConcept-Chapter-03 | ErosJohn&#39;s M.SPACE</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="keywords" content="Windows">
+  <meta name="description" content="这是操作系统概念第九版课后部分题目的答案.多看看，and pass the exam.">
+<meta name="keywords" content="Linux&#x2F;Unix">
 <meta property="og:type" content="article">
-<meta property="og:title" content="windows编程:单次运行">
-<meta property="og:url" content="http://yoursite.com/2019/04/10/windows编程-单次运行/index.html">
+<meta property="og:title" content="OpeatingSystemConcept-Chapter-03">
+<meta property="og:url" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/index.html">
 <meta property="og:site_name" content="ErosJohn&#39;s M.SPACE">
+<meta property="og:description" content="这是操作系统概念第九版课后部分题目的答案.多看看，and pass the exam.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/04/10/windows编程-单次运行/bg.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/04/10/windows编程-单次运行/win1.jpg">
-<meta property="og:updated_time" content="2019-04-10T14:30:53.148Z">
+<meta property="og:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/001.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/002.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/003.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/004.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/005.jpg">
+<meta property="og:updated_time" content="2019-04-28T16:06:48.952Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="windows编程:单次运行">
-<meta name="twitter:image" content="http://yoursite.com/2019/04/10/windows编程-单次运行/bg.jpg">
+<meta name="twitter:title" content="OpeatingSystemConcept-Chapter-03">
+<meta name="twitter:description" content="这是操作系统概念第九版课后部分题目的答案.多看看，and pass the exam.">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/001.jpg">
   
     <link rel="alternative" href="/atom.xml" title="ErosJohn&#39;s M.SPACE" type="application/atom+xml">
   
@@ -214,11 +220,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-windows编程-单次运行" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-OpeatingSystemConcept-Chapter-03" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2019/04/10/windows编程-单次运行/" class="article-date">
-      <time datetime="2019-04-10T13:18:42.000Z" itemprop="datePublished">2019-04-10</time>
+      <a href="/2019/04/28/OpeatingSystemConcept-Chapter-03/" class="article-date">
+      <time datetime="2019-04-28T14:19:30.000Z" itemprop="datePublished">2019-04-28</time>
 </a>
     </div>
   
@@ -231,7 +237,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      windows编程:单次运行
+      OpeatingSystemConcept-Chapter-03
     </h1>
   
 
@@ -240,13 +246,13 @@
       <div class="article-info article-info-post">
         
     <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Windows黑客编程/">Windows黑客编程</a>
+    <a class="article-category-link" href="/categories/AnswersForCourse/">AnswersForCourse</a>
     </div>
 
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Windows/">Windows</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux-Unix/">Linux/Unix</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -256,19 +262,59 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p><img src="/2019/04/10/windows编程-单次运行/bg.jpg" alt="美图"></p>
- <a id="more"></a>
+        <p>这是操作系统概念第九版课后部分题目的答案.<br>多看看，and pass the exam.<br><a id="more"></a></p>
 <hr>
-<h1 id="函数介绍"><a href="#函数介绍" class="headerlink" title="函数介绍"></a>函数介绍</h1><p>创建互斥锁</p>
-<h2 id="CreateMutex"><a href="#CreateMutex" class="headerlink" title="CreateMutex"></a>CreateMutex</h2><ul>
-<li>IpMutexAttributes[in,optional],NULL的话就是该句柄不能由子进程继承。</li>
-<li>bIntialOwner[in],BOOL值，调用线程能否获得互斥锁所有权。</li>
-<li>IpName[in,optional],互斥对象名称。</li>
+<h1 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h1><p>使用图3.30中所示的程序，解释A行的输出结果<br><img src="/2019/04/28/OpeatingSystemConcept-Chapter-03/001.jpg" alt="001"></p>
+<ul>
+<li>The result is still 5 as the child updates its copy of value. When control returns to the parent, its value remains at 5.</li>
 </ul>
 <hr>
-<h1 id="C语言代码"><a href="#C语言代码" class="headerlink" title="C语言代码"></a>C语言代码</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">IsAlreadyRun</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HANDLE hMutex = <span class="literal">NULL</span>;</span><br><span class="line">	hMutex = ::CreateMutex(<span class="literal">NULL</span>, FALSE, <span class="string">"TEST"</span>);</span><br><span class="line">	<span class="keyword">if</span> (hMutex)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (ERROR_ALREADY_EXISTS == ::GetLastError())</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> TRUE;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="0x02"><a href="#0x02" class="headerlink" title="0x02"></a>0x02</h1><p>当进程使用fork（）操作创建新进程时，父进程和子进程之间共享以下哪个状态？（堆/栈/共享内存段）</p>
+<ul>
+<li>父进程和新分叉的子进程之间只共享共享内存段。 堆栈和堆的副本是为新创建的进程创建的。</li>
+</ul>
 <hr>
-<h1 id="实现结果"><a href="#实现结果" class="headerlink" title="实现结果"></a>实现结果</h1><h2 id="图片"><a href="#图片" class="headerlink" title="图片"></a>图片</h2><p><img src="/2019/04/10/windows编程-单次运行/win1.jpg" alt="结果"></p>
+<h1 id="0x03"><a href="#0x03" class="headerlink" title="0x03"></a>0x03</h1><p>描述短期，中期和长期调度之间的差异。</p>
+<ul>
+<li>短期（CPU调度程序）：从内存中准备执行的进程中选择进程，并为其分配CPU。</li>
+<li>中期（内存管理器）：从就绪或阻塞队列中选择一个进程，然后将它们从内存交换到磁盘，然后再将它们交换为继续运行。</li>
+<li>长期（作业调度程序）：确定哪些作业从磁盘上的后端存储进入内存以进行处理。</li>
+<li>主要区别在于执行频率。</li>
+</ul>
+<hr>
+<h1 id="0x04"><a href="#0x04" class="headerlink" title="0x04"></a>0x04</h1><p>描述内核对进程之间的上下文切换所采取的操作。</p>
+<ul>
+<li>1.响应时钟中断，OS保存当前正在执行的进程的PC和用户堆栈指针，并将控制转移到内核时钟中断处理程序，</li>
+<li>2.时钟中断处理程序在进程PCB中保存其余寄存器以及其他机器状态，例如浮点寄存器的状态。</li>
+<li>3.操作系统调用调度程序来确定要执行的下一个进程，</li>
+<li>4.然后，OS从其PCB检索下一个进程的状态，并恢复寄存器。 此还原操作使处理器返回到此进程先前中断的状态，在用户代码中以用户模式权限执行。</li>
+</ul>
+<hr>
+<h1 id="0x05"><a href="#0x05" class="headerlink" title="0x05"></a>0x05</h1><p>包括初始父进程，程序创建了多少进程，如图3.32所示？<br><img src="/2019/04/28/OpeatingSystemConcept-Chapter-03/002.jpg" alt="002"></p>
+<ul>
+<li>16</li>
+</ul>
+<hr>
+<h1 id="0x06"><a href="#0x06" class="headerlink" title="0x06"></a>0x06</h1><p>解释在何种情况下，将达到图3.33中标记为printf（“LINE J”）的代码行。<br><img src="/2019/04/28/OpeatingSystemConcept-Chapter-03/003.jpg" alt="003"></p>
+<ul>
+<li>对exec（）的调用用指定为exec（）参数的程序替换进程的地址空间。</li>
+<li>如果对exec（）的调用成功，则新程序现在正在运行，并且从调用exec（）的控制永远不会返回。 在这种情况下，行printf（“Line J”）; 永远不会被执行。</li>
+<li>但是，如果在对exec（）的调用中发生错误，则该函数返回控制，因此返回行printf（“Line J”）; 会被执行。</li>
+</ul>
+<hr>
+<h1 id="0x07"><a href="#0x07" class="headerlink" title="0x07"></a>0x07</h1><p>使用图3.34中的程序，识别A，B，C和D行的pid值。（假设父和子的实际pid分别为2600和2603。）<br><img src="/2019/04/28/OpeatingSystemConcept-Chapter-03/004.jpg" alt="004"></p>
+<ul>
+<li>A=0</li>
+<li>B=2603</li>
+<li>C=2603</li>
+<li>D=2600</li>
+</ul>
+<hr>
+<h1 id="0x08"><a href="#0x08" class="headerlink" title="0x08"></a>0x08</h1><p>使用图3.35所示的程序，解释X和Y行的输出结果。<br><img src="/2019/04/28/OpeatingSystemConcept-Chapter-03/005.jpg" alt="005"></p>
+<ul>
+<li>由于子项是父项的副本，因此子项所做的任何更改都将出现在其数据副本中，并且不会反映在父项中。</li>
+<li>结果，子行在X行输出的值为0，-1，-4，-9，-16。父级在Y行输出的值为0,1,2,3,4</li>
+</ul>
 
       
       
@@ -278,13 +324,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2019/04/10/windows编程-单次运行/">windows编程:单次运行</a></p>
+        <p><span>本文标题:</span><a href="/2019/04/28/OpeatingSystemConcept-Chapter-03/">OpeatingSystemConcept-Chapter-03</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Eros John 的个人博客">Eros John</a></p>
-        <p><span>发布时间:</span>2019年04月10日 - 21时18分</p>
-        <p><span>最后更新:</span>2019年04月10日 - 22时30分</p>
+        <p><span>发布时间:</span>2019年04月28日 - 22时19分</p>
+        <p><span>最后更新:</span>2019年04月29日 - 00时06分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2019/04/10/windows编程-单次运行/" title="windows编程:单次运行">http://yoursite.com/2019/04/10/windows编程-单次运行/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/04/10/windows编程-单次运行/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2019/04/28/OpeatingSystemConcept-Chapter-03/" title="OpeatingSystemConcept-Chapter-03">http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -297,15 +343,11 @@
 
 <nav id="article-nav">
   
-    <a href="/2019/04/11/windows编程-资源释放/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption"><</strong>
-      <div class="article-nav-title">
-        
-          windows编程:资源释放
-        
-      </div>
-    </a>
   
+    <a href="/2019/04/27/OpeatingSystemConcept-Chapter-02/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">OpeatingSystemConcept Chapter-02</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
   
 </nav>
 
@@ -314,7 +356,7 @@
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#函数介绍"><span class="toc-number">1.</span> <span class="toc-text">函数介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CreateMutex"><span class="toc-number">1.1.</span> <span class="toc-text">CreateMutex</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#C语言代码"><span class="toc-number">2.</span> <span class="toc-text">C语言代码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现结果"><span class="toc-number">3.</span> <span class="toc-text">实现结果</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#图片"><span class="toc-number">3.1.</span> <span class="toc-text">图片</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01"><span class="toc-number">1.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02"><span class="toc-number">2.</span> <span class="toc-text">0x02</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03"><span class="toc-number">3.</span> <span class="toc-text">0x03</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04"><span class="toc-number">4.</span> <span class="toc-text">0x04</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05"><span class="toc-number">5.</span> <span class="toc-text">0x05</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06"><span class="toc-number">6.</span> <span class="toc-text">0x06</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07"><span class="toc-number">7.</span> <span class="toc-text">0x07</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x08"><span class="toc-number">8.</span> <span class="toc-text">0x08</span></a></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
 
@@ -353,13 +395,13 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2019/04/11/windows编程-资源释放/" title="上一篇: windows编程:资源释放">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
-            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+            <a href="/2019/04/27/OpeatingSystemConcept-Chapter-02/" title="下一篇: OpeatingSystemConcept Chapter-02">
+                <i class="fa fa-angle-right"></i>
+            </a>
         
     </div>
     <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/04/28/OpeatingSystemConcept-Chapter-03/">OpeatingSystemConcept-Chapter-03</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/27/OpeatingSystemConcept-Chapter-02/">OpeatingSystemConcept Chapter-02</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/27/OpeatingSystemConcept-Chapter-01/">OpeatingSystemConcept Chapter-01</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/25/windows编程-全局钩子/">windows编程-全局钩子</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/23/CrackMe-002/">CrackMe-002</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/12/CrackMe-001/">CrackMe-001</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/11/PE文件格式笔记-001/">PE文件格式笔记-001</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/11/windows编程-资源释放/">windows编程:资源释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/10/windows编程-单次运行/">windows编程:单次运行</a></li></ul>
