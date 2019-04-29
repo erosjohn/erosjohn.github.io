@@ -13,10 +13,14 @@
 <meta property="og:site_name" content="ErosJohn&#39;s M.SPACE">
 <meta property="og:description" content="汇编语言为逆向工程的重中之重，这是我在学习汇编语言时候的一点心得笔记。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-04-29T13:33:08.983Z">
+<meta property="og:image" content="http://yoursite.com/2019/04/29/汇编笔记-01-12/001.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/04/29/汇编笔记-01-12/002.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/04/29/汇编笔记-01-12/003.jpg">
+<meta property="og:updated_time" content="2019-04-29T16:05:45.472Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="汇编笔记 01-12">
 <meta name="twitter:description" content="汇编语言为逆向工程的重中之重，这是我在学习汇编语言时候的一点心得笔记。">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/29/汇编笔记-01-12/001.jpg">
   
     <link rel="alternative" href="/atom.xml" title="ErosJohn&#39;s M.SPACE" type="application/atom+xml">
   
@@ -274,9 +278,38 @@ PC机中 内存作用仅次于 CPU。
 </code></pre><h2 id="CPU对存储器的读写"><a href="#CPU对存储器的读写" class="headerlink" title="CPU对存储器的读写"></a>CPU对存储器的读写</h2><pre><code>存储单元的地址 （地址信息）
 器件的选择，读或写命令 （控制信息）
 读或写的数据 （数据信息）
+
+
+对于8086CPU，下面的机器码能够完成从3号单元读数据。
+
+机器码：101000000000001100000000
+含义：从3号单元读取数据送入寄存器
+CPU接收这条机器码后完成上面所述读写工作
 </code></pre><h2 id="总线（BUS）"><a href="#总线（BUS）" class="headerlink" title="总线（BUS）"></a>总线（BUS）</h2><pre><code>地址总线         数据总线         控制总线
-</code></pre><hr>
-<h1 id="0x-∞-未完待续"><a href="#0x-∞-未完待续" class="headerlink" title="0x ∞ 未完待续"></a>0x ∞ 未完待续</h1><p>这个系列总共有77课。<br>在这里开了个坑，我会认真更完的 O(∩_∩)O 。</p>
+</code></pre><h2 id="地址总线"><a href="#地址总线" class="headerlink" title="地址总线"></a>地址总线</h2><pre><code>CPU是通过地址总线来指定存储单元。
+
+地址总线上能传送多少个不同的信息，
+CPu就可以对多少个存储单元进行寻址。
+</code></pre><p><img src="/2019/04/29/汇编笔记-01-12/001.jpg" alt="001"></p>
+<ul>
+<li>1011 （注意地址高低）</li>
+</ul>
+<pre><code>一个CPU有N根地址总线，则CPU的地址总线宽度为N。
+CPU最多可以寻找2的N次方个内存单元。
+</code></pre><h2 id="数据总线"><a href="#数据总线" class="headerlink" title="数据总线"></a>数据总线</h2><pre><code>CPU与内存或者其他器件之间数据传送是通过数据总线来进行的。
+数据总线的宽度决定了CPU和外界的数据传送速度。
+</code></pre><p><img src="/2019/04/29/汇编笔记-01-12/002.jpg" alt="002"></p>
+<ul>
+<li>传送89D8H</li>
+</ul>
+<h2 id="控制总线"><a href="#控制总线" class="headerlink" title="控制总线"></a>控制总线</h2><pre><code>CPU对外部期间的控制是通过控制总线来进行的。在这里控制总线是个总称，控制总线是一些不同的控制线的集合。
+有多少根控制总线，就意味着CPU提供了对外部器件的多少种控制。
+控制总线的宽度决定了CPu对外部器件的控制能力。
+
+控制总线发送控制信息。
+</code></pre><p><img src="/2019/04/29/汇编笔记-01-12/003.jpg" alt="003"></p>
+<hr>
+<h1 id="0x-∞-未完待续"><a href="#0x-∞-未完待续" class="headerlink" title="0x ∞ 未完待续"></a>0x ∞ 未完待续</h1><p>这个系列总共有77课，<br>本章进度 3 / 12 ，<br>在这里开了个坑，我会认真更完的 O(∩_∩)O 。</p>
 
       
       
@@ -289,7 +322,7 @@ PC机中 内存作用仅次于 CPU。
         <p><span>本文标题:</span><a href="/2019/04/29/汇编笔记-01-12/">汇编笔记 01-12</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Eros John 的个人博客">Eros John</a></p>
         <p><span>发布时间:</span>2019年04月29日 - 21时09分</p>
-        <p><span>最后更新:</span>2019年04月29日 - 21时33分</p>
+        <p><span>最后更新:</span>2019年04月30日 - 00时05分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2019/04/29/汇编笔记-01-12/" title="汇编笔记 01-12">http://yoursite.com/2019/04/29/汇编笔记-01-12/</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/04/29/汇编笔记-01-12/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -318,7 +351,7 @@ PC机中 内存作用仅次于 CPU。
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-汇编基础"><span class="toc-number">1.</span> <span class="toc-text">0x01 汇编基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#汇编语言"><span class="toc-number">1.1.</span> <span class="toc-text">汇编语言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#存储器"><span class="toc-number">1.2.</span> <span class="toc-text">存储器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指令和数据"><span class="toc-number">1.3.</span> <span class="toc-text">指令和数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#存储单元"><span class="toc-number">1.4.</span> <span class="toc-text">存储单元</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU对存储器的读写"><span class="toc-number">1.5.</span> <span class="toc-text">CPU对存储器的读写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总线（BUS）"><span class="toc-number">1.6.</span> <span class="toc-text">总线（BUS）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x-∞-未完待续"><span class="toc-number">2.</span> <span class="toc-text">0x ∞ 未完待续</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-汇编基础"><span class="toc-number">1.</span> <span class="toc-text">0x01 汇编基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#汇编语言"><span class="toc-number">1.1.</span> <span class="toc-text">汇编语言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#存储器"><span class="toc-number">1.2.</span> <span class="toc-text">存储器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指令和数据"><span class="toc-number">1.3.</span> <span class="toc-text">指令和数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#存储单元"><span class="toc-number">1.4.</span> <span class="toc-text">存储单元</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU对存储器的读写"><span class="toc-number">1.5.</span> <span class="toc-text">CPU对存储器的读写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总线（BUS）"><span class="toc-number">1.6.</span> <span class="toc-text">总线（BUS）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#地址总线"><span class="toc-number">1.7.</span> <span class="toc-text">地址总线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据总线"><span class="toc-number">1.8.</span> <span class="toc-text">数据总线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#控制总线"><span class="toc-number">1.9.</span> <span class="toc-text">控制总线</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x-∞-未完待续"><span class="toc-number">2.</span> <span class="toc-text">0x ∞ 未完待续</span></a></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
 
