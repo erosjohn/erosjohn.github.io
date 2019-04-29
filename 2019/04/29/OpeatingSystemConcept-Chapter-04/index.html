@@ -3,22 +3,24 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>OpeatingSystemConcept Chapter-01 | ErosJohn&#39;s M.SPACE</title>
+  <title>OpeatingSystemConcept-Chapter-04 | ErosJohn&#39;s M.SPACE</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="这是操作系统概念第九版课后部分题目的答案.多看看，and pass the exam.">
 <meta name="keywords" content="Linux&#x2F;Unix">
 <meta property="og:type" content="article">
-<meta property="og:title" content="OpeatingSystemConcept Chapter-01">
-<meta property="og:url" content="http://yoursite.com/2019/04/27/OpeatingSystemConcept-Chapter-01/index.html">
+<meta property="og:title" content="OpeatingSystemConcept-Chapter-04">
+<meta property="og:url" content="http://yoursite.com/2019/04/29/OpeatingSystemConcept-Chapter-04/index.html">
 <meta property="og:site_name" content="ErosJohn&#39;s M.SPACE">
 <meta property="og:description" content="这是操作系统概念第九版课后部分题目的答案.多看看，and pass the exam.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/04/27/OpeatingSystemConcept-Chapter-01/001.jpg">
-<meta property="og:updated_time" content="2019-04-27T04:50:15.539Z">
+<meta property="og:image" content="http://yoursite.com/2019/04/29/OpeatingSystemConcept-Chapter-04/001.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/04/29/OpeatingSystemConcept-Chapter-04/002.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/04/29/OpeatingSystemConcept-Chapter-04/003.jpg">
+<meta property="og:updated_time" content="2019-04-29T06:45:07.403Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="OpeatingSystemConcept Chapter-01">
+<meta name="twitter:title" content="OpeatingSystemConcept-Chapter-04">
 <meta name="twitter:description" content="这是操作系统概念第九版课后部分题目的答案.多看看，and pass the exam.">
-<meta name="twitter:image" content="http://yoursite.com/2019/04/27/OpeatingSystemConcept-Chapter-01/001.jpg">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/29/OpeatingSystemConcept-Chapter-04/001.jpg">
   
     <link rel="alternative" href="/atom.xml" title="ErosJohn&#39;s M.SPACE" type="application/atom+xml">
   
@@ -216,11 +218,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-OpeatingSystemConcept-Chapter-01" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-OpeatingSystemConcept-Chapter-04" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2019/04/27/OpeatingSystemConcept-Chapter-01/" class="article-date">
-      <time datetime="2019-04-27T04:14:33.000Z" itemprop="datePublished">2019-04-27</time>
+      <a href="/2019/04/29/OpeatingSystemConcept-Chapter-04/" class="article-date">
+      <time datetime="2019-04-29T06:24:00.000Z" itemprop="datePublished">2019-04-29</time>
 </a>
     </div>
   
@@ -233,7 +235,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      OpeatingSystemConcept Chapter-01
+      OpeatingSystemConcept-Chapter-04
     </h1>
   
 
@@ -260,92 +262,69 @@
           
         <p>这是操作系统概念第九版课后部分题目的答案.<br>多看看，and pass the exam.<br><a id="more"></a></p>
 <hr>
-<h1 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h1><p>操作系统三个主要目的</p>
+<h1 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h1><p>用户级线程和内核级线程之间有两个不同之处？ 在什么情况下哪种类型比另一种更好？</p>
 <ul>
-<li>让用户更方便有效的在硬件上运行程序。</li>
-<li>根据需要分配计算机的单独资源以解决给定的问题。 分配过程应尽可能公平和有效。</li>
-<li>作为控制程序，它有两个主要功能：（1）监督用户程序的执行以防止错误和不正确使用计算机，以及（2）管理I / O设备的操作和控制。</li>
+<li><p>用户级线程是OS内核不知道的线程。 它们完全存在于进程中，并计划在该进程的时间片内运行（由线程库本身管理）。由于没有上下文切换，用户级线程之间的切换速度要快得多。用户级线程不能在不同的CPU上并行运行。</p>
+</li>
+<li><p>操作系统内核知道内核级线程。 内核线程由OS的调度算法调度，每个线程可以被授予自己的时间片。 内核级线程可以在不同的CPU上并行运行。</p>
+</li>
+</ul>
+<p>许多系统以不同方式实现线程：</p>
+<ul>
+<li>多对一线程模型将许多用户线程直接映射到一个内核线程，内核线程可以被认为是主要进程。</li>
+<li>一对一线程模型将每个用户线程直接映射到一个内核线程，该模型允许在多处理器系统上进行并行处理。</li>
 </ul>
 <hr>
-<h1 id="0x02"><a href="#0x02" class="headerlink" title="0x02"></a>0x02</h1><p>内核模式和用户模式的区别</p>
+<h1 id="0x02"><a href="#0x02" class="headerlink" title="0x02"></a>0x02</h1><p>创建线程时使用了哪些资源？ 它们与创建流程时使用的有何不同？</p>
 <ul>
-<li>只有在CPU处于内核模式时，才能执行某些指令（特权指令）</li>
-<li>例如：获得硬件设备，允许/不允许中断。</li>
+<li>创建用户或内核线程涉及分配一个小数据结构（TCB，线程控制块）来保存寄存器集，堆栈，状态和优先级。由于线程小于进程，因此线程创建通常比创建进程使用更少的资源，并且效率更高。</li>
+<li>创建流程需要分配一个过程控制块（PCB），这是一个相当大的数据结构。PCB包括存储器映射，打开文件列表和环境变量。分配和管理存储器映射通常是最耗时的活动。</li>
 </ul>
 <hr>
-<h1 id="0x03"><a href="#0x03" class="headerlink" title="0x03"></a>0x03</h1><p>以下哪些指令应具有特权</p>
+<h1 id="0x03"><a href="#0x03" class="headerlink" title="0x03"></a>0x03</h1><p>在什么情况下，使用多内核线程的多线程解决方案比单处理器系统上的单线程解决方案提供更好的性能？</p>
 <ul>
-<li>设定定时器的值</li>
-<li>清除内存</li>
-<li>关闭中断</li>
-<li>修改设备状态表中的条目</li>
-<li>从用户切换到内核模式</li>
-<li>获得IO<br>不需要特权的</li>
-<li>读时钟</li>
-<li>发出陷阱指令</li>
+<li>当内核线程遭受页面错误时，可以切换另一个内核线程以有用的方式使用交错时间。</li>
+<li>另一方面，单线程进程在发生页面错误时将无法执行有用的工作。</li>
+<li>因此，在程序可能遭受频繁页面错误或必须等待其他系统事件的情况下，即使在单处理器系统上，多线程解决方案也会表现更好。</li>
 </ul>
 <hr>
-<h1 id="0x04"><a href="#0x04" class="headerlink" title="0x04"></a>0x04</h1><p>定时器可用于计算当前时间。 简要介绍如何实现这一目标</p>
+<h1 id="0x04"><a href="#0x04" class="headerlink" title="0x04"></a>0x04</h1><p>多线程进程中的线程之间共享以下哪些程序状态组件？<br>（a）寄存器值<br>（b）堆内存<br>（c）全局变量<br>（d）堆栈存储器</p>
 <ul>
-<li>程序可以使用以下方法使用计时器中断来计算当前时间。 该程序可以在将来的某个时间设置计时器并进入睡眠状态。 当它被中断唤醒时，它可以更新它的本地状态，它正用于跟踪它迄今为止收到的中断数。 然后，它可以重复此过程，在实际引发中断时不断设置定时器中断并更新其本地状态。</li>
+<li>多线程进程的线程共享堆内存和全局变量。 每个线程都有其独立的寄存器值集和一个单独的堆栈。</li>
+</ul>
+<h1 id="0x05"><a href="#0x05" class="headerlink" title="0x05"></a>0x05</h1><p>使用多个用户级线程的多线程解决方案是否可以在多处理器系统上实现比单处理器系统更好的性能？ 并说明。</p>
+<ul>
+<li>包括多个用户级线程的多线程系统不能同时使用多处理器系统中的不同处理器。操作系统只能看到一个进程，并且不会在单独的处理器上调度进程的不同线程。因此，在多处理器系统上执行多个用户级线程没有任何性能优势。</li>
 </ul>
 <hr>
-<h1 id="0x05"><a href="#0x05" class="headerlink" title="0x05"></a>0x05</h1><p>在多道程序和时间共享环境中，多个用户同时共享系统。 这种情况可能导致各种安全问题？<br>1.2个问题？</p>
+<h1 id="0x06"><a href="#0x06" class="headerlink" title="0x06"></a>0x06</h1><p>具有两个双核处理器的系统具有四个可用于调度的处理器。 CPU密集型应用程序正在此系统上运行。 当必须打开单个文件时，所有输入都在程序启动时执行。 类似地，所有输出都在程序终止之前执行，此时程序结果必须写入单个文件。 在启动和终止之间，程序完全受CPU限制。 您的任务是通过多线程来提高此应用程序的性能。 应用程序在使用一对一线程模型的系统上运行（每个用户线程映射到内核线程）。<br>•您将创建多少个线程来执行输入和输出？ 说明。<br>•您将为应用程序的CPU密集型部分创建多少个线程？ 说明。</p>
 <ul>
-<li>窃取或复制用户的文件</li>
-<li>在内存中写入另一个程序（属于另一个用户或OS）区域</li>
-<li>使用系统资源（CPU，磁盘空间）没有适当的审计</li>
-<li>在打印其他用户的文件时，通过发送数据使打印机混合输出<br>2.我们能否在分时机器中确保与专用机器相同的安全性？ 解释你的答案</li>
-<li>可能不是，因为人类设计的任何保护方案也可以被打破 - 而且方案越复杂，就越难以对其正确实施充满信心。</li>
+<li><p>1）只有阻塞系统调用才能创建尽可能多的线程，因为线程将用于阻塞。创建其他线程没有任何好处。因此，为输入创建单个线程并为输出创建单个线程是有意义的。</p>
+</li>
+<li><p>2）四。 应该有与处理核心一样多的线程。 处理资源的浪费会减少，任何数字&gt; 4都无法运行。</p>
+</li>
 </ul>
 <hr>
-<h1 id="0x06"><a href="#0x06" class="headerlink" title="0x06"></a>0x06</h1><p>描述对称和非对称多处理之间的差异。 多处理器系统有三个优点和一个缺点？<br>差异</p>
+<h1 id="0x07"><a href="#0x07" class="headerlink" title="0x07"></a>0x07</h1><p>请考虑以下代码段：<br><img src="/2019/04/29/OpeatingSystemConcept-Chapter-04/001.jpg" alt="001"><br>（a）创建了多少个独立的流程？<br>（b）创建了多少个独立线程？</p>
 <ul>
-<li>对称处理将所有处理器视为相等; 可以在任何一个上处理I / O. 可以在其中任何一个上安排流程。</li>
-<li>非对称处理指定一个CPU作为主设备，这是唯一能够执行I / O的CPU; 主设备在其他CPU之间分配计算工作。<br>优点</li>
-<li>多处理器系统可以通过共享电源和外围设备来节省资金</li>
-<li>可以更快地执行程序</li>
-<li>提高了可靠性<br>缺点</li>
-<li>多处理器系统在硬件和软件方面都更复杂。 管理协作需要额外的CPU周期，因此每CPU效率会下降</li>
+<li>a) 6 processes </li>
+<li>b) 2 threads<br><img src="/2019/04/29/OpeatingSystemConcept-Chapter-04/002.jpg" alt="002"></li>
 </ul>
 <hr>
-<h1 id="0x07"><a href="#0x07" class="headerlink" title="0x07"></a>0x07</h1><p>集群系统与多处理器系统有何不同？ 属于集群的两台机器需要合作才能提供高可用性服务？</p>
+<h1 id="0x08"><a href="#0x08" class="headerlink" title="0x08"></a>0x08</h1><p>（不要求）如第4.7.2节所述，Linux不区分进程和线程。 相反，Linux以相同的方式处理两者，允许任务更类似于进程或线程，具体取决于传递给clone（）系统调用的标志集。 但是，其他操作系统（如Windows）会以不同方式处理进程和线程。 通常，这样的系统使用一种表示法，其中进程的数据结构包含指向属于该进程的单独线程的指针。 对比这两种方法来建模内核中的进程和线程。</p>
 <ul>
-<li>集群系统通常通过将多个计算机组合到单个系统中来执行，以执行分布在群集中的计算任务。 另一方面，多处理器系统可以是包括多个CPU的单个物理实体。 集群系统的耦合程度低于多处理器系统。 群集系统使用消息进行通信，而多处理器系统中的处理器可以使用共享内存进行通信。</li>
-<li>为了使两台计算机提供高可用性服务，应该复制两台计算机上的状态，并且应该不断更新。 当其中一台机器发生故障时，另一台机器可以接管故障机器的功能。</li>
+<li>在将进程和线程视为类似实体的系统中，可以简化一些操作系统代码。 例如，调度程序可以在相同的基础上考虑不同的进程和线程，而无需在每个调度步骤期间检查与进程关联的线程的特殊代码。 但是，这种一致性可能使得以直接方式强加整个流程的资源限制变得更加困难。 相反，需要一些额外的复杂性来识别哪个线程对应于哪个进程并执行相关的会计任务。</li>
 </ul>
 <hr>
-<h1 id="0x08"><a href="#0x08" class="headerlink" title="0x08"></a>0x08</h1><p>中断的目的是什么？ 中断如何与陷阱不同？ 陷阱是否可以由用户程序有意生成？ 如果是这样，为了什么目的？</p>
+<h1 id="0x09"><a href="#0x09" class="headerlink" title="0x09"></a>0x09</h1><p>图4.16中显示的程序使用Pthreads API。 LINE C和LINE P的程序输出是什么？<br><img src="/2019/04/29/OpeatingSystemConcept-Chapter-04/003.jpg" alt="003"></p>
 <ul>
-<li>可以使用中断来指示I / O的完成，以便CPU不必花费周期来轮询设备。</li>
-<li>中断是硬件生成的信号，可以改变系统内的流量。 陷阱是软件生成的中断。</li>
-<li>陷阱可用于调用呼叫系统调用。执行期间发生异常情况时会引发异常。</li>
+<li>LINE C,   5</li>
+<li>LINE P,   0</li>
 </ul>
 <hr>
-<h1 id="0x09"><a href="#0x09" class="headerlink" title="0x09"></a>0x09</h1><p>许多SMP系统具有不同级别的缓存; 一个级别是每个处理核心的本地级别，另一个级别在所有处理核心之间共享。 为什么缓存系统是这样设计的？</p>
+<h1 id="0x0A"><a href="#0x0A" class="headerlink" title="0x0A"></a>0x0A</h1><p>编写一个多线程程序，计算数字列表的各种统计值。 该程序将在命令行上传递一系列数字，然后创建三个单独的工作线程。 一个线程将确定数字的平均值，第二个线程将确定最大值，第三个线程将确定最小值。 例如，假设您的程序传递整数<br>90 81 78 95 79 72 85<br>该计划将报告<br>平均值是82<br>最小值为72<br>最大值为95<br>表示平均值，最小值和最大值的变量将全局存储。 工作线程将设置这些值，一旦工作者退出，父线程将输出值。 （我们显然可以通过创建确定其他统计值的其他线程来扩展此程序，例如中位数和标准差。）</p>
 <ul>
-<li>不同级别基于访问速度和大小。 通常，缓存越靠近CPU，访问速度越快。 但是，更快的缓存通常更昂贵。 因此，较小和较快的高速缓存放置在每个CPU的本地，并且较大但较慢的共享高速缓存在几个不同的处理器之间共享。</li>
-</ul>
-<hr>
-<h1 id="0x0A"><a href="#0x0A" class="headerlink" title="0x0A"></a>0x0A</h1><p>考虑一个类似于图1.6所示的SMP系统。 举例说明驻留在内存中的数据实际上如何在每个本地缓存中具有不同的值。<br><img src="/2019/04/27/OpeatingSystemConcept-Chapter-01/001.jpg" alt="001"></p>
-<ul>
-<li>假设处理器1将值为5的数据A从主存储器读入其本地高速缓存。 类似地，处理器2也将数据A读入其本地高速缓存。 处理器1然后将A更新为10.然而，由于A驻留在处理器1的本地高速缓存中，因此更新仅在那里发生而不在处理器2的本地高速缓存中。</li>
-</ul>
-<hr>
-<h1 id="0x0B"><a href="#0x0B" class="headerlink" title="0x0B"></a>0x0B</h1><p>描述与传统PC设计操作系统相比，移动设备设计操作系统的一些挑战。</p>
-<ul>
-<li>较少的存储容量意味着操作系统必须仔细管理内存。</li>
-<li>操作系统还必须仔细管理功耗。</li>
-<li>较低的处理能力和较少的处理器意味着操作系统必须谨慎地将处理器分配给应用程序。</li>
-</ul>
-<hr>
-<h1 id="0x0C"><a href="#0x0C" class="headerlink" title="0x0C"></a>0x0C</h1><p>定义以下类型操作系统的基本属性</p>
-<ul>
-<li>Batch:具有类似需求的作业通过操作员或自动作业定序器（非交互式）一起批处理并作为一组通过计算机运行。 通过缓冲，离线操作，假脱机和多道程序设计来保持CPU和I / O设备始终处于忙碌状态，从而提高了性能。</li>
-<li>Interactive：由许多短交互组成，输入和输出在屏幕上读/写; 下一交互的结果和时间可能无法预测。 注意，纯交互系统（没有分时）只有一个用户; 例如，PC）。</li>
-<li>Time-sharing:使用CPU调度和多道程序设计来提供系统的经济交互使用。 CPU从一个用户快速切换到另一个用户。</li>
-<li>Real-time:系统必须在固定的时间内响应输入/命令，以确保正确的性能。 通常从传感器读取输入。</li>
-<li>Distributed:在几台计算机之间划分计算。 计算机不共享内存或时钟; 他们通过网络互相沟通。</li>
+<li>和上机题（p199 Project2）类似，可以不做。</li>
 </ul>
 
       
@@ -356,13 +335,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2019/04/27/OpeatingSystemConcept-Chapter-01/">OpeatingSystemConcept Chapter-01</a></p>
+        <p><span>本文标题:</span><a href="/2019/04/29/OpeatingSystemConcept-Chapter-04/">OpeatingSystemConcept-Chapter-04</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Eros John 的个人博客">Eros John</a></p>
-        <p><span>发布时间:</span>2019年04月27日 - 12时14分</p>
-        <p><span>最后更新:</span>2019年04月27日 - 12时50分</p>
+        <p><span>发布时间:</span>2019年04月29日 - 14时24分</p>
+        <p><span>最后更新:</span>2019年04月29日 - 14时45分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2019/04/27/OpeatingSystemConcept-Chapter-01/" title="OpeatingSystemConcept Chapter-01">http://yoursite.com/2019/04/27/OpeatingSystemConcept-Chapter-01/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/04/27/OpeatingSystemConcept-Chapter-01/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2019/04/29/OpeatingSystemConcept-Chapter-04/" title="OpeatingSystemConcept-Chapter-04">http://yoursite.com/2019/04/29/OpeatingSystemConcept-Chapter-04/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/04/29/OpeatingSystemConcept-Chapter-04/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -375,18 +354,9 @@
 
 <nav id="article-nav">
   
-    <a href="/2019/04/27/OpeatingSystemConcept-Chapter-02/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption"><</strong>
-      <div class="article-nav-title">
-        
-          OpeatingSystemConcept Chapter-02
-        
-      </div>
-    </a>
   
-  
-    <a href="/2019/04/25/windows编程-全局钩子/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">windows编程-全局钩子</div>
+    <a href="/2019/04/28/OpeatingSystemConcept-Chapter-03/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">OpeatingSystemConcept-Chapter-03</div>
       <strong class="article-nav-caption">></strong>
     </a>
   
@@ -397,7 +367,7 @@
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01"><span class="toc-number">1.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02"><span class="toc-number">2.</span> <span class="toc-text">0x02</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03"><span class="toc-number">3.</span> <span class="toc-text">0x03</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04"><span class="toc-number">4.</span> <span class="toc-text">0x04</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05"><span class="toc-number">5.</span> <span class="toc-text">0x05</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06"><span class="toc-number">6.</span> <span class="toc-text">0x06</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07"><span class="toc-number">7.</span> <span class="toc-text">0x07</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x08"><span class="toc-number">8.</span> <span class="toc-text">0x08</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x09"><span class="toc-number">9.</span> <span class="toc-text">0x09</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x0A"><span class="toc-number">10.</span> <span class="toc-text">0x0A</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x0B"><span class="toc-number">11.</span> <span class="toc-text">0x0B</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x0C"><span class="toc-number">12.</span> <span class="toc-text">0x0C</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01"><span class="toc-number">1.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02"><span class="toc-number">2.</span> <span class="toc-text">0x02</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03"><span class="toc-number">3.</span> <span class="toc-text">0x03</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04"><span class="toc-number">4.</span> <span class="toc-text">0x04</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05"><span class="toc-number">5.</span> <span class="toc-text">0x05</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06"><span class="toc-number">6.</span> <span class="toc-text">0x06</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07"><span class="toc-number">7.</span> <span class="toc-text">0x07</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x08"><span class="toc-number">8.</span> <span class="toc-text">0x08</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x09"><span class="toc-number">9.</span> <span class="toc-text">0x09</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x0A"><span class="toc-number">10.</span> <span class="toc-text">0x0A</span></a></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
 
@@ -436,13 +406,11 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2019/04/27/OpeatingSystemConcept-Chapter-02/" title="上一篇: OpeatingSystemConcept Chapter-02">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
-            <a href="/2019/04/25/windows编程-全局钩子/" title="下一篇: windows编程-全局钩子">
+            <a href="/2019/04/28/OpeatingSystemConcept-Chapter-03/" title="下一篇: OpeatingSystemConcept-Chapter-03">
                 <i class="fa fa-angle-right"></i>
             </a>
         
