@@ -3,15 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>Tag: Windows | ErosJohn&#39;s M.SPACE</title>
+  <title>汇编笔记 01-12 | ErosJohn&#39;s M.SPACE</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="ErosJohn&#39;s M.SPACE">
-<meta property="og:url" content="http://yoursite.com/tags/Windows/index.html">
+  <meta name="description" content="汇编语言为逆向工程的重中之重，这是我在学习汇编语言时候的一点心得笔记。">
+<meta name="keywords" content="汇编语言">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇编笔记 01-12">
+<meta property="og:url" content="http://yoursite.com/2019/04/29/汇编笔记-01-12/index.html">
 <meta property="og:site_name" content="ErosJohn&#39;s M.SPACE">
+<meta property="og:description" content="汇编语言为逆向工程的重中之重，这是我在学习汇编语言时候的一点心得笔记。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-04-29T13:18:31.334Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ErosJohn&#39;s M.SPACE">
+<meta name="twitter:title" content="汇编笔记 01-12">
+<meta name="twitter:description" content="汇编语言为逆向工程的重中之重，这是我在学习汇编语言时候的一点心得笔记。">
   
     <link rel="alternative" href="/atom.xml" title="ErosJohn&#39;s M.SPACE" type="application/atom+xml">
   
@@ -37,9 +42,9 @@
           fancybox: true,
           animate: true,
           isHome: false,
-          isPost: false,
+          isPost: true,
           isArchive: false,
-          isTag: true,
+          isTag: false,
           isCategory: false,
           open_in_new: false
       }
@@ -209,233 +214,183 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap">
+      <div class="body-wrap"><article id="post-汇编笔记-01-12" class="article article-type-post" itemscope itemprop="blogPost">
   
+    <div class="article-meta">
+      <a href="/2019/04/29/汇编笔记-01-12/" class="article-date">
+      <time datetime="2019-04-29T13:09:29.000Z" itemprop="datePublished">2019-04-29</time>
+</a>
+    </div>
   
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
     
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      汇编笔记 01-12
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/二进制/">二进制</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/汇编语言/">汇编语言</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>汇编语言为逆向工程的重中之重，<br>这是我在学习汇编语言时候的一点心得笔记。</p>
+<a id="more"></a>
+<hr>
+<h1 id="0x01-汇编基础"><a href="#0x01-汇编基础" class="headerlink" title="0x01 汇编基础"></a>0x01 汇编基础</h1><h2 id="汇编语言"><a href="#汇编语言" class="headerlink" title="汇编语言"></a>汇编语言</h2><pre><code>1.汇编指令
+2.伪指令
+3.其他符号
+</code></pre><h2 id="存储器"><a href="#存储器" class="headerlink" title="存储器"></a>存储器</h2><pre><code>指令和数据在存储器中存放，也就是平时所说的内存
+PC机中 内存作用仅次于 CPU。
+磁盘不同于内存 磁盘上的数据或者程序如果不读到
+内存中，就无法被CPU使用。
+</code></pre><h2 id="指令和数据"><a href="#指令和数据" class="headerlink" title="指令和数据"></a>指令和数据</h2><pre><code>例如：1000 1001 1101 1000
+--》 89D8H （数据）  HEX
+--》 MOV AX，BX （程序指令）
+</code></pre><h2 id="存储单元"><a href="#存储单元" class="headerlink" title="存储单元"></a>存储单元</h2><pre><code>例如 一个存储器有128个存储单元
+编号从0~127
+</code></pre><h2 id="CPU对存储器的读写"><a href="#CPU对存储器的读写" class="headerlink" title="CPU对存储器的读写"></a>CPU对存储器的读写</h2><pre><code>存储单元的地址 （地址信息）
+器件的选择，读或写命令 （控制信息）
+读或写的数据 （数据信息）
+</code></pre><h2 id="总线（BUS"><a href="#总线（BUS" class="headerlink" title="总线（BUS"></a>总线（BUS</h2><pre><code>地址总线         数据总线         控制总线
+</code></pre><hr>
+<h1 id="0x-∞-未完待续"><a href="#0x-∞-未完待续" class="headerlink" title="0x ∞ 未完待续"></a>0x ∞ 未完待续</h1><p>这个系列总共有77课，在这里开了个坑，我会认真更完的 O(∩_∩)O 。</p>
+
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
+    </div>
     
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2019/04/25/windows编程-全局钩子/" class="archive-article-date">
-      <time datetime="2019-04-25T07:08:14.000Z" itemprop="datePublished">04-25</time>
-</a>
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/04/25/windows编程-全局钩子/">windows编程-全局钩子</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Windows黑客编程/">Windows黑客编程</a>
-    </div>
-
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Windows/">Windows</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
   </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2019/04/29/汇编笔记-01-12/">汇编笔记 01-12</a></p>
+        <p><span>文章作者:</span><a href="/" title="访问 Eros John 的个人博客">Eros John</a></p>
+        <p><span>发布时间:</span>2019年04月29日 - 21时09分</p>
+        <p><span>最后更新:</span>2019年04月29日 - 21时18分</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2019/04/29/汇编笔记-01-12/" title="汇编笔记 01-12">http://yoursite.com/2019/04/29/汇编笔记-01-12/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/04/29/汇编笔记-01-12/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script src="/js/clipboard.min.js"></script>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" title="中国大陆 (CC BY-NC-SA 3.0 CN)" target="_blank">"署名-非商用-相同方式共享 3.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+<nav id="article-nav">
+  
+  
+    <a href="/2019/04/29/OpeatingSystemConcept-Chapter-04/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">OpeatingSystemConcept-Chapter-04</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2019/04/23/CrackMe-002/" class="archive-article-date">
-      <time datetime="2019-04-23T15:24:10.000Z" itemprop="datePublished">04-23</time>
-</a>
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/04/23/CrackMe-002/">CrackMe-002</a>
-    </h1>
-  
 
-        <div class="article-info info-on-archive">
-          
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/二进制/">二进制</a>
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-汇编基础"><span class="toc-number">1.</span> <span class="toc-text">0x01 汇编基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#汇编语言"><span class="toc-number">1.1.</span> <span class="toc-text">汇编语言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#存储器"><span class="toc-number">1.2.</span> <span class="toc-text">存储器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指令和数据"><span class="toc-number">1.3.</span> <span class="toc-text">指令和数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#存储单元"><span class="toc-number">1.4.</span> <span class="toc-text">存储单元</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU对存储器的读写"><span class="toc-number">1.5.</span> <span class="toc-text">CPU对存储器的读写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总线（BUS"><span class="toc-number">1.6.</span> <span class="toc-text">总线（BUS</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x-∞-未完待续"><span class="toc-number">2.</span> <span class="toc-text">0x ∞ 未完待续</span></a></li></ol>
+</div>
+<input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script>
+    var valueHide = "隐藏目录";
+    var valueShow = "显示目录";
+
+    if ($(".left-col").is(":hidden")) {
+        $("#tocButton").attr("value", valueShow);
+    }
+    $("#tocButton").click(function() {
+        if ($("#toc").is(":hidden")) {
+            $("#tocButton").attr("value", valueHide);
+            $("#toc").slideDown(320);
+        }
+        else {
+            $("#tocButton").attr("value", valueShow);
+            $("#toc").slideUp(350);
+        }
+    })
+    if ($(".toc").length < 1) {
+        $("#toc, #tocButton").hide();
+    }
+</script>
+
+
+
+
+
+
+
+    
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+        
+            <a href="/2019/04/29/OpeatingSystemConcept-Chapter-04/" title="下一篇: OpeatingSystemConcept-Chapter-04">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
     </div>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/04/29/汇编笔记-01-12/">汇编笔记 01-12</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/29/OpeatingSystemConcept-Chapter-04/">OpeatingSystemConcept-Chapter-04</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/28/OpeatingSystemConcept-Chapter-03/">OpeatingSystemConcept-Chapter-03</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/27/OpeatingSystemConcept-Chapter-02/">OpeatingSystemConcept Chapter-02</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/27/OpeatingSystemConcept-Chapter-01/">OpeatingSystemConcept Chapter-01</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/25/windows编程-全局钩子/">windows编程-全局钩子</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/23/CrackMe-002/">CrackMe-002</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/12/CrackMe-001/">CrackMe-001</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/11/PE文件格式笔记-001/">PE文件格式笔记-001</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/11/windows编程-资源释放/">windows编程:资源释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/10/windows编程-单次运行/">windows编程:单次运行</a></li></ul>
+    <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+    <script>
+        $(".post-list").addClass("toc-article");
+        $(".post-list-item a").attr("target","_blank");
+        $("#post-nav-button > a:nth-child(2)").click(function() {
+            $(".fa-bars, .fa-times").toggle();
+            $(".post-list").toggle(300);
+            if ($(".toc").length > 0) {
+                $("#toc, #tocButton").toggle(200, function() {
+                    if ($(".switch-area").is(":visible")) {
+                        $("#tocButton").attr("value", valueHide);
+                        }
+                    })
+            }
+            else {
+            }
+        })
+    </script>
 
 
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CrackMe/">CrackMe</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Windows/">Windows</a></li></ul>
-    </div>
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2019/04/12/CrackMe-001/" class="archive-article-date">
-      <time datetime="2019-04-12T11:50:02.000Z" itemprop="datePublished">04-12</time>
-</a>
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/04/12/CrackMe-001/">CrackMe-001</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/二进制/">二进制</a>
-    </div>
-
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CrackMe/">CrackMe</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Windows/">Windows</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2019/04/11/PE文件格式笔记-001/" class="archive-article-date">
-      <time datetime="2019-04-11T13:24:07.000Z" itemprop="datePublished">04-11</time>
-</a>
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/04/11/PE文件格式笔记-001/">PE文件格式笔记-001</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/二进制/">二进制</a>
-    </div>
-
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PE/">PE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Windows/">Windows</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2019/04/11/windows编程-资源释放/" class="archive-article-date">
-      <time datetime="2019-04-11T04:58:38.000Z" itemprop="datePublished">04-11</time>
-</a>
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/04/11/windows编程-资源释放/">windows编程:资源释放</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Windows黑客编程/">Windows黑客编程</a>
-    </div>
-
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Windows/">Windows</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2019/04/10/windows编程-单次运行/" class="archive-article-date">
-      <time datetime="2019-04-10T13:18:42.000Z" itemprop="datePublished">04-10</time>
-</a>
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/04/10/windows编程-单次运行/">windows编程:单次运行</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Windows黑客编程/">Windows黑客编程</a>
-    </div>
-
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Windows/">Windows</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
-
+    <script>
+        
+    </script>
 </div>
       <footer id="footer">
     <div class="outer">
@@ -500,17 +455,6 @@
         };
     })
 </script>
-
-    <button class="hide-labels">TAG 开关</button>
-    <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js">
-    </script>
-    <script>
-        $(document).ready(function() {
-            $("button").click(function() {
-                $(".article-info").toggle(200);
-            });
-        });
-    </script>
 
 <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
 </script>
