@@ -18,7 +18,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-05/003.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-05/004.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-05/005.jpg">
-<meta property="og:updated_time" content="2019-05-04T08:04:53.479Z">
+<meta property="og:updated_time" content="2019-05-04T13:38:17.389Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OpeatingSystemConcept-Chapter-05">
 <meta name="twitter:description" content="这是操作系统概念第九版课后部分题目的答案.多看看，and pass the exam.">
@@ -308,7 +308,7 @@
 <h1 id="0x08"><a href="#0x08" class="headerlink" title="0x08"></a>0x08</h1><p>考虑分配和释放流程的代码示例，如图5.23所示。<br><img src="/2019/05/04/OpeatingSystemConcept-Chapter-05/004.jpg" alt="004"><br>a）确定竞争条件。<br>b）假设您有一个名为mutex的互斥锁，其操作为acquire（）和release（）。 指示需要锁定的位置以防止竞争条件。<br>c）我们可以用原子整数替换整数变量吗？</p>
 <p>Answer ：</p>
 <ul>
-<li>a）可变数量的过程存在竞争条件。</li>
+<li>a）进程的可变数量存在竞争条件。(There is a race condition on the variable number of processes.)</li>
 <li>b）在退出每个函数之前，必须在输入每个函数时调用acquire（）并调用release（）。</li>
 <li>c）不，它没有用。 原因是因为竞争发生在allocate process（）函数中，其中首先在if语句中测试进程数，然后根据测试的值进行更新。在测试时，进程数= 254可能是由于竞争条件，在再次增加之前由另一个线程设置为255。</li>
 </ul>
@@ -340,7 +340,7 @@
         <p><span>本文标题:</span><a href="/2019/05/04/OpeatingSystemConcept-Chapter-05/">OpeatingSystemConcept-Chapter-05</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Eros John 的个人博客">Eros John</a></p>
         <p><span>发布时间:</span>2019年05月04日 - 15时24分</p>
-        <p><span>最后更新:</span>2019年05月04日 - 16时04分</p>
+        <p><span>最后更新:</span>2019年05月04日 - 21时38分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2019/05/04/OpeatingSystemConcept-Chapter-05/" title="OpeatingSystemConcept-Chapter-05">http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-05/</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-05/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
