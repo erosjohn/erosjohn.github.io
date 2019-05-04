@@ -3,26 +3,30 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>OpeatingSystemConcept-Chapter-03 | ErosJohn&#39;s M.SPACE</title>
+  <title>OpeatingSystemConcept-Chapter-06 | ErosJohn&#39;s M.SPACE</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="这是操作系统概念第九版课后部分题目的答案.多看看，and pass the exam.">
 <meta name="keywords" content="Linux&#x2F;Unix">
 <meta property="og:type" content="article">
-<meta property="og:title" content="OpeatingSystemConcept-Chapter-03">
-<meta property="og:url" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/index.html">
+<meta property="og:title" content="OpeatingSystemConcept-Chapter-06">
+<meta property="og:url" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/index.html">
 <meta property="og:site_name" content="ErosJohn&#39;s M.SPACE">
 <meta property="og:description" content="这是操作系统概念第九版课后部分题目的答案.多看看，and pass the exam.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/001.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/002.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/003.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/004.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/005.jpg">
-<meta property="og:updated_time" content="2019-04-28T16:06:48.952Z">
+<meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/001.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/002.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/003.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/004.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/005.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/006.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/007.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/008.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/009.jpg">
+<meta property="og:updated_time" content="2019-05-04T08:44:20.649Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="OpeatingSystemConcept-Chapter-03">
+<meta name="twitter:title" content="OpeatingSystemConcept-Chapter-06">
 <meta name="twitter:description" content="这是操作系统概念第九版课后部分题目的答案.多看看，and pass the exam.">
-<meta name="twitter:image" content="http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/001.jpg">
+<meta name="twitter:image" content="http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/001.jpg">
   
     <link rel="alternative" href="/atom.xml" title="ErosJohn&#39;s M.SPACE" type="application/atom+xml">
   
@@ -220,11 +224,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-OpeatingSystemConcept-Chapter-03" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-OpeatingSystemConcept-Chapter-06" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2019/04/28/OpeatingSystemConcept-Chapter-03/" class="article-date">
-      <time datetime="2019-04-28T14:19:30.000Z" itemprop="datePublished">2019-04-28</time>
+      <a href="/2019/05/04/OpeatingSystemConcept-Chapter-06/" class="article-date">
+      <time datetime="2019-05-04T08:29:14.000Z" itemprop="datePublished">2019-05-04</time>
 </a>
     </div>
   
@@ -237,7 +241,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      OpeatingSystemConcept-Chapter-03
+      OpeatingSystemConcept-Chapter-06
     </h1>
   
 
@@ -264,56 +268,65 @@
           
         <p>这是操作系统概念第九版课后部分题目的答案.<br>多看看，and pass the exam.<br><a id="more"></a></p>
 <hr>
-<h1 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h1><p>使用图3.30中所示的程序，解释A行的输出结果<br><img src="/2019/04/28/OpeatingSystemConcept-Chapter-03/001.jpg" alt="001"></p>
+<h1 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h1><p>解释抢占和非抢占调度之间的区别。</p>
 <ul>
-<li>The result is still 5 as the child updates its copy of value. When control returns to the parent, its value remains at 5.</li>
+<li>抢占式调度允许进程在执行过程中被中断，将CPU带走并将其分配给另一个进程。</li>
+<li>非抢占式调度确保只有当CPU完成当前CPU突发时，进程才会放弃对CPU的控制。</li>
+<li>（了解发生CPU调度决策的四个条件）</li>
 </ul>
 <hr>
-<h1 id="0x02"><a href="#0x02" class="headerlink" title="0x02"></a>0x02</h1><p>当进程使用fork（）操作创建新进程时，父进程和子进程之间共享以下哪个状态？（堆/栈/共享内存段）</p>
+<h1 id="0x02"><a href="#0x02" class="headerlink" title="0x02"></a>0x02</h1><p>假设以下过程在指定的时间到达执行。 每个进程都将运行所列的时间。 在回答问题时，使用非抢先式调度，并根据您必须做出决定时所拥有的信息做出所有决策。<br><img src="/2019/05/04/OpeatingSystemConcept-Chapter-06/001.jpg" alt="001"><br>a）使用FCFS调度算法的这些过程的平均周转时间是多少？<br>b）使用SJF调度算法，这些过程的平均周转时间是多少？<br>c）SJF算法应该可以提高性能，但是请注意我们选择在0时刻运行流程P1，因为我们不知道两个较短的流程会很快到达。计算如果CPU在前1个单元处于空闲状态然后使用SJF调度时的平均周转时间。请记住，进程P1和P2在此空闲时间内正在等待，因此它们的等待时间可能会增加。该算法可以称为未来知识调度。</p>
 <ul>
-<li>父进程和新分叉的子进程之间只共享共享内存段。 堆栈和堆的副本是为新创建的进程创建的。</li>
+<li>a.    10.53</li>
+<li>b.    9.53</li>
+<li>c.    6.86<br>请记住，周转时间是结束时间减去到达时间，因此您必须减去到达时间以计算周转时间。<br><img src="/2019/05/04/OpeatingSystemConcept-Chapter-06/002.jpg" alt="002"></li>
 </ul>
 <hr>
-<h1 id="0x03"><a href="#0x03" class="headerlink" title="0x03"></a>0x03</h1><p>描述短期，中期和长期调度之间的差异。</p>
+<h1 id="0x03"><a href="#0x03" class="headerlink" title="0x03"></a>0x03</h1><p>假设调度算法（在短期CPU调度级别）支持那些在最近使用最少处理器时间的进程。 为什么这个算法会支持受I / O约束的程序，却又不会永久地饿死CPU绑定的程序？</p>
 <ul>
-<li>短期（CPU调度程序）：从内存中准备执行的进程中选择进程，并为其分配CPU。</li>
-<li>中期（内存管理器）：从就绪或阻塞队列中选择一个进程，然后将它们从内存交换到磁盘，然后再将它们交换为继续运行。</li>
-<li>长期（作业调度程序）：确定哪些作业从磁盘上的后端存储进入内存以进行处理。</li>
-<li>主要区别在于执行频率。</li>
+<li>它有利于I / O绑定程序，因为它们的CPU突发请求相对较短; 但是，受CPU限制的程序不会饿死，因为受I / O限制的程序会相对频繁地放弃CPU以进行I / O操作。</li>
 </ul>
 <hr>
-<h1 id="0x04"><a href="#0x04" class="headerlink" title="0x04"></a>0x04</h1><p>描述内核对进程之间的上下文切换所采取的操作。</p>
+<h1 id="0x04"><a href="#0x04" class="headerlink" title="0x04"></a>0x04</h1><p>传统的UNIX调度程序强制执行优先级编号和优先级之间的反向关系：数字越大，优先级越低。 调度程序使用以下函数每秒重新计算一次进程优先级：<br>优先级=（最近的CPU使用率/ 2）+基数<br>其中base = 60且最近的CPU使用率是指一个值，该值指示进程使用CPU的频率，因为上次重新计算了优先级。<br>假设进程P1的最近CPU使用率为40，进程P2为18，而进程P3为10.当重新计算优先级时，这三个进程的新优先级是什么？ 基于此信息，传统的UNIX调度程序是否会提高或降低CPU绑定进程的相对优先级？</p>
 <ul>
-<li>1.响应时钟中断，OS保存当前正在执行的进程的PC和用户堆栈指针，并将控制转移到内核时钟中断处理程序，</li>
-<li>2.时钟中断处理程序在进程PCB中保存其余寄存器以及其他机器状态，例如浮点寄存器的状态。</li>
-<li>3.操作系统调用调度程序来确定要执行的下一个进程，</li>
-<li>4.然后，OS从其PCB检索下一个进程的状态，并恢复寄存器。 此还原操作使处理器返回到此进程先前中断的状态，在用户代码中以用户模式权限执行。</li>
+<li>分配给流程的优先级分别为80,69和65。 调度程序降低了CPU绑定进程的相对优先级。</li>
 </ul>
 <hr>
-<h1 id="0x05"><a href="#0x05" class="headerlink" title="0x05"></a>0x05</h1><p>包括初始父进程，程序创建了多少进程，如图3.32所示？<br><img src="/2019/04/28/OpeatingSystemConcept-Chapter-03/002.jpg" alt="002"></p>
+<h1 id="0x05"><a href="#0x05" class="headerlink" title="0x05"></a>0x05</h1><p>为什么调度程序将I / O绑定程序与CPU绑定程序区分开来很重要？</p>
 <ul>
-<li>16</li>
+<li>I / O绑定程序具有在执行I / O之前仅执行少量计算的属性。 此类程序通常不会耗尽其整个CPU量。</li>
+<li>另一方面，CPU绑定程序使用它们的整个量程而不执行任何阻塞I / O操作。</li>
+<li>因此，可以通过为I / O绑定程序提供更高优先级并允许它们在CPU绑定程序之前执行，从而更好地利用计算机资源（CPU和I / O设备）。</li>
 </ul>
 <hr>
-<h1 id="0x06"><a href="#0x06" class="headerlink" title="0x06"></a>0x06</h1><p>解释在何种情况下，将达到图3.33中标记为printf（“LINE J”）的代码行。<br><img src="/2019/04/28/OpeatingSystemConcept-Chapter-03/003.jpg" alt="003"></p>
+<h1 id="0x06"><a href="#0x06" class="headerlink" title="0x06"></a>0x06</h1><p>在第5章中，我们讨论了各种内核数据结构的可能竞争条件。大多数调度算法都维护一个运行队列，该队列列出了可以在处理器上运行的进程。 在多核系统上，有两种通用选项：<br>（1）每个处理核心都有自己的运行队列，或者<br>（2）所有处理核心共享一个运行队列。每种方法的优点和缺点是什么？</p>
 <ul>
-<li>对exec（）的调用用指定为exec（）参数的程序替换进程的地址空间。</li>
-<li>如果对exec（）的调用成功，则新程序现在正在运行，并且从调用exec（）的控制永远不会返回。 在这种情况下，行printf（“Line J”）; 永远不会被执行。</li>
-<li>但是，如果在对exec（）的调用中发生错误，则该函数返回控制，因此返回行printf（“Line J”）; 会被执行。</li>
+<li>每个处理核心具有自己的运行队列的主要优点是，当调度程序在2个或更多处理器上并发运行时，单个运行队列不会发生争用。 当必须为处理核心做出调度决策时，调度程序只需要查看其私有运行队列。</li>
+<li>单个共享运行队列的缺点是必须使用锁来保护它以防止竞争条件和处理核心可用于运行线程，但它必须首先获取锁以从单个队列中检索线程。 但是，负载平衡可能不是单个运行队列的问题，而当每个处理核心都有自己的运行队列时，不同的运行队列之间必须存在某种负载平衡。</li>
 </ul>
 <hr>
-<h1 id="0x07"><a href="#0x07" class="headerlink" title="0x07"></a>0x07</h1><p>使用图3.34中的程序，识别A，B，C和D行的pid值。（假设父和子的实际pid分别为2600和2603。）<br><img src="/2019/04/28/OpeatingSystemConcept-Chapter-03/004.jpg" alt="004"></p>
+<h1 id="0x07"><a href="#0x07" class="headerlink" title="0x07"></a>0x07</h1><p>考虑以下一组进程，以毫秒为单位给出CPU突发的长度<br><img src="/2019/05/04/OpeatingSystemConcept-Chapter-06/003.jpg" alt="003"><br><img src="/2019/05/04/OpeatingSystemConcept-Chapter-06/004.jpg" alt="004"><br>假设过程在时间0处都以P1，P2，P3，P4，P5的顺序到达。<br>a）绘制四个甘特图，用以下调度算法说明这些过程的执行：FCFS，SJF，非抢占优先级（较大的优先级数意味着较高的优先级）和RR（量子= 2）（量子= 1）。<br>b）a部分中每个调度算法的每个过程的周转时间是多少？<br>c）每个调度算法的每个进程的等待时间是多少？<br>d）哪种算法导致最小平均等待时间（在所有过程中）？</p>
+<p><img src="/2019/05/04/OpeatingSystemConcept-Chapter-06/005.jpg" alt="005"><br><img src="/2019/05/04/OpeatingSystemConcept-Chapter-06/006.jpg" alt="006"><br><img src="/2019/05/04/OpeatingSystemConcept-Chapter-06/007.jpg" alt="007"><br>d)最短的工作优先</p>
+<hr>
+<h1 id="0x08"><a href="#0x08" class="headerlink" title="0x08"></a>0x08</h1><p>使用抢占式循环调度算法正在调度以下过程。 为每个进程分配一个数字优先级，数字越大表示相对优先级越高。 除了下面列出的进程外，系统还有一个空闲任务（它不占用CPU资源并被识别为Pidle）。 此任务的优先级为0，并且只要系统没有其他可用的进程运行，就会安排该任务。 时间量的长度是10个单位。 如果进程被更高优先级的进程抢占，则抢占的进程将放置在队列的末尾。<br><img src="/2019/05/04/OpeatingSystemConcept-Chapter-06/008.jpg" alt="008"><br>a）使用甘特图显示流程的调度顺序。<br>b）每个流程的周转时间是多少？<br>c）每个过程的等待时间是多少？<br>d）CPU利用率是多少？<br>Answer<br>a.<br>0-P1<br>10-P1<br>20-Pidle<br>25-P2<br>35-P3<br>45-P2<br>55-P3<br>60-P4<br>70-P4<br>75-P2<br>80-P3<br>90-Pidle<br>100-P5<br>105-P6<br>115-P5<br>120- end<br><img src="/2019/05/04/OpeatingSystemConcept-Chapter-06/009.jpg" alt="009"></p>
 <ul>
-<li>A=0</li>
-<li>B=2603</li>
-<li>C=2603</li>
-<li>D=2600</li>
+<li><p>b. p1: 20-0 = 20, p2: 80-25 = 55, p3: 90 - 30 = 60, p4: 75-60 = 15, p5: 120-100 = 20, p6: 115-105 = 10</p>
+</li>
+<li><p>c. p1: 0, p2: 40, p3: 35, p4: 0, p5: 10, p6: 0</p>
+</li>
+<li><p>d. 105/120 = 87.5 percent.</p>
+</li>
 </ul>
 <hr>
-<h1 id="0x08"><a href="#0x08" class="headerlink" title="0x08"></a>0x08</h1><p>使用图3.35所示的程序，解释X和Y行的输出结果。<br><img src="/2019/04/28/OpeatingSystemConcept-Chapter-03/005.jpg" alt="005"></p>
+<h1 id="0x09"><a href="#0x09" class="headerlink" title="0x09"></a>0x09</h1><p>以下哪种调度算法可能导致饥饿？<br>a）先到先得<br>b）最短的工作<br>c）循环赛<br>d）优先权</p>
 <ul>
-<li>由于子项是父项的副本，因此子项所做的任何更改都将出现在其数据副本中，并且不会反映在父项中。</li>
-<li>结果，子行在X行输出的值为0，-1，-4，-9，-16。父级在Y行输出的值为0,1,2,3,4</li>
+<li>最短作业优先和基于优先级的调度算法可能导致饥饿。</li>
+</ul>
+<hr>
+<h1 id="0x0A"><a href="#0x0A" class="headerlink" title="0x0A"></a>0x0A</h1><p>考虑一个运行十个I / O绑定任务和一个CPU绑定任务的系统。 假设I / O绑定任务为每毫秒CPU计算发出一次I / O操作，并且每个I / O操作需要10毫秒才能完成。 还假设上下文切换开销为0.1毫秒，并且所有进程都是长时间运行的任务。 在以下情况下描述循环调度程序的CPU利用率：<br>a）时间量是1毫秒<br>b）时间量是10毫秒</p>
+<ul>
+<li>a）时间量是1毫秒：无论调度哪个进程，调度程序都会为每个上下文切换产生0.1毫秒的上下文切换成本。 这导致CPU利用率为1 / 1.1 * 100 = 91％。</li>
+<li>b）时间量是10毫秒：I / O绑定任务在耗尽仅1毫秒的时间量后才会产生上下文切换。 因此，循环所有进程所需的时间是10 <em> 1.1 + 10.1（因为每个I / O绑定任务执行1毫秒然后引发上下文切换任务，而CPU绑定任务执行10毫秒之后才会产生 上下文切换）。 因此CPU利用率为20 / 21.1 </em> 100 = 94％。</li>
 </ul>
 
       
@@ -324,13 +337,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2019/04/28/OpeatingSystemConcept-Chapter-03/">OpeatingSystemConcept-Chapter-03</a></p>
+        <p><span>本文标题:</span><a href="/2019/05/04/OpeatingSystemConcept-Chapter-06/">OpeatingSystemConcept-Chapter-06</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Eros John 的个人博客">Eros John</a></p>
-        <p><span>发布时间:</span>2019年04月28日 - 22时19分</p>
-        <p><span>最后更新:</span>2019年04月29日 - 00时06分</p>
+        <p><span>发布时间:</span>2019年05月04日 - 16时29分</p>
+        <p><span>最后更新:</span>2019年05月04日 - 16时44分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2019/04/28/OpeatingSystemConcept-Chapter-03/" title="OpeatingSystemConcept-Chapter-03">http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/04/28/OpeatingSystemConcept-Chapter-03/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2019/05/04/OpeatingSystemConcept-Chapter-06/" title="OpeatingSystemConcept-Chapter-06">http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/05/04/OpeatingSystemConcept-Chapter-06/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -343,18 +356,9 @@
 
 <nav id="article-nav">
   
-    <a href="/2019/04/29/OpeatingSystemConcept-Chapter-04/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption"><</strong>
-      <div class="article-nav-title">
-        
-          OpeatingSystemConcept-Chapter-04
-        
-      </div>
-    </a>
   
-  
-    <a href="/2019/04/27/OpeatingSystemConcept-Chapter-02/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">OpeatingSystemConcept Chapter-02</div>
+    <a href="/2019/05/04/OpeatingSystemConcept-Chapter-05/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">OpeatingSystemConcept-Chapter-05</div>
       <strong class="article-nav-caption">></strong>
     </a>
   
@@ -365,7 +369,7 @@
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01"><span class="toc-number">1.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02"><span class="toc-number">2.</span> <span class="toc-text">0x02</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03"><span class="toc-number">3.</span> <span class="toc-text">0x03</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04"><span class="toc-number">4.</span> <span class="toc-text">0x04</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05"><span class="toc-number">5.</span> <span class="toc-text">0x05</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06"><span class="toc-number">6.</span> <span class="toc-text">0x06</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07"><span class="toc-number">7.</span> <span class="toc-text">0x07</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x08"><span class="toc-number">8.</span> <span class="toc-text">0x08</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01"><span class="toc-number">1.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02"><span class="toc-number">2.</span> <span class="toc-text">0x02</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03"><span class="toc-number">3.</span> <span class="toc-text">0x03</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04"><span class="toc-number">4.</span> <span class="toc-text">0x04</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05"><span class="toc-number">5.</span> <span class="toc-text">0x05</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06"><span class="toc-number">6.</span> <span class="toc-text">0x06</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07"><span class="toc-number">7.</span> <span class="toc-text">0x07</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x08"><span class="toc-number">8.</span> <span class="toc-text">0x08</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x09"><span class="toc-number">9.</span> <span class="toc-text">0x09</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x0A"><span class="toc-number">10.</span> <span class="toc-text">0x0A</span></a></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
 
@@ -404,13 +408,11 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2019/04/29/OpeatingSystemConcept-Chapter-04/" title="上一篇: OpeatingSystemConcept-Chapter-04">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
-            <a href="/2019/04/27/OpeatingSystemConcept-Chapter-02/" title="下一篇: OpeatingSystemConcept Chapter-02">
+            <a href="/2019/05/04/OpeatingSystemConcept-Chapter-05/" title="下一篇: OpeatingSystemConcept-Chapter-05">
                 <i class="fa fa-angle-right"></i>
             </a>
         
