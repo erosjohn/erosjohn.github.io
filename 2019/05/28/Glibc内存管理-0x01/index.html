@@ -16,7 +16,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/001.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/002.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/003.jpg">
-<meta property="og:updated_time" content="2019-05-28T16:00:17.406Z">
+<meta property="og:updated_time" content="2019-05-28T16:05:54.928Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Glibc内存管理-0x01">
 <meta name="twitter:description" content="在二进制中，堆显然是必不可少的。这记录了我在学习堆时的一些心得。">
@@ -267,14 +267,8 @@
 <h2 id="32-位模式下进程默认内存布局"><a href="#32-位模式下进程默认内存布局" class="headerlink" title="32 位模式下进程默认内存布局"></a>32 位模式下进程默认内存布局</h2><p><img src="/2019/05/28/Glibc内存管理-0x01/002.jpg" alt="001"></p>
 <h2 id="64-位模式下进程内存布局"><a href="#64-位模式下进程内存布局" class="headerlink" title="64 位模式下进程内存布局"></a>64 位模式下进程内存布局</h2><p><img src="/2019/05/28/Glibc内存管理-0x01/003.jpg" alt="001"></p>
 <h1 id="操作系统内存分配的相关函数"><a href="#操作系统内存分配的相关函数" class="headerlink" title="操作系统内存分配的相关函数"></a>操作系统内存分配的相关函数</h1><p>对 Heap 操作系统提供了 brk()函数，C 运行时库提供了 sbrk()函数<br>对 mmap 映射区域的操作，操作系统提供了 mmap()和 munmap()函数</p>
-<h2 id="Heap"><a href="#Heap" class="headerlink" title="Heap"></a>Heap</h2><p>Heap -&gt; brk()   //最小功能<br>     -&gt; sbrk()  //较为复杂的功能</p>
-<pre><code>内核数据结构 mm_struct -&gt;  start_code 代码段起始地址
-                       -&gt;  end_code   代码段终止地址
-                       -&gt;  start_data 数据段起始地址
-                       -&gt;  end_data   数据段终止地址
-                       -&gt;  start_brk  堆起始地址
-                       -&gt;  动态的堆终止地址
-</code></pre><p>系统调用 brk()是一个非常简单的系统调用，只是简单地改变 mm_struct 结构的成员变量 brk 的值。</p>
+<h2 id="Heap"><a href="#Heap" class="headerlink" title="Heap"></a>Heap</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Heap -&gt; brk()   //最小功能</span><br><span class="line">     -&gt; sbrk()  //较为复杂的功能</span><br><span class="line"></span><br><span class="line">内核数据结构 mm_struct -&gt;  start_code 代码段起始地址</span><br><span class="line">                      -&gt;  end_code   代码段终止地址</span><br><span class="line">                      -&gt;  start_data 数据段起始地址</span><br><span class="line">                      -&gt;  end_data   数据段终止地址</span><br><span class="line">                      -&gt;  start_brk  堆起始地址</span><br><span class="line">                      -&gt;  动态的堆终止地址</span><br></pre></td></tr></table></figure>
+<p>系统调用 brk()是一个非常简单的系统调用，只是简单地改变 mm_struct 结构的成员变量 brk 的值。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">brk</span><span class="params">(<span class="keyword">void</span> *addr)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">sbrk</span><span class="params">(<span class="keyword">intptr_t</span> increment)</span></span>;   <span class="comment">//sbrk()的参数 increment 为 0 时，sbrk()返回的是进程的当前 brk 值，increment 为正数时扩展 brk 值，当 increment 为负值时收缩 brk 值。</span></span><br></pre></td></tr></table></figure>
 <h2 id="Mmap"><a href="#Mmap" class="headerlink" title="Mmap"></a>Mmap</h2><p>最近太忙了，先溜了。</p>
 
@@ -289,7 +283,7 @@
         <p><span>本文标题:</span><a href="/2019/05/28/Glibc内存管理-0x01/">Glibc内存管理-0x01</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Eros John 的个人博客">Eros John</a></p>
         <p><span>发布时间:</span>2019年05月28日 - 22时29分</p>
-        <p><span>最后更新:</span>2019年05月29日 - 00时00分</p>
+        <p><span>最后更新:</span>2019年05月29日 - 00时05分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2019/05/28/Glibc内存管理-0x01/" title="Glibc内存管理-0x01">http://yoursite.com/2019/05/28/Glibc内存管理-0x01/</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/05/28/Glibc内存管理-0x01/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
