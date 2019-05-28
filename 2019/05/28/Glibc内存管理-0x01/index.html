@@ -3,19 +3,24 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>PE文件格式笔记-001 | ErosJohn&#39;s M.SPACE</title>
+  <title>Glibc内存管理-0x01 | ErosJohn&#39;s M.SPACE</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="keywords" content="Windows,PE">
+  <meta name="description" content="在二进制中，堆显然是必不可少的。这记录了我在学习堆时的一些心得。">
+<meta name="keywords" content="Heap,Linux">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PE文件格式笔记-001">
-<meta property="og:url" content="http://yoursite.com/2019/04/11/PE文件格式笔记-001/index.html">
+<meta property="og:title" content="Glibc内存管理-0x01">
+<meta property="og:url" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/index.html">
 <meta property="og:site_name" content="ErosJohn&#39;s M.SPACE">
+<meta property="og:description" content="在二进制中，堆显然是必不可少的。这记录了我在学习堆时的一些心得。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/04/11/PE文件格式笔记-001/bg.jpg">
-<meta property="og:updated_time" content="2019-04-11T13:34:34.429Z">
+<meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/001.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/002.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/003.jpg">
+<meta property="og:updated_time" content="2019-05-28T16:00:17.406Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="PE文件格式笔记-001">
-<meta name="twitter:image" content="http://yoursite.com/2019/04/11/PE文件格式笔记-001/bg.jpg">
+<meta name="twitter:title" content="Glibc内存管理-0x01">
+<meta name="twitter:description" content="在二进制中，堆显然是必不可少的。这记录了我在学习堆时的一些心得。">
+<meta name="twitter:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/001.jpg">
   
     <link rel="alternative" href="/atom.xml" title="ErosJohn&#39;s M.SPACE" type="application/atom+xml">
   
@@ -213,11 +218,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-PE文件格式笔记-001" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-Glibc内存管理-0x01" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2019/04/11/PE文件格式笔记-001/" class="article-date">
-      <time datetime="2019-04-11T13:24:07.000Z" itemprop="datePublished">2019-04-11</time>
+      <a href="/2019/05/28/Glibc内存管理-0x01/" class="article-date">
+      <time datetime="2019-05-28T14:29:37.000Z" itemprop="datePublished">2019-05-28</time>
 </a>
     </div>
   
@@ -230,7 +235,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      PE文件格式笔记-001
+      Glibc内存管理-0x01
     </h1>
   
 
@@ -239,13 +244,13 @@
       <div class="article-info article-info-post">
         
     <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/二进制/">二进制</a>
+    <a class="article-category-link" href="/categories/Pwn/">Pwn</a>
     </div>
 
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PE/">PE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Windows/">Windows</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Heap/">Heap</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -255,45 +260,24 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p><img src="/2019/04/11/PE文件格式笔记-001/bg.jpg" alt="美图"></p>
+        <p>在二进制中，堆显然是必不可少的。<br>这记录了我在学习堆时的一些心得。</p>
 <a id="more"></a>
 <hr>
-<h1 id="0x01-名词解释"><a href="#0x01-名词解释" class="headerlink" title="0x01 名词解释"></a>0x01 名词解释</h1><ul>
-<li>头：泛指一个数据（块）结构的起始位置。</li>
-<li>偏移：用于指定文件中的某个位置。</li>
-<li>页：x86平台内存中管理数据的最小单位，大小一般为4KB。</li>
-<li>区段：指PE文件结构中的一个数据段。</li>
-<li>映像：泛指映射在内存中的PE结构的可执行文件（exe、dll、sys、ocx等）。</li>
-<li>字段：数据结构中的最小单位，从编程角度来看就是结构体中的成员。</li>
-</ul>
-<hr>
-<h1 id="0x02-MS-DOS头"><a href="#0x02-MS-DOS头" class="headerlink" title="0x02 MS-DOS头"></a>0x02 MS-DOS头</h1><h2 id="1-MS-DOS中代码含义"><a href="#1-MS-DOS中代码含义" class="headerlink" title="1.MS-DOS中代码含义"></a>1.MS-DOS中代码含义</h2><ul>
-<li>e_magic:MZ标志位，也叫魔数，表示这是一个MS-DOS下的可执行文件。</li>
-<li>e_cblp:文件末页字节数，在可执行页（页大小512B）最后一页中的字节数。如果其值为0，则表示最后一页全部被占用。</li>
-<li>e_cp:可执行文件中的页数。</li>
-<li>e_crlc:DOS Sub中重定位项的数目，可能为0。</li>
-<li>e_cparhdr:程序数据起始于头部之后，此字段可以用来计算相应的文件偏移。如果头部不是512B的倍数，一些操作系统或者程序可能执行失败。</li>
-<li>e_minalloc:最小附加内存段需求，除代码大小外最小需分配的内存段大小。</li>
-<li>e_maxalloc:最大附加内存段需求，除代码大小外最大需分配的内存段大小。</li>
-<li>e_ss:初始SS值，用来初始化SS（堆栈段）以启动可执行文件。</li>
-<li>e_sp:初始SP值，用来初始化SP（堆栈指针寄存器）的值。</li>
-<li>e_csum:可执行文件的校验和（或者直接置为0）。</li>
-<li>e_ip:初始IP值，初始化IP寄存器值（程序入口点）。</li>
-<li>e_cs:初始CS值，初始化CS段（与上一个字段组成CS:IP）。</li>
-<li>e_lfarlc:重定位表的偏移。</li>
-<li>e_ovno:代码附加数（为0x0则代表只有主程序）。</li>
-<li>e_res[4]:保留4个WORD大小的空间留作他用。</li>
-<li>e_oemid:OEM厂商的ID。</li>
-<li>e_oeminfo:OEM厂商的信息。</li>
-<li>e_res2[10]:保留10个WORD大小的空间留作他用。</li>
-<li>e_lfanew:新文件头地址，新的EXE文件头偏移地址。</li>
-</ul>
-<h2 id="2-重要字段"><a href="#2-重要字段" class="headerlink" title="2.重要字段"></a>2.重要字段</h2><p>一般情况下MS-DOS我们需要关注第一个e_magic以及最后一个e_lfanew。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> IMAGE_DOS_SIGNATURE 0x4D5A   <span class="comment">// MZ</span></span></span><br></pre></td></tr></table></figure></p>
-<p>第一个e_magic字段的值为0x4D5A，定义了这个值。<br>此字段告诉我们这是一个MS-DOS系统中的可执行文件。</p>
-<p>而e_lfanew字段引导我们找到新的EXE文件头（这个偏移指向的EXE文件几乎总是PE文件头），进而判断可执行文件是否为PE文件。</p>
-<h2 id="3-其他字段"><a href="#3-其他字段" class="headerlink" title="3.其他字段"></a>3.其他字段</h2><p>第13字段e_lfarlc，偏移为0x18的e_lfarlc字段指向的重定位表头部其实也是DOS Stub的其实偏移地址，由此往前推4个字节便是指向PE文件头e_lfanew的地址。（e_lfanew的偏移地址：0x3C）。</p>
-<hr>
-<h1 id="未完待续"><a href="#未完待续" class="headerlink" title="未完待续"></a>未完待续</h1>
+<h1 id="X86-平台-Linux-进程内存布局"><a href="#X86-平台-Linux-进程内存布局" class="headerlink" title="X86 平台 Linux 进程内存布局"></a>X86 平台 Linux 进程内存布局</h1><h2 id="32-位模式下进程内存经典布局"><a href="#32-位模式下进程内存经典布局" class="headerlink" title="32 位模式下进程内存经典布局"></a>32 位模式下进程内存经典布局</h2><p><img src="/2019/05/28/Glibc内存管理-0x01/001.jpg" alt="001"></p>
+<h2 id="32-位模式下进程默认内存布局"><a href="#32-位模式下进程默认内存布局" class="headerlink" title="32 位模式下进程默认内存布局"></a>32 位模式下进程默认内存布局</h2><p><img src="/2019/05/28/Glibc内存管理-0x01/002.jpg" alt="001"></p>
+<h2 id="64-位模式下进程内存布局"><a href="#64-位模式下进程内存布局" class="headerlink" title="64 位模式下进程内存布局"></a>64 位模式下进程内存布局</h2><p><img src="/2019/05/28/Glibc内存管理-0x01/003.jpg" alt="001"></p>
+<h1 id="操作系统内存分配的相关函数"><a href="#操作系统内存分配的相关函数" class="headerlink" title="操作系统内存分配的相关函数"></a>操作系统内存分配的相关函数</h1><p>对 Heap 操作系统提供了 brk()函数，C 运行时库提供了 sbrk()函数<br>对 mmap 映射区域的操作，操作系统提供了 mmap()和 munmap()函数</p>
+<h2 id="Heap"><a href="#Heap" class="headerlink" title="Heap"></a>Heap</h2><p>Heap -&gt; brk()   //最小功能<br>     -&gt; sbrk()  //较为复杂的功能</p>
+<pre><code>内核数据结构 mm_struct -&gt;  start_code 代码段起始地址
+                       -&gt;  end_code   代码段终止地址
+                       -&gt;  start_data 数据段起始地址
+                       -&gt;  end_data   数据段终止地址
+                       -&gt;  start_brk  堆起始地址
+                       -&gt;  动态的堆终止地址
+</code></pre><p>系统调用 brk()是一个非常简单的系统调用，只是简单地改变 mm_struct 结构的成员变量 brk 的值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">brk</span><span class="params">(<span class="keyword">void</span> *addr)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">sbrk</span><span class="params">(<span class="keyword">intptr_t</span> increment)</span></span>;   <span class="comment">//sbrk()的参数 increment 为 0 时，sbrk()返回的是进程的当前 brk 值，increment 为正数时扩展 brk 值，当 increment 为负值时收缩 brk 值。</span></span><br></pre></td></tr></table></figure>
+<h2 id="Mmap"><a href="#Mmap" class="headerlink" title="Mmap"></a>Mmap</h2><p>最近太忙了，先溜了。</p>
+
       
       
     </div>
@@ -302,13 +286,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2019/04/11/PE文件格式笔记-001/">PE文件格式笔记-001</a></p>
+        <p><span>本文标题:</span><a href="/2019/05/28/Glibc内存管理-0x01/">Glibc内存管理-0x01</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Eros John 的个人博客">Eros John</a></p>
-        <p><span>发布时间:</span>2019年04月11日 - 21时24分</p>
-        <p><span>最后更新:</span>2019年04月11日 - 21时34分</p>
+        <p><span>发布时间:</span>2019年05月28日 - 22时29分</p>
+        <p><span>最后更新:</span>2019年05月29日 - 00时00分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2019/04/11/PE文件格式笔记-001/" title="PE文件格式笔记-001">http://yoursite.com/2019/04/11/PE文件格式笔记-001/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/04/11/PE文件格式笔记-001/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2019/05/28/Glibc内存管理-0x01/" title="Glibc内存管理-0x01">http://yoursite.com/2019/05/28/Glibc内存管理-0x01/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/05/28/Glibc内存管理-0x01/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -321,18 +305,9 @@
 
 <nav id="article-nav">
   
-    <a href="/2019/04/12/CrackMe-001/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption"><</strong>
-      <div class="article-nav-title">
-        
-          CrackMe-001
-        
-      </div>
-    </a>
   
-  
-    <a href="/2019/04/11/windows编程-资源释放/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">windows编程:资源释放</div>
+    <a href="/2019/04/29/汇编笔记-01-12/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">汇编笔记 01-12</div>
       <strong class="article-nav-caption">></strong>
     </a>
   
@@ -343,7 +318,7 @@
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-名词解释"><span class="toc-number">1.</span> <span class="toc-text">0x01 名词解释</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-MS-DOS头"><span class="toc-number">2.</span> <span class="toc-text">0x02 MS-DOS头</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-MS-DOS中代码含义"><span class="toc-number">2.1.</span> <span class="toc-text">1.MS-DOS中代码含义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-重要字段"><span class="toc-number">2.2.</span> <span class="toc-text">2.重要字段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-其他字段"><span class="toc-number">2.3.</span> <span class="toc-text">3.其他字段</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#未完待续"><span class="toc-number">3.</span> <span class="toc-text">未完待续</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#X86-平台-Linux-进程内存布局"><span class="toc-number">1.</span> <span class="toc-text">X86 平台 Linux 进程内存布局</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#32-位模式下进程内存经典布局"><span class="toc-number">1.1.</span> <span class="toc-text">32 位模式下进程内存经典布局</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#32-位模式下进程默认内存布局"><span class="toc-number">1.2.</span> <span class="toc-text">32 位模式下进程默认内存布局</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#64-位模式下进程内存布局"><span class="toc-number">1.3.</span> <span class="toc-text">64 位模式下进程内存布局</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#操作系统内存分配的相关函数"><span class="toc-number">2.</span> <span class="toc-text">操作系统内存分配的相关函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Heap"><span class="toc-number">2.1.</span> <span class="toc-text">Heap</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mmap"><span class="toc-number">2.2.</span> <span class="toc-text">Mmap</span></a></li></ol></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
 
@@ -382,13 +357,11 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2019/04/12/CrackMe-001/" title="上一篇: CrackMe-001">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
-            <a href="/2019/04/11/windows编程-资源释放/" title="下一篇: windows编程:资源释放">
+            <a href="/2019/04/29/汇编笔记-01-12/" title="下一篇: 汇编笔记 01-12">
                 <i class="fa fa-angle-right"></i>
             </a>
         
