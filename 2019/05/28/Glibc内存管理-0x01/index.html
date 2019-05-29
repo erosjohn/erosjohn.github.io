@@ -16,7 +16,10 @@
 <meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/001.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/002.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/003.jpg">
-<meta property="og:updated_time" content="2019-05-28T16:05:54.928Z">
+<meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/004.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/005.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/05/28/Glibc内存管理-0x01/006.jpg">
+<meta property="og:updated_time" content="2019-05-29T02:43:54.168Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Glibc内存管理-0x01">
 <meta name="twitter:description" content="在二进制中，堆显然是必不可少的。这记录了我在学习堆时的一些心得。">
@@ -264,12 +267,16 @@
 <a id="more"></a>
 <hr>
 <h1 id="X86-平台-Linux-进程内存布局"><a href="#X86-平台-Linux-进程内存布局" class="headerlink" title="X86 平台 Linux 进程内存布局"></a>X86 平台 Linux 进程内存布局</h1><h2 id="32-位模式下进程内存经典布局"><a href="#32-位模式下进程内存经典布局" class="headerlink" title="32 位模式下进程内存经典布局"></a>32 位模式下进程内存经典布局</h2><p><img src="/2019/05/28/Glibc内存管理-0x01/001.jpg" alt="001"></p>
-<h2 id="32-位模式下进程默认内存布局"><a href="#32-位模式下进程默认内存布局" class="headerlink" title="32 位模式下进程默认内存布局"></a>32 位模式下进程默认内存布局</h2><p><img src="/2019/05/28/Glibc内存管理-0x01/002.jpg" alt="001"></p>
-<h2 id="64-位模式下进程内存布局"><a href="#64-位模式下进程内存布局" class="headerlink" title="64 位模式下进程内存布局"></a>64 位模式下进程内存布局</h2><p><img src="/2019/05/28/Glibc内存管理-0x01/003.jpg" alt="001"></p>
+<h2 id="32-位模式下进程默认内存布局"><a href="#32-位模式下进程默认内存布局" class="headerlink" title="32 位模式下进程默认内存布局"></a>32 位模式下进程默认内存布局</h2><p><img src="/2019/05/28/Glibc内存管理-0x01/002.jpg" alt="002"></p>
+<h2 id="64-位模式下进程内存布局"><a href="#64-位模式下进程内存布局" class="headerlink" title="64 位模式下进程内存布局"></a>64 位模式下进程内存布局</h2><p><img src="/2019/05/28/Glibc内存管理-0x01/003.jpg" alt="003"></p>
 <h1 id="操作系统内存分配的相关函数"><a href="#操作系统内存分配的相关函数" class="headerlink" title="操作系统内存分配的相关函数"></a>操作系统内存分配的相关函数</h1><p>对 Heap 操作系统提供了 brk()函数，C 运行时库提供了 sbrk()函数<br>对 mmap 映射区域的操作，操作系统提供了 mmap()和 munmap()函数</p>
 <h2 id="Heap"><a href="#Heap" class="headerlink" title="Heap"></a>Heap</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Heap -&gt; brk()   //最小功能</span><br><span class="line">     -&gt; sbrk()  //较为复杂的功能</span><br><span class="line"></span><br><span class="line">内核数据结构 mm_struct -&gt;  start_code 代码段起始地址</span><br><span class="line">                      -&gt;  end_code   代码段终止地址</span><br><span class="line">                      -&gt;  start_data 数据段起始地址</span><br><span class="line">                      -&gt;  end_data   数据段终止地址</span><br><span class="line">                      -&gt;  start_brk  堆起始地址</span><br><span class="line">                      -&gt;  动态的堆终止地址</span><br></pre></td></tr></table></figure>
 <p>系统调用 brk()是一个非常简单的系统调用，只是简单地改变 mm_struct 结构的成员变量 brk 的值。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">brk</span><span class="params">(<span class="keyword">void</span> *addr)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">sbrk</span><span class="params">(<span class="keyword">intptr_t</span> increment)</span></span>;   <span class="comment">//sbrk()的参数 increment 为 0 时，sbrk()返回的是进程的当前 brk 值，increment 为正数时扩展 brk 值，当 increment 为负值时收缩 brk 值。</span></span><br></pre></td></tr></table></figure>
+<p>所以是….  sbrk()在调用的时候也是间接调用了brk()系统调用，而brk()则是改变mm_struct 结构的成员变量 brk 的值。</p>
+<p>首先直接调用sbrk()函数<br><img src="/2019/05/28/Glibc内存管理-0x01/004.jpg" alt="004"><br>可以看到这里的堆时连续分配以及返回首地址。</p>
+<p>其次对sbrk()传参数0，按照上面所说，当参数increment为0时，返回的是进程的当前brk值。<br>此时start_brk和end_brk是一样的，所以返回了指针，但是没有分配空间。<br><img src="/2019/05/28/Glibc内存管理-0x01/005.jpg" alt="005"><br>意料之中出现segmentation fault。</p>
+<p>如果先sbrk(0)获得当前的brk值，利用brk(point+1)来开辟空间。<br><img src="/2019/05/28/Glibc内存管理-0x01/006.jpg" alt="006"><br>此时变可以对point所指内容进行操作，而当brk(point)之后，收回开辟的空间，<br>之后不能操作 * point，出现segmentation fault。</p>
 <h2 id="Mmap"><a href="#Mmap" class="headerlink" title="Mmap"></a>Mmap</h2><p>最近太忙了，先溜了。</p>
 
       
@@ -283,7 +290,7 @@
         <p><span>本文标题:</span><a href="/2019/05/28/Glibc内存管理-0x01/">Glibc内存管理-0x01</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Eros John 的个人博客">Eros John</a></p>
         <p><span>发布时间:</span>2019年05月28日 - 22时29分</p>
-        <p><span>最后更新:</span>2019年05月29日 - 00时05分</p>
+        <p><span>最后更新:</span>2019年05月29日 - 10时43分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2019/05/28/Glibc内存管理-0x01/" title="Glibc内存管理-0x01">http://yoursite.com/2019/05/28/Glibc内存管理-0x01/</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2019/05/28/Glibc内存管理-0x01/　　作者: Eros John" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
