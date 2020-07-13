@@ -103,18 +103,18 @@
 
 
 
-  <meta name="description" content="The purpose of this article is to record what I am doing now.">
-<meta name="keywords" content="Diary">
+  <meta name="description" content="在师傅们的推荐下，看了点《揭秘家用路由器0day漏洞挖掘技术》的内容，此篇总结调试环境的搭建过程以及搭建过程中遇到的问题。">
+<meta name="keywords" content="MIPS">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Diary">
-<meta property="og:url" content="http://yoursite.com/2099/01/01/Diary/index.html">
+<meta property="og:title" content="MIPS调试环境搭建">
+<meta property="og:url" content="http://yoursite.com/2020/07/13/MIPS调试环境搭建/index.html">
 <meta property="og:site_name" content="cd &#x2F;pwn">
-<meta property="og:description" content="The purpose of this article is to record what I am doing now.">
+<meta property="og:description" content="在师傅们的推荐下，看了点《揭秘家用路由器0day漏洞挖掘技术》的内容，此篇总结调试环境的搭建过程以及搭建过程中遇到的问题。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-07T06:32:33.656Z">
+<meta property="og:updated_time" content="2020-07-13T12:47:45.686Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Diary">
-<meta name="twitter:description" content="The purpose of this article is to record what I am doing now.">
+<meta name="twitter:title" content="MIPS调试环境搭建">
+<meta name="twitter:description" content="在师傅们的推荐下，看了点《揭秘家用路由器0day漏洞挖掘技术》的内容，此篇总结调试环境的搭建过程以及搭建过程中遇到的问题。">
 
 
 
@@ -122,7 +122,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2099/01/01/Diary/">
+  <link rel="canonical" href="http://yoursite.com/2020/07/13/MIPS调试环境搭建/">
 
 
 
@@ -132,7 +132,7 @@
   };
 </script>
 
-  <title>Diary | cd /pwn</title>
+  <title>MIPS调试环境搭建 | cd /pwn</title>
   
 
 
@@ -331,7 +331,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2099/01/01/Diary/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/MIPS调试环境搭建/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Eros John">
@@ -348,7 +348,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Diary
+          <h1 class="post-title" itemprop="name headline">MIPS调试环境搭建
 
               
             
@@ -374,24 +374,12 @@
                 
               
 
-              <time title="创建时间：2099-01-01 22:02:23" itemprop="dateCreated datePublished" datetime="2099-01-01T22:02:23+08:00">2099-01-01</time>
+              <time title="创建时间：2020-07-13 19:48:14 / 修改时间：20:47:45" itemprop="dateCreated datePublished" datetime="2020-07-13T19:48:14+08:00">2020-07-13</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2020-07-07 14:32:33" itemprop="dateModified" datetime="2020-07-07T14:32:33+08:00">2020-07-07</time>
               
             
           </span>
@@ -425,28 +413,60 @@
       
 
       
-        <p>The purpose of this article is to record what I am doing now.<br><a id="more"></a></p>
-<h1 id="Diary"><a href="#Diary" class="headerlink" title="Diary"></a>Diary</h1><h2 id="2020-06-2020-07"><a href="#2020-06-2020-07" class="headerlink" title="2020.06 - 2020.07"></a>2020.06 - 2020.07</h2><ol>
-<li>入门一下IOT安全</li>
-<li>在<code>Typer</code>部分稍作理解</li>
+        <p>在师傅们的推荐下，看了点《揭秘家用路由器0day漏洞挖掘技术》的内容，此篇总结调试环境的搭建过程以及搭建过程中遇到的问题。<br><a id="more"></a></p>
+<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><ul>
+<li>MIPS交叉编译环境</li>
+<li>binwalk、sasquatch</li>
+<li>QEMU</li>
+<li>QEMU模拟运行MIPS相关配置</li>
+</ul>
+<h2 id="MIPS交叉编译环境"><a href="#MIPS交叉编译环境" class="headerlink" title="MIPS交叉编译环境"></a>MIPS交叉编译环境</h2><p>在这里我们使用了<code>buildroot</code>工具，Buildroot 是Linux平台上一个构建嵌入式Linux系统的框架。整个Buildroot是由Makefile脚本和Kconfig配置文件构成的。你可以和编译Linux内核一样，通过buildroot配置，menuconfig修改，编译出一个完整的可以直接烧写到机器上运行的Linux系统软件(包含boot、kernel、rootfs以及rootfs中的各种库和应用程序)。</p>
+<pre><code>sudo apt-get install libncurses5-dev patch libncurs*
+wget https://buildroot.org/downloads/buildroot-2020.05.tar.bz2
+tar -jxvf buildroot-2020.05.tar.bz2
+cd buildroot/
+make clean
+make menuconfig
+sudo make
+</code></pre><p>在<code>make menuconfig</code>的界面，根据<code>揭秘家用路由器0day漏洞挖掘技术</code>书中描述的参数进行配置文件的更改。</p>
+<ol>
+<li><code>Target Architecture</code>改为<code>MIPS（little endian）</code></li>
+<li><code>Toolchain</code>的<code>Kernel Headers</code>改为主机Linux的版本</li>
 </ol>
-<h2 id="2020-05-17-2020-06-01"><a href="#2020-05-17-2020-06-01" class="headerlink" title="2020.05.17 - 2020.06.01"></a>2020.05.17 - 2020.06.01</h2><ol>
-<li>复现34c3 v9</li>
-<li>最近期末有点忙</li>
-</ol>
-<h2 id="2020-05-17"><a href="#2020-05-17" class="headerlink" title="2020.05.17"></a>2020.05.17</h2><ol>
-<li>继续看TurboFan</li>
-<li>写QWB_CTF2019_growupjs复现思路</li>
-</ol>
-<h2 id="2020-05-15-2020-05-17"><a href="#2020-05-15-2020-05-17" class="headerlink" title="2020.05.15 - 2020.05.17"></a>2020.05.15 - 2020.05.17</h2><ol>
-<li>学习了v8的CheckBound</li>
-<li>复现了QWB_CTF2019_growupjs</li>
-</ol>
-<h2 id="2020-05-09"><a href="#2020-05-09" class="headerlink" title="2020.05.09"></a>2020.05.09</h2><ol>
-<li>复现了CVE-2017-5053</li>
-<li>学习编译原理</li>
-</ol>
-<h1 id="To-be-continued"><a href="#To-be-continued" class="headerlink" title="To be continued"></a>To be continued</h1>
+<p>然后就是漫长的等待，经过几十分钟到一个小时，编译完成。在output中的就是编译出来的文件，在buildroot/output/host/usr/bin可以找到生成的交叉编译工具。</p>
+<h2 id="binwalk、sasquatch"><a href="#binwalk、sasquatch" class="headerlink" title="binwalk、sasquatch"></a>binwalk、sasquatch</h2><h3 id="binwalk"><a href="#binwalk" class="headerlink" title="binwalk"></a>binwalk</h3><pre><code>sudo apt-get install binwalk
+</code></pre><h3 id="sasquatch"><a href="#sasquatch" class="headerlink" title="sasquatch"></a>sasquatch</h3><pre><code>sudo apt-get install zlib1g-dev liblzma-dev liblzo2-dev
+sudo git clone https://github.com/devttys0/sasquatch
+cd sasquatch &amp; sudo ./build.sh
+</code></pre><h2 id="QEMU"><a href="#QEMU" class="headerlink" title="QEMU"></a>QEMU</h2><pre><code>sudo apt-get install qemu binfmt-support qemu-user-static
+</code></pre><h2 id="QEMU模拟运行MIPS相关配置"><a href="#QEMU模拟运行MIPS相关配置" class="headerlink" title="QEMU模拟运行MIPS相关配置"></a>QEMU模拟运行MIPS相关配置</h2><h3 id="网络配置"><a href="#网络配置" class="headerlink" title="网络配置"></a>网络配置</h3><p>配置本地网卡</p>
+<pre><code>sudo vim /etc/network/interfaces
+</code></pre><p>写入</p>
+<pre><code>auto lo
+iface lo inet loopback
+auto ens33
+iface ens33 inet manual
+up ifconfig ens33 0.0.0.0 up
+auto br0
+iface br0 inet dhcp
+bridge_ports ens33
+bridge_stp off
+bridge_maxwait 1
+</code></pre><p>配置 qemu 虚拟机的网卡</p>
+<pre><code>echo &quot;Executing /etc/qemu-ifup&quot;
+echo &quot;bridge networking&quot;
+echo &quot;Bringing up $1 for bridge mode&quot;
+sudo /sbin/ifconfig $1 0.0.0.0 promisc up
+echo &quot;Adding $1 to br0&quot;
+sudo /sbin/brctl addif br0 $1
+sleep 3
+</code></pre><p>开启br0网卡，并重启网卡配置</p>
+<pre><code>sudo ifup br0
+sudo /etc/init.d/networking restart
+</code></pre><h3 id="配置MIPS虚拟机"><a href="#配置MIPS虚拟机" class="headerlink" title="配置MIPS虚拟机"></a>配置MIPS虚拟机</h3><p>镜像网站: <a href="https://people.debian.org/~aurel32/qemu/mips/" target="_blank" rel="noopener">https://people.debian.org/~aurel32/qemu/mips/</a><br>下载debian_squeeze_mips_standard.qcow2和vmlinux-2.6.32-5-4kc-malta<br>启动虚拟机</p>
+<pre><code>sudo qemu-system-mips -M malta -kernel vmlinux-2.6.32-5-4kc-malta -hda debian_squeeze_mips_standard.qcow2 -append &quot;root=/dev/sda1 console=tty0&quot; -net nic -net tap -nographic
+</code></pre><p>在虚拟机中查看网卡，如果无法连接主机，查看网卡名字，网络接口如果为eth1，则将/etc/network/interfaces 文件中的eth0改为eth1。<br>可以通过<code>scp</code>将<code>squashfs</code>传到MIPS虚拟机中。</p>
+
       
     </div>
 
@@ -469,7 +489,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Diary/" rel="tag"># Diary</a>
+            <a href="/tags/MIPS/" rel="tag"># MIPS</a>
           
         </div>
       
@@ -482,8 +502,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/07/13/MIPS调试环境搭建/" rel="next" title="MIPS调试环境搭建">
-                <i class="fa fa-chevron-left"></i> MIPS调试环境搭建
+              <a href="/2020/07/07/35c3-krautflare/" rel="next" title="35c3 krautflare">
+                <i class="fa fa-chevron-left"></i> 35c3 krautflare
               </a>
             
           </div>
@@ -491,6 +511,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2099/01/01/Diary/" rel="prev" title="Diary">
+                Diary <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -670,7 +694,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Diary"><span class="nav-number">1.</span> <span class="nav-text">Diary</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2020-06-2020-07"><span class="nav-number">1.1.</span> <span class="nav-text">2020.06 - 2020.07</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2020-05-17-2020-06-01"><span class="nav-number">1.2.</span> <span class="nav-text">2020.05.17 - 2020.06.01</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2020-05-17"><span class="nav-number">1.3.</span> <span class="nav-text">2020.05.17</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2020-05-15-2020-05-17"><span class="nav-number">1.4.</span> <span class="nav-text">2020.05.15 - 2020.05.17</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2020-05-09"><span class="nav-number">1.5.</span> <span class="nav-text">2020.05.09</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#To-be-continued"><span class="nav-number">2.</span> <span class="nav-text">To be continued</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境搭建"><span class="nav-number">1.</span> <span class="nav-text">环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MIPS交叉编译环境"><span class="nav-number">1.1.</span> <span class="nav-text">MIPS交叉编译环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#binwalk、sasquatch"><span class="nav-number">1.2.</span> <span class="nav-text">binwalk、sasquatch</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#binwalk"><span class="nav-number">1.2.1.</span> <span class="nav-text">binwalk</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sasquatch"><span class="nav-number">1.2.2.</span> <span class="nav-text">sasquatch</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#QEMU"><span class="nav-number">1.3.</span> <span class="nav-text">QEMU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#QEMU模拟运行MIPS相关配置"><span class="nav-number">1.4.</span> <span class="nav-text">QEMU模拟运行MIPS相关配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#网络配置"><span class="nav-number">1.4.1.</span> <span class="nav-text">网络配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置MIPS虚拟机"><span class="nav-number">1.4.2.</span> <span class="nav-text">配置MIPS虚拟机</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
